@@ -7,5 +7,8 @@ export * from './rpc/index.js';
 // Export data collectors
 export * from './collectors/index.js';
 
+// Export normalizer
+export * from './normalizer/index.js';
+
 // Export version
 export const VERSION = '0.1.0';

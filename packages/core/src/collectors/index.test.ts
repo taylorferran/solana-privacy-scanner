@@ -22,8 +22,9 @@ describe('Data Collection Layer', () => {
 
     client = new RPCClient({
       rpcUrl,
-      maxConcurrency: 5,
+      maxConcurrency: 2, // Lower for free tier rate limits
       maxRetries: 2,
+      retryDelay: 1500, // Longer delay between retries
       debug: false,
     });
   });
@@ -34,7 +35,7 @@ describe('Data Collection Layer', () => {
       const address = 'zPauEPCD25bLSvQT9gkZ3t2x563bMQz6J1buystRERE';
       
       const data = await collectWalletData(client, address, {
-        maxSignatures: 10,
+        maxSignatures: 5, // Reduced to avoid rate limits
         includeTokenAccounts: true,
       });
 
@@ -69,7 +70,7 @@ describe('Data Collection Layer', () => {
       const address = 'zPauEPCD25bLSvQT9gkZ3t2x563bMQz6J1buystRERE';
       
       const data = await collectWalletData(client, address, {
-        maxSignatures: 5,
+        maxSignatures: 3, // Smaller for rate limits
       });
 
       expect(data.signatures.length).toBeLessThanOrEqual(5);

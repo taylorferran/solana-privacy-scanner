@@ -35,12 +35,12 @@ This is intentionally linear. Do not skip steps.
   - [x] Program:
     - [x] limited program account scan or instruction-based analysis
 
-- [ ] 5. Normalize RPC data into internal facts
-  - [ ] Transfers (SOL + SPL)
-  - [ ] Amounts
-  - [ ] Counterparties
-  - [ ] Instruction categories
-  - [ ] Block times and deltas
+- [x] 5. Normalize RPC data into internal facts
+  - [x] Transfers (SOL + SPL)
+  - [x] Amounts
+  - [x] Counterparties
+  - [x] Instruction categories
+  - [x] Block times and deltas
 
 - [ ] 6. Implement heuristic evaluation functions
   - [ ] One file per heuristic

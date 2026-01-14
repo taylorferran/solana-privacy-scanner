@@ -1,0 +1,36 @@
+{
+  "name": "@solana-privacy-scanner/core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Core scanning engine for Solana privacy analysis",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ci": "vitest run"
+  },
+  "keywords": [
+    "solana",
+    "privacy",
+    "blockchain",
+    "analysis"
+  ],
+  "dependencies": {
+    "@solana/web3.js": "^1.95.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "esbuild": "^0.24.2"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@solana-privacy-scanner/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "CLI interface for Solana privacy scanner",
+  "bin": {
+    "solana-privacy-scanner": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "echo 'CLI build placeholder'",
+    "dev": "echo 'CLI dev placeholder'"
+  },
+  "dependencies": {
+    "@solana-privacy-scanner/core": "^0.1.0"
+  }
+}

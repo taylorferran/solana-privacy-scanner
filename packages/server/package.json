@@ -1,0 +1,13 @@
+{
+  "name": "@solana-privacy-scanner/server",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "HTTP server wrapper for Solana privacy scanner",
+  "scripts": {
+    "build": "echo 'Server build placeholder'",
+    "dev": "echo 'Server dev placeholder'"
+  },
+  "dependencies": {
+    "@solana-privacy-scanner/core": "^0.1.0"
+  }
+}

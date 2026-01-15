@@ -1,8 +1,8 @@
 {
-  "name": "@solana-privacy-scanner/core",
+  "name": "solana-privacy-scanner-core",
   "version": "0.1.0",
   "type": "module",
-  "description": "Core scanning engine for Solana privacy analysis",
+  "description": "Core scanning engine for Solana privacy analysis - analyze on-chain privacy exposure using heuristic-based risk detection",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,6 +13,10 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
   "scripts": {
     "build": "node build.js",
     "dev": "node build.js --watch",
@@ -24,8 +28,25 @@
     "solana",
     "privacy",
     "blockchain",
-    "analysis"
+    "analysis",
+    "security",
+    "privacy-analysis",
+    "on-chain",
+    "heuristics",
+    "risk-detection",
+    "wallet-analysis"
   ],
+  "author": "Taylor Ferran",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taylorferran/solana-privacy-scanner.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://taylorferran.github.io/solana-privacy-scanner",
+  "bugs": {
+    "url": "https://github.com/taylorferran/solana-privacy-scanner/issues"
+  },
   "dependencies": {
     "@solana/web3.js": "^1.95.8"
   },

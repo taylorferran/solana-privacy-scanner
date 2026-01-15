@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { Command } from 'commander';
 import * as dotenv from 'dotenv';
 import { scanWallet, scanTransaction, scanProgram } from './commands/index.js';

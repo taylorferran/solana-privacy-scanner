@@ -1,153 +1,125 @@
 # Solana Privacy Scanner
 
-A developer tool that analyzes Solana wallets, transactions, or programs using public on-chain data and produces a deterministic privacy risk report based on well-defined heuristics.
+[![npm - core](https://img.shields.io/npm/v/solana-privacy-scanner-core?label=core&color=blue)](https://www.npmjs.com/package/solana-privacy-scanner-core)
+[![npm - cli](https://img.shields.io/npm/v/solana-privacy-scanner?label=cli&color=blue)](https://www.npmjs.com/package/solana-privacy-scanner)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## What this is
+A developer tool that analyzes Solana wallets, transactions, or programs using public on-chain data and produces deterministic privacy risk reports.
 
-* A **scanner and diagnostic tool**
-* A **measurement of privacy exposure**, not proof of deanonymization
-* A **developer library** with CLI and minimal web UI wrappers
+## 📦 Packages
 
-## What this is not
-
-* Not a wallet
-* Not a protocol
-* Not a privacy system
-* Not surveillance software
-* Not compliance tooling
-
-**This tool does not deanonymize users.** It surfaces **privacy risk signals** that already exist due to public blockchain data.
-
-## Core concept
-
-Public Solana activity enables tracking, clustering, labeling, and profiling.
-Solana Privacy Scanner makes that exposure **explicit, visible, and explainable**.
-
-## Supported scan targets
-
-* Wallet address
-* Transaction signature
-* Program ID
-
-## Data sources
-
-All analysis is based on standard Solana RPC calls (via QuickNode or any compatible RPC):
-
-* `getSignaturesForAddress`
-* `getTransaction`
-* `getTokenAccountsByOwner`
-* `getProgramAccounts`
-* Transaction metadata
-* Instruction data
-* Block times
-
-No zero-knowledge systems. No cryptography. No off-chain private data.
-
-## Output
-
-A deterministic privacy risk report containing:
-
-* Overall privacy risk score (LOW / MEDIUM / HIGH)
-* Individual risk signals with:
-  * Reason
-  * Evidence
-  * Why it matters
-  * Mitigation guidance
-* Human-readable text output
-* Machine-readable JSON output
-
-## Privacy heuristics
-
-These are **risk indicators**, not guarantees:
-
-* Balance traceability
-* Deterministic amount reuse
-* Counterparty reuse / clustering
-* Timing correlation (bursts, swaps + transfers)
-* Known entity interaction (CEXs, bridges, major protocols — limited static set)
-
-All heuristics are:
-
-* Rule-based
-* Transparent
-* Deterministic
-* Clearly labeled as probabilistic risk signals
-
-## Interfaces
-
-### CLI (Primary)
-
+### CLI Tool
 ```bash
-npx solana-privacy-scanner scan wallet <address> --rpc <rpc-url>
-npx solana-privacy-scanner scan tx <signature> --rpc <rpc-url>
-npx solana-privacy-scanner scan program <programId> --rpc <rpc-url>
+# Install globally
+npm install -g solana-privacy-scanner
+
+# Scan a wallet
+solana-privacy-scanner scan-wallet <ADDRESS> --rpc <RPC_URL>
 ```
 
-Options:
-* `--rpc` - RPC endpoint URL
-* `--json` - Output as JSON
-* `--max-signatures` - Limit number of transactions to analyze
-* `--output` - Write to file
+**npm**: [solana-privacy-scanner](https://www.npmjs.com/package/solana-privacy-scanner)
 
-### Library (npm package)
+### Core Library
+```bash
+# Install as dependency
+npm install solana-privacy-scanner-core
+```
 
 ```typescript
-import { scanWallet } from '@solana-privacy-scanner/core';
+import { scan, RPCClient } from 'solana-privacy-scanner-core';
 
-const report = await scanWallet(address, {
-  rpcUrl: 'https://your-rpc-endpoint.com',
-  maxSignatures: 100
-});
-
-console.log(report.overallRisk); // LOW | MEDIUM | HIGH
-console.log(report.signals); // Array of risk signals
+const rpc = new RPCClient('https://api.mainnet-beta.solana.com');
+const report = await scan('wallet', 'WALLET_ADDRESS', rpc);
 ```
 
-### Web UI (Educational)
+**npm**: [solana-privacy-scanner-core](https://www.npmjs.com/package/solana-privacy-scanner-core)
 
-A minimal web interface for educational purposes:
-* Single-page interface
-* Address input and scan functionality
-* Visual results display with risk signals
-* Educational content about blockchain privacy
+## 📚 Documentation
 
-## Intended use
+**[View Full Documentation →](https://taylorferran.github.io/solana-privacy-scanner)**
 
-* Developer diagnostics
-* Education about mass financial surveillance
-* Privacy-aware application development
-* CI / automated analysis
+The documentation includes:
+- **Interactive Web Scanner** - Try it in your browser
+- **Getting Started Guide** - Learn the basics
+- **CLI Reference** - All commands and options
+- **Library API** - Integration examples
+- **Understanding Reports** - Heuristics and risk levels
+- **Contributing Guide** - Add known addresses
 
-## Project structure
+## 🔍 Features
+
+- **Scan wallets, transactions, and programs** for privacy risks
+- **Clear risk assessments** (LOW/MEDIUM/HIGH) based on transparent heuristics
+- **Known entity detection** - Identifies CEXs, bridges, and protocols
+- **Actionable guidance** - Specific mitigation recommendations
+- **Open and transparent** - All methods documented, no black boxes
+- **Multiple interfaces** - CLI, library, and web UI
+
+## 🏗️ Project Structure
+
+This is a monorepo containing:
 
 ```
-packages/
-├── core/       # Core scanning engine and heuristics
-├── cli/        # Command-line interface
-├── server/     # HTTP API server (optional)
-└── web/        # Minimal web UI (optional)
+solana-privacy-scanner/
+├── docs/                   # VitePress documentation site
+├── packages/
+│   ├── core/              # solana-privacy-scanner-core - Scanning engine
+│   └── cli/               # solana-privacy-scanner - CLI tool
+└── package.json           # Monorepo workspace
 ```
 
-## Contributing
+## 🛠️ Development
 
-### Adding Known Addresses
+```bash
+# Clone the repository
+git clone https://github.com/taylorferran/solana-privacy-scanner
+cd solana-privacy-scanner
 
-We maintain a curated database of known Solana addresses (exchanges, bridges, protocols) to help identify privacy risks.
+# Install dependencies
+npm install
 
-**Want to add an address?** See [CONTRIBUTING_ADDRESSES.md](./CONTRIBUTING_ADDRESSES.md) for guidelines.
+# Build all packages
+npm run build
 
-We welcome community contributions of publicly documented addresses for:
-- Centralized exchanges
-- Cross-chain bridges  
-- Major DeFi protocols
-- Well-known programs
+# Run tests
+npm test
 
-All submissions must be verified and publicly documented.
+# Run documentation site locally
+npm run docs:dev
+```
 
-## License
+## 🤝 Contributing
 
-TBD
+We welcome contributions!
 
-## Disclaimer
+- **Add known addresses** - [Contributing Guide](https://taylorferran.github.io/solana-privacy-scanner/contributing/addresses)
+- **Report bugs** - Open an issue
+- **Submit PRs** - See [Development Guide](https://taylorferran.github.io/solana-privacy-scanner/contributing/development)
 
-This tool analyzes publicly available blockchain data. It produces privacy risk assessments based on heuristics and observable patterns. These assessments are probabilistic indicators, not definitive proof of identity linkage or deanonymization.
+## ⚖️ What This Is
+
+- ✅ A scanner and diagnostic tool
+- ✅ A measurement of privacy exposure
+- ✅ Educational software for privacy awareness
+- ✅ Open and transparent
+
+## ⚠️ What This Is NOT
+
+- ❌ Not a wallet or protocol
+- ❌ Not surveillance software
+- ❌ Not compliance tooling
+- ❌ Not a guarantee of deanonymization
+
+**This tool does not deanonymize users.** It surfaces privacy risk signals that already exist due to public blockchain data.
+
+## 📜 License
+
+MIT License - see [LICENSE](./LICENSE) for details
+
+## 🙏 Acknowledgments
+
+Built for privacy awareness, not surveillance. Use responsibly.
+
+---
+
+**[Documentation](https://taylorferran.github.io/solana-privacy-scanner)** • **[GitHub](https://github.com/taylorferran/solana-privacy-scanner)** • **[npm - core](https://www.npmjs.com/package/solana-privacy-scanner-core)** • **[npm - cli](https://www.npmjs.com/package/solana-privacy-scanner)**

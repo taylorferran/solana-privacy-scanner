@@ -4,7 +4,8 @@ import { readFileSync } from 'fs';
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const external = [
   ...Object.keys(pkg.dependencies || {}),
-  ...Object.keys(pkg.peerDependencies || {})
+  ...Object.keys(pkg.peerDependencies || {}),
+  '@solana/web3.js', // Don't bundle web3.js from core package
 ];
 
 const watchMode = process.argv.includes('--watch');
@@ -18,6 +19,9 @@ const config = {
   format: 'esm',
   outfile: 'dist/index.js',
   sourcemap: true,
+  banner: {
+    js: '#!/usr/bin/env node',
+  },
 };
 
 async function build() {

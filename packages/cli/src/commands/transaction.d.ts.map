@@ -1,0 +1,1 @@
+{"version":3,"file":"transaction.d.ts","sourceRoot":"","sources":["transaction.ts"],"names":[],"mappings":"AAWA,UAAU,kBAAkB;IAC1B,GAAG,CAAC,EAAE,MAAM,CAAC;IACb,IAAI,CAAC,EAAE,OAAO,CAAC;IACf,MAAM,CAAC,EAAE,MAAM,CAAC;CACjB;AAED,wBAAsB,eAAe,CAAC,SAAS,EAAE,MAAM,EAAE,OAAO,EAAE,kBAAkB,iBA+DnF"}

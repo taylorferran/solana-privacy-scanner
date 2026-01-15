@@ -108,7 +108,7 @@ We welcome contributions!
 - ❌ Not a wallet or protocol
 - ❌ Not surveillance software
 - ❌ Not compliance tooling
-- ❌ Not a guarantee of deanonymization
+- ❌ Not a guarantee of deanonymization 
 
 **This tool does not deanonymize users.** It surfaces privacy risk signals that already exist due to public blockchain data.
 

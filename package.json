@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/core",
+    "packages/cli"
   ],
   "engines": {
-    "node": ">=25.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",

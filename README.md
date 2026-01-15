@@ -128,6 +128,22 @@ packages/
 └── web/        # Minimal web UI (optional)
 ```
 
+## Contributing
+
+### Adding Known Addresses
+
+We maintain a curated database of known Solana addresses (exchanges, bridges, protocols) to help identify privacy risks.
+
+**Want to add an address?** See [CONTRIBUTING_ADDRESSES.md](./CONTRIBUTING_ADDRESSES.md) for guidelines.
+
+We welcome community contributions of publicly documented addresses for:
+- Centralized exchanges
+- Cross-chain bridges  
+- Major DeFi protocols
+- Well-known programs
+
+All submissions must be verified and publicly documented.
+
 ## License
 
 TBD

@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild';
-import { readFileSync } from 'fs';
+import { readFileSync, copyFileSync, mkdirSync } from 'fs';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const external = [
@@ -20,6 +20,9 @@ const baseConfig = {
 
 async function build() {
   try {
+    // Ensure dist directory exists
+    mkdirSync('dist', { recursive: true });
+
     // ESM build
     await esbuild.build({
       ...baseConfig,
@@ -33,6 +36,9 @@ async function build() {
       format: 'cjs',
       outfile: 'dist/index.cjs',
     });
+
+    // Copy static assets (JSON label file)
+    copyFileSync('src/labels/known-addresses.json', 'dist/known-addresses.json');
 
     console.log('✓ Build complete');
   } catch (error) {

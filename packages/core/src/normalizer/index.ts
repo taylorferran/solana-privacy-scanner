@@ -3,6 +3,7 @@ import type {
   NormalizedInstruction,
   InstructionCategory,
   ScanContext,
+  LabelProvider,
 } from '../types/index.js';
 import type {
   RawWalletData,
@@ -340,7 +341,10 @@ function calculateTimeRange(transactions: RawTransactionData[]): {
 /**
  * Normalize wallet data into a ScanContext
  */
-export function normalizeWalletData(rawData: RawWalletData): ScanContext {
+export function normalizeWalletData(
+  rawData: RawWalletData,
+  labelProvider?: LabelProvider
+): ScanContext {
   const allTransfers: Transfer[] = [];
   const allInstructions: NormalizedInstruction[] = [];
 
@@ -366,6 +370,11 @@ export function normalizeWalletData(rawData: RawWalletData): ScanContext {
 
   // Extract counterparties
   const counterparties = extractCounterparties(allTransfers, rawData.address);
+
+  // Look up labels for counterparties if provider is available
+  const labels = labelProvider 
+    ? labelProvider.lookupMany(Array.from(counterparties))
+    : new Map();
 
   // Calculate time range
   const timeRange = calculateTimeRange(rawData.transactions);
@@ -400,7 +409,10 @@ export function normalizeWalletData(rawData: RawWalletData): ScanContext {
 /**
  * Normalize transaction data into a ScanContext
  */
-export function normalizeTransactionData(rawData: RawTransactionData): ScanContext {
+export function normalizeTransactionData(
+  rawData: RawTransactionData,
+  labelProvider?: LabelProvider
+): ScanContext {
   const allTransfers: Transfer[] = [];
   const allInstructions: NormalizedInstruction[] = [];
   const counterparties = new Set<string>();
@@ -448,7 +460,10 @@ export function normalizeTransactionData(rawData: RawTransactionData): ScanConte
 /**
  * Normalize program data into a ScanContext
  */
-export function normalizeProgramData(rawData: RawProgramData): ScanContext {
+export function normalizeProgramData(
+  rawData: RawProgramData,
+  labelProvider?: LabelProvider
+): ScanContext {
   const allTransfers: Transfer[] = [];
   const allInstructions: NormalizedInstruction[] = [];
   const counterparties = new Set<string>();
@@ -483,6 +498,11 @@ export function normalizeProgramData(rawData: RawProgramData): ScanContext {
 
   // Calculate time range
   const timeRange = calculateTimeRange(rawData.relatedTransactions);
+
+  // Look up labels for counterparties
+  const labels = labelProvider
+    ? labelProvider.lookupMany(Array.from(counterparties))
+    : new Map();
 
   return {
     target: rawData.programId,

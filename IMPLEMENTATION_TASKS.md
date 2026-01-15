@@ -42,63 +42,63 @@ This is intentionally linear. Do not skip steps.
   - [x] Instruction categories
   - [x] Block times and deltas
 
-- [ ] 6. Implement heuristic evaluation functions
-  - [ ] One file per heuristic
-  - [ ] Input: `ScanContext`
-  - [ ] Output: `RiskSignal | null`
-  - [ ] No scoring magic; fixed thresholds
+- [x] 6. Implement heuristic evaluation functions
+  - [x] One file per heuristic
+  - [x] Input: `ScanContext`
+  - [x] Output: `RiskSignal | null`
+  - [x] No scoring magic; fixed thresholds
 
-- [ ] 7. Implement scoring + aggregation
-  - [ ] Combine signals into overall risk
-  - [ ] Deterministic ordering
-  - [ ] Stable output
+- [x] 7. Implement scoring + aggregation
+  - [x] Combine signals into overall risk
+  - [x] Deterministic ordering
+  - [x] Stable output
 
-- [ ] 8. Produce final `PrivacyReport` JSON
-  - [ ] Versioned schema
-  - [ ] Serializable
-  - [ ] Used by all consumers
+- [x] 8. Produce final `PrivacyReport` JSON
+  - [x] Versioned schema
+  - [x] Serializable
+  - [x] Used by all consumers
 
 ---
 
 ## Phase 2 — CLI wrapper
 
-- [ ] 9. Implement CLI command structure
-  - [ ] `scan wallet <address>`
-  - [ ] `scan tx <signature>`
-  - [ ] `scan program <programId>`
+- [x] 9. Implement CLI command structure
+  - [x] `scan wallet <address>`
+  - [x] `scan tx <signature>`
+  - [x] `scan program <programId>`
 
-- [ ] 10. Add CLI flags
-  - [ ] `--rpc`
-  - [ ] `--json`
-  - [ ] `--max-signatures`
-  - [ ] `--output`
+- [x] 10. Add CLI flags
+  - [x] `--rpc`
+  - [x] `--json`
+  - [x] `--max-signatures`
+  - [x] `--output`
 
-- [ ] 11. Implement human-readable formatter
-  - [ ] Clean, boring text output
-  - [ ] Mirrors report JSON exactly
+- [x] 11. Implement human-readable formatter
+  - [x] Clean, boring text output
+  - [x] Mirrors report JSON exactly
 
-- [ ] 12. Ensure CLI is thin
-  - [ ] No heuristics
-  - [ ] No RPC logic
-  - [ ] Calls core only
+- [x] 12. Ensure CLI is thin
+  - [x] No heuristics
+  - [x] No RPC logic
+  - [x] Calls core only
 
 ---
 
 ## Phase 3 — Labeling support (minimal, honest)
 
-- [ ] 13. Define label provider interface
-  - [ ] `lookup(address) -> Label | null`
+- [x] 13. Define label provider interface
+  - [x] `lookup(address) -> Label | null`
 
-- [ ] 14. Implement static JSON label provider
-  - [ ] Small curated list:
-    - [ ] Major CEX hot wallets
-    - [ ] Bridges
-    - [ ] Well-known program IDs
+- [x] 14. Implement static JSON label provider
+  - [x] Small curated list:
+    - [x] Major CEX hot wallets
+    - [x] Bridges
+    - [x] Well-known program IDs
 
-- [ ] 15. Integrate label signals into heuristics
-  - [ ] Flag interaction
-  - [ ] Explain why it matters
-  - [ ] Do not overclaim attribution
+- [x] 15. Integrate label signals into heuristics
+  - [x] Flag interaction
+  - [x] Explain why it matters
+  - [x] Do not overclaim attribution
 
 ---
 

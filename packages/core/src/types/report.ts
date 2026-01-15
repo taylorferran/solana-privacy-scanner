@@ -1,4 +1,5 @@
 import type { RiskSignal } from './signal.js';
+import type { Label } from './label.js';
 
 /**
  * Overall privacy risk level
@@ -54,4 +55,9 @@ export interface PrivacyReport {
    * General mitigation recommendations
    */
   mitigations: string[];
+
+  /**
+   * Known entities detected during the scan
+   */
+  knownEntities: Label[];
 }

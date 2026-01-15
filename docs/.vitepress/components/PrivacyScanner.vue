@@ -268,14 +268,14 @@ function getSeverityColor(severity) {
 .scanner-ui {
   max-width: 900px;
   margin: 0 auto;
-  padding: 80px 24px 60px;
+  padding: 32px 24px 60px;
   overflow: visible;
 }
 
 .scanner-header {
   text-align: center;
-  margin-bottom: 60px;
-  padding-top: 20px;
+  margin-bottom: 48px;
+  padding-top: 0;
   overflow: visible;
 }
 

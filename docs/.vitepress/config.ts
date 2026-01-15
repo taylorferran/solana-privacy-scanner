@@ -13,7 +13,8 @@ export default defineConfig({
   head: [
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
-    ['link', { href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap', rel: 'stylesheet' }],
+    ['link', { href: 'https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap', rel: 'stylesheet' }],
+    ['link', { rel: 'icon', href: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕵🏻‍♂️</text></svg>' }],
   ],
   
   vite: {
@@ -48,8 +49,6 @@ export default defineConfig({
   },
   
   themeConfig: {
-    logo: '/logo.svg',
-    
     nav: [
       { text: 'Docs', link: '/guide/what-is-this' },
       { text: 'Library', link: '/library/usage' },
@@ -99,7 +98,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/yourusername/solana-privacy-scanner' }
+      { icon: 'github', link: 'https://github.com/taylorferran/solana-privacy-scanner' }
     ],
 
     footer: {
@@ -107,8 +106,5 @@ export default defineConfig({
       copyright: 'MIT Licensed'
     },
 
-    search: {
-      provider: 'local'
-    }
   }
 })

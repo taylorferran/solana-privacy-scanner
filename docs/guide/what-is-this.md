@@ -8,14 +8,6 @@ Solana Privacy Scanner is a developer tool that analyzes Solana wallets, transac
 * **A measurement of privacy exposure**, not proof of deanonymization
 * **A developer library** with CLI and minimal web UI wrappers
 
-## What this is NOT
-
-* Not a wallet
-* Not a protocol
-* Not a privacy system
-* Not surveillance software
-* Not compliance tooling
-
 ::: warning Important
 **This tool does not deanonymize users.** It surfaces **privacy risk signals** that already exist due to public blockchain data.
 :::

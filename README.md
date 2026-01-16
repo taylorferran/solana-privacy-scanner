@@ -26,7 +26,7 @@ A developer tool that analyzes Solana wallets, transactions, or programs using p
 
 ### Try the Web UI
 
-**[Launch Interactive Scanner →](https://taylorferran.github.io/solana-privacy-scanner)**
+**[Launch Interactive Scanner →](https://sps.guide)**
 
 Paste any Solana wallet address and scan instantly in your browser.
 
@@ -75,13 +75,13 @@ console.log('Signals Found:', report.signals.length);
 
 ## 📚 Documentation
 
-**[View Full Documentation →](https://taylorferran.github.io/solana-privacy-scanner)**
+**[View Full Documentation →](https://sps.guide)**
 
-- **[Getting Started](https://taylorferran.github.io/solana-privacy-scanner/guide/getting-started)** - Installation and first scan
-- **[Library API Reference](https://taylorferran.github.io/solana-privacy-scanner/library/usage)** - Integration guide
-- **[CLI Commands](https://taylorferran.github.io/solana-privacy-scanner/cli/quickstart)** - Command-line reference
-- **[Understanding Reports](https://taylorferran.github.io/solana-privacy-scanner/reports/risk-levels)** - How heuristics work
-- **[Contributing](https://taylorferran.github.io/solana-privacy-scanner/contributing/development)** - Development guide
+- **[Getting Started](https://sps.guide/guide/getting-started)** - Installation and first scan
+- **[Library API Reference](https://sps.guide/library/usage)** - Integration guide
+- **[CLI Commands](https://sps.guide/cli/quickstart)** - Command-line reference
+- **[Understanding Reports](https://sps.guide/reports/risk-levels)** - How heuristics work
+- **[Contributing](https://sps.guide/contributing/development)** - Development guide
 - **[Changelog](./docs/changelog.md)** - Version history
 
 ---
@@ -158,7 +158,7 @@ We welcome contributions! Here's how you can help:
 
 Help expand our database of known entities (CEXs, bridges, protocols):
 
-1. Read the [Adding Addresses Guide](https://taylorferran.github.io/solana-privacy-scanner/contributing/addresses)
+1. Read the [Adding Addresses Guide](https://sps.guide/contributing/addresses)
 2. Add your addresses to `packages/core/src/labels/known-addresses.json`
 3. Submit a PR with evidence/documentation
 
@@ -171,7 +171,7 @@ Found a bug? [Open an issue](https://github.com/taylorferran/solana-privacy-scan
 
 ### Submit Code
 
-1. Read the [Development Guide](https://taylorferran.github.io/solana-privacy-scanner/contributing/development)
+1. Read the [Development Guide](https://sps.guide/contributing/development)
 2. Write tests for new features
 3. Ensure all tests pass (`npm test -- --run`)
 4. Submit a PR with clear description
@@ -208,7 +208,7 @@ The scanner uses five transparent heuristics:
 4. **Known Entity Interaction** - Connections to CEXs, bridges, protocols
 5. **Balance Traceability** - Matching send/receive patterns
 
-All heuristics are [fully documented](https://taylorferran.github.io/solana-privacy-scanner/reports/heuristics).
+All heuristics are [fully documented](https://sps.guide/reports/heuristics).
 
 ---
 
@@ -231,7 +231,7 @@ Special thanks to:
 
 ## 📞 Links
 
-- **[Documentation](https://taylorferran.github.io/solana-privacy-scanner)** - Full guides and API reference
+- **[Documentation](https://sps.guide)** - Full guides and API reference
 - **[GitHub Repository](https://github.com/taylorferran/solana-privacy-scanner)** - Source code
 - **[npm - Core Package](https://www.npmjs.com/package/solana-privacy-scanner-core)** - Scanning engine
 - **[npm - CLI Package](https://www.npmjs.com/package/solana-privacy-scanner)** - Command-line tool

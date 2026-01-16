@@ -94,6 +94,12 @@ export default defineConfig({
           { text: 'Adding Addresses', link: '/contributing/addresses' },
           { text: 'Development', link: '/contributing/development' }
         ]
+      },
+      {
+        text: 'Project',
+        items: [
+          { text: 'Changelog', link: '/changelog' }
+        ]
       }
     ],
 

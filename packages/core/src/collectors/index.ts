@@ -91,9 +91,14 @@ export async function collectWalletData(
   const includeTokenAccounts = options.includeTokenAccounts ?? true;
 
   // Fetch recent signatures (bounded)
-  const signatures = await client.getSignaturesForAddress(address, {
-    limit: maxSignatures,
-  });
+  let signatures = [];
+  try {
+    signatures = await client.getSignaturesForAddress(address, {
+      limit: maxSignatures,
+    });
+  } catch (error) {
+    console.warn(`Failed to fetch signatures for ${address}:`, error);
+  }
 
   // Fetch transactions for all signatures
   const transactions: RawTransaction[] = [];
@@ -104,16 +109,20 @@ export async function collectWalletData(
     const batch = signatures.slice(i, i + BATCH_SIZE);
     const batchSignatures = batch.map((sig) => sig.signature);
     
-    const txs = await client.getTransactions(batchSignatures, {
-      maxSupportedTransactionVersion: 0,
-    });
-
-    for (let j = 0; j < batch.length; j++) {
-      transactions.push({
-        signature: batch[j].signature,
-        transaction: txs[j] as ParsedTransactionWithMeta | null,
-        blockTime: batch[j].blockTime,
+    try {
+      const txs = await client.getTransactions(batchSignatures, {
+        maxSupportedTransactionVersion: 0,
       });
+
+      for (let j = 0; j < batch.length; j++) {
+        transactions.push({
+          signature: batch[j].signature,
+          transaction: txs[j] as ParsedTransactionWithMeta | null,
+          blockTime: batch[j].blockTime,
+        });
+      }
+    } catch (error) {
+      console.warn(`Failed to fetch transaction batch for ${address}:`, error);
     }
   }
 
@@ -145,9 +154,14 @@ export async function collectTransactionData(
   signature: string
 ): Promise<RawTransactionData> {
   // Fetch full transaction with metadata
-  const transaction = await client.getTransaction(signature, {
-    maxSupportedTransactionVersion: 0,
-  });
+  let transaction = null;
+  try {
+    transaction = await client.getTransaction(signature, {
+      maxSupportedTransactionVersion: 0,
+    });
+  } catch (error) {
+    console.warn(`Failed to fetch transaction ${signature}:`, error);
+  }
 
   return {
     signature,

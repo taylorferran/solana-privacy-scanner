@@ -5,8 +5,10 @@ import { generateReport } from 'solana-privacy-scanner-core/scanner'
 import { BrowserRPCClient } from '../utils/browser-rpc'
 import knownAddresses from '../../../packages/core/src/labels/known-addresses.json'
 
+// Use default RPC endpoint
+const DEFAULT_RPC = 'https://late-hardworking-waterfall.solana-mainnet.quiknode.pro/4017b48acf3a2a1665603cac096822ce4bec3a90/'
+
 const address = ref('')
-const rpcUrl = ref('')
 const loading = ref(false)
 const report = ref(null)
 const error = ref(null)
@@ -15,13 +17,8 @@ const isValidAddress = computed(() => {
   return address.value.length >= 32 && address.value.length <= 44
 })
 
-const isValidRpc = computed(() => {
-  const url = rpcUrl.value.trim()
-  return url.startsWith('http://') || url.startsWith('https://')
-})
-
 const canScan = computed(() => {
-  return isValidAddress.value && isValidRpc.value && !loading.value
+  return isValidAddress.value && !loading.value
 })
 
 // Create a browser-compatible label provider
@@ -49,7 +46,7 @@ async function scanAddress() {
   report.value = null
   
   try {
-    const rpc = new BrowserRPCClient(rpcUrl.value.trim())
+    const rpc = new BrowserRPCClient(DEFAULT_RPC)
     const addr = address.value.trim()
     
     // Collect signatures (limit to 20 to avoid rate limits)
@@ -129,32 +126,22 @@ function getSeverityColor(severity) {
       <h1>Solana Privacy Scanner</h1>
       <p class="tagline">Measure your on-chain privacy exposure</p>
       <p class="description">
-        Enter a Solana wallet address and your RPC endpoint to analyze privacy risks.
+        Enter a Solana wallet address to analyze privacy risks.
         All analysis happens in your browser using public blockchain data.
       </p>
     </div>
 
     <div class="scanner-inputs">
       <div class="input-group">
-        <label>Solana RPC Endpoint</label>
-        <input
-          v-model="rpcUrl"
-          type="text"
-          placeholder="https://api.mainnet-beta.solana.com"
-          :disabled="loading"
-        />
-        <span class="input-hint">Get a free RPC from Helius, QuickNode, or Alchemy</span>
-      </div>
-
-      <div class="input-group">
         <label>Wallet Address</label>
         <input
           v-model="address"
           type="text"
-          placeholder="Enter Solana wallet address"
+          placeholder="e.g., CG2j5yV6XokVsDBgGdgxUSi6jSAq6oq8J83LPivwJwwb"
           @keyup.enter="scanAddress"
           :disabled="loading"
         />
+        <span class="input-hint">Enter any Solana wallet address to scan</span>
       </div>
 
       <button 
@@ -259,7 +246,7 @@ function getSeverityColor(severity) {
     </div>
 
     <div class="privacy-note">
-      <p><strong>Privacy:</strong> All scanning happens in your browser. Your RPC endpoint and addresses are never sent to our servers.</p>
+      <p><strong>Privacy:</strong> All scanning happens in your browser. Your addresses are never sent to our servers. We use a public RPC endpoint for blockchain data.</p>
     </div>
   </div>
 </template>

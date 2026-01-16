@@ -348,8 +348,11 @@ export function normalizeWalletData(
   const allTransfers: Transfer[] = [];
   const allInstructions: NormalizedInstruction[] = [];
 
+  // Ensure transactions exists and is an array
+  const transactions = rawData.transactions || [];
+
   // Process each transaction
-  for (const rawTx of rawData.transactions) {
+  for (const rawTx of transactions) {
     if (!rawTx.transaction) continue;
 
     try {
@@ -377,7 +380,7 @@ export function normalizeWalletData(
     : new Map();
 
   // Calculate time range
-  const timeRange = calculateTimeRange(rawData.transactions);
+  const timeRange = calculateTimeRange(transactions);
 
   // Normalize token accounts
   const tokenAccounts = rawData.tokenAccounts.map((ta) => {
@@ -402,7 +405,7 @@ export function normalizeWalletData(
     labels: new Map(),
     tokenAccounts,
     timeRange,
-    transactionCount: rawData.transactions.length,
+    transactionCount: transactions.length,
   };
 }
 
@@ -450,10 +453,10 @@ export function normalizeTransactionData(
     labels: new Map(),
     tokenAccounts: [],
     timeRange: {
-      earliest: rawData.blockTime,
-      latest: rawData.blockTime,
+      earliest: rawData.transaction ? rawData.blockTime : null,
+      latest: rawData.transaction ? rawData.blockTime : null,
     },
-    transactionCount: 1,
+    transactionCount: rawData.transaction ? 1 : 0,
   };
 }
 
@@ -468,8 +471,11 @@ export function normalizeProgramData(
   const allInstructions: NormalizedInstruction[] = [];
   const counterparties = new Set<string>();
 
+  // Ensure relatedTransactions exists and is an array
+  const transactions = rawData.relatedTransactions || [];
+
   // Process related transactions
-  for (const rawTx of rawData.relatedTransactions) {
+  for (const rawTx of transactions) {
     if (!rawTx.transaction) continue;
 
     try {
@@ -497,7 +503,7 @@ export function normalizeProgramData(
   }
 
   // Calculate time range
-  const timeRange = calculateTimeRange(rawData.relatedTransactions);
+  const timeRange = calculateTimeRange(transactions);
 
   // Look up labels for counterparties
   const labels = labelProvider
@@ -513,6 +519,6 @@ export function normalizeProgramData(
     labels: new Map(),
     tokenAccounts: [],
     timeRange,
-    transactionCount: rawData.relatedTransactions.length,
+    transactionCount: transactions.length,
   };
 }

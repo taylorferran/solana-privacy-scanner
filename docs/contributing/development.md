@@ -84,8 +84,18 @@ cd packages/core
 npm test
 
 # Run tests in CI mode (no watch)
-npm run test:ci
+npm test -- --run
+
+# Run tests with coverage
+npm test -- --coverage
 ```
+
+The project uses [Vitest](https://vitest.dev/) for testing. All core functionality has comprehensive test coverage including:
+
+- **Data Normalization Tests** (`normalizer/index.test.ts`) - Edge cases for handling undefined/null data
+- **Data Collection Tests** (`collectors/index.test.ts`) - RPC failure scenarios and error handling
+- **Heuristic Tests** (`heuristics/index.test.ts`) - Privacy pattern detection accuracy
+- **Scanner Tests** (`scanner/index.test.ts`) - End-to-end report generation
 
 ### Build for Production
 
@@ -156,7 +166,24 @@ describe('detectMyPattern', () => {
     expect(signal).toBeTruthy();
     expect(signal?.severity).toBe('HIGH');
   });
+  
+  it('should return null when pattern not present', () => {
+    const context = createCleanContext();
+    const signal = detectMyPattern(context);
+    expect(signal).toBeNull();
+  });
+  
+  it('should handle edge cases gracefully', () => {
+    const context = createEdgeCaseContext();
+    expect(() => detectMyPattern(context)).not.toThrow();
+  });
 });
+```
+
+5. **Run tests before committing:**
+
+```bash
+npm test  # Make sure all tests pass
 ```
 
 ## Package Publishing
@@ -190,18 +217,24 @@ describe('detectMyPattern', () => {
 ### Publishing Process
 
 ```bash
-# 1. Update version in package.json
+# 1. Ensure all tests pass
+npm test -- --run
+
+# 2. Update version in package.json
 cd packages/core
 npm version patch  # or minor, major
 
-# 2. Build
+# 3. Build
 npm run build
 
-# 3. Test the package
-npm pack
-# Inspect the .tgz file
+# 4. Run tests again on built package
+npm test -- --run
 
-# 4. Publish
+# 5. Test the package locally
+npm pack
+# Inspect the .tgz file contents
+
+# 6. Publish
 npm publish --access public
 
 # Repeat for CLI
@@ -211,20 +244,127 @@ npm run build
 npm publish --access public
 ```
 
+::: tip
+Always run tests before publishing to avoid publishing broken code. The test suite includes comprehensive checks for edge cases and error handling.
+:::
+
 ## Testing
 
 ### Unit Tests
 
+Test individual functions and components:
+
 ```bash
-# Test specific functionality
+# Run all tests
+npm test
+
+# Run tests for specific file
 npm test -- heuristics
+
+# Run in watch mode
+npm test
+
+# Run without watch (CI mode)
+npm test -- --run
+```
+
+### Writing Tests
+
+The project uses Vitest with a focus on:
+
+1. **Edge Case Coverage** - Test undefined, null, empty arrays, malformed data
+2. **Error Handling** - Verify graceful failures (no crashes)
+3. **Deterministic Output** - Same input always produces same output
+
+Example test structure:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { myFunction } from './index.js';
+
+describe('myFunction', () => {
+  it('should handle normal input', () => {
+    const result = myFunction(validInput);
+    expect(result).toBe(expectedOutput);
+  });
+
+  it('should handle empty input', () => {
+    const result = myFunction([]);
+    expect(result).toEqual([]);
+  });
+
+  it('should handle undefined gracefully', () => {
+    expect(() => myFunction(undefined as any)).not.toThrow();
+  });
+
+  it('should handle null gracefully', () => {
+    expect(() => myFunction(null as any)).not.toThrow();
+  });
+});
 ```
 
 ### Integration Tests
 
+Test the full pipeline:
+
 ```bash
-# Full end-to-end test
-./packages/cli/dist/index.js scan-wallet TEST_ADDRESS
+# Test with real data using examples
+cd examples
+npm install
+npm run wallet    # Test wallet scanning
+npm run transaction  # Test transaction scanning
+npm run program   # Test program scanning
+```
+
+### Integration Tests
+
+Test the full pipeline:
+
+```bash
+# Test with real data using examples
+cd examples
+npm install
+npm run wallet       # Test wallet scanning
+npm run transaction  # Test transaction scanning
+npm run program      # Test program scanning
+```
+
+### Test Coverage
+
+View test coverage reports:
+
+```bash
+npm test -- --coverage
+```
+
+Aim for:
+- **>80% line coverage** for new code
+- **100% coverage** for critical paths (data normalization, error handling)
+- **Edge case tests** for all public APIs
+
+### Mock RPC Client
+
+For unit tests, use the mock RPC client:
+
+```typescript
+import { vi } from 'vitest';
+import type { RPCClient } from '../rpc/client.js';
+
+function createMockRPCClient(overrides = {}): RPCClient {
+  return {
+    getSignaturesForAddress: vi.fn().mockResolvedValue([]),
+    getTransaction: vi.fn().mockResolvedValue(null),
+    getTransactions: vi.fn().mockResolvedValue([]),
+    ...overrides,
+  } as unknown as RPCClient;
+}
+
+// Use in tests
+const mockClient = createMockRPCClient({
+  getSignaturesForAddress: vi.fn().mockResolvedValue([
+    { signature: 'sig1', slot: 100 }
+  ]),
+});
 ```
 
 ### Test with Real Data

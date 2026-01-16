@@ -8,24 +8,44 @@ Learn how to integrate Solana Privacy Scanner into your own applications.
 npm install solana-privacy-scanner-core
 ```
 
+Current version: `0.1.4`
+
 ## Quick Start
 
 ```typescript
-import { scan, RPCClient } from 'solana-privacy-scanner-core';
+import { 
+  RPCClient, 
+  collectWalletData, 
+  normalizeWalletData, 
+  generateReport,
+  createDefaultLabelProvider 
+} from 'solana-privacy-scanner-core';
 
-// Initialize RPC client
-const rpc = new RPCClient('https://your-rpc-url.com');
+async function analyzeWallet(address: string, rpcUrl: string) {
+  // Initialize RPC client (accepts string URL or config object)
+  const rpc = new RPCClient(rpcUrl);
+  
+  // Create label provider for known entity detection
+  const labelProvider = createDefaultLabelProvider();
 
-// Scan a wallet
-const report = await scan({
-  target: 'YourWalletAddress',
-  targetType: 'wallet',
-  rpcClient: rpc,
-  maxSignatures: 50,
-});
+  // Collect raw on-chain data
+  const rawData = await collectWalletData(rpc, address, {
+    maxSignatures: 50,
+    includeTokenAccounts: true,
+  });
 
-console.log('Risk Level:', report.overallRisk);
-console.log('Signals:', report.signals.length);
+  // Normalize data into structured facts
+  const context = normalizeWalletData(rawData, labelProvider);
+
+  // Generate privacy report
+  const report = generateReport(context);
+
+  console.log('Risk Level:', report.overallRisk);
+  console.log('Signals:', report.signals.length);
+  console.log('Known Entities:', report.knownEntities.length);
+  
+  return report;
+}
 ```
 
 ## Core Concepts
@@ -36,24 +56,34 @@ The library provides a modular architecture:
 Data Collection → Normalization → Heuristic Analysis → Report Generation
 ```
 
-You can use the entire pipeline with `scan()` or use individual components.
+You use individual components to build your analysis pipeline.
 
 ## Complete Examples
 
 ### Example 1: Basic Wallet Scan
 
 ```typescript
-import { scan, RPCClient } from 'solana-privacy-scanner-core';
+import { 
+  RPCClient, 
+  collectWalletData, 
+  normalizeWalletData, 
+  generateReport,
+  createDefaultLabelProvider 
+} from 'solana-privacy-scanner-core';
 
 async function analyzeWallet(address: string, rpcUrl: string) {
   const rpc = new RPCClient(rpcUrl);
+  const labelProvider = createDefaultLabelProvider();
   
-  const report = await scan({
-    target: address,
-    targetType: 'wallet',
-    rpcClient: rpc,
+  // Collect data
+  const rawData = await collectWalletData(rpc, address, {
     maxSignatures: 100,
+    includeTokenAccounts: true,
   });
+  
+  // Normalize and generate report
+  const context = normalizeWalletData(rawData, labelProvider);
+  const report = generateReport(context);
 
   // Check overall risk
   if (report.overallRisk === 'HIGH') {
@@ -62,9 +92,11 @@ async function analyzeWallet(address: string, rpcUrl: string) {
 
   // Iterate through signals
   for (const signal of report.signals) {
-    console.log(`${signal.name} [${signal.severity}]`);
-    console.log(`  Reason: ${signal.reason}`);
-    console.log(`  Confidence: ${(signal.confidence * 100).toFixed(0)}%`);
+    console.log(`${signal.type} [${signal.severity}]`);
+    console.log(`  ${signal.description}`);
+    if (signal.evidence.length > 0) {
+      console.log(`  Evidence: ${signal.evidence[0]}`);
+    }
   }
 
   // Check for CEX interactions
@@ -127,16 +159,24 @@ async function customAnalysis(address: string, rpcUrl: string) {
 ### Example 3: Transaction Analysis
 
 ```typescript
-import { scan, RPCClient } from 'solana-privacy-scanner-core';
+import { 
+  RPCClient, 
+  collectTransactionData, 
+  normalizeTransactionData, 
+  generateReport,
+  createDefaultLabelProvider 
+} from 'solana-privacy-scanner-core';
 
 async function analyzeTransaction(signature: string, rpcUrl: string) {
   const rpc = new RPCClient(rpcUrl);
+  const labelProvider = createDefaultLabelProvider();
 
-  const report = await scan({
-    target: signature,
-    targetType: 'transaction',
-    rpcClient: rpc,
-  });
+  // Collect transaction data
+  const rawData = await collectTransactionData(rpc, signature);
+  
+  // Normalize and generate report
+  const context = normalizeTransactionData(rawData, labelProvider);
+  const report = generateReport(context);
 
   return report;
 }
@@ -156,17 +196,11 @@ function detectCustomPattern(context: ScanContext): RiskSignal | null {
   if (hasPattern) {
     return {
       id: 'high-volume',
-      name: 'High Transaction Volume',
+      type: 'HIGH_VOLUME',
       severity: 'MEDIUM',
-      reason: `Wallet has ${context.transfers.length} transfers`,
-      impact: 'High volume can indicate commercial activity',
-      evidence: [{
-        type: 'pattern',
-        description: `${context.transfers.length} total transfers`,
-        data: { count: context.transfers.length },
-      }],
+      description: `Wallet has ${context.transfers.length} transfers`,
+      evidence: [`Total transfers: ${context.transfers.length}`],
       mitigation: 'Consider splitting activities across multiple wallets',
-      confidence: 0.75,
     };
   }
 
@@ -183,67 +217,49 @@ async function analyzeWithCustomHeuristic(context: ScanContext) {
   // Run custom heuristic
   const customSignal = detectCustomPattern(context);
 
-  // Combine signals
-  const allSignals = customSignal 
-    ? [...standardSignals, customSignal]
-    : standardSignals;
+  // Combine signals by adding to context
+  // (Note: generateReport will automatically run evaluateHeuristics)
+  const report = generateReport(context);
 
-  // Generate report with all signals
-  return generateReport(context);
+  // Add custom signal to report if needed
+  if (customSignal) {
+    report.signals.push(customSignal);
+  }
+
+  return report;
 }
 ```
 
 ## API Reference
 
-### Main Functions
+### RPC Client
 
-#### `scan(options)`
+#### `new RPCClient(configOrUrl, options?)`
 
-High-level function that runs the complete analysis pipeline.
+Creates an RPC client with rate limiting and retry logic.
 
 ```typescript
-async function scan(options: ScanOptions): Promise<PrivacyReport>
+// Simple usage with URL string
+const rpc = new RPCClient('https://your-rpc-url.com');
+
+// Advanced usage with config object
+const rpc = new RPCClient({
+  rpcUrl: 'https://your-rpc-url.com',
+  maxConcurrency: 10,   // Max concurrent requests (default: 10)
+  maxRetries: 3,        // Max retry attempts (default: 3)
+  retryDelay: 1000,     // Initial retry delay in ms (default: 1000)
+  timeout: 30000,       // Request timeout in ms (default: 30000)
+  debug: false,         // Enable debug logging (default: false)
+});
 ```
 
-**Parameters:**
-```typescript
-interface ScanOptions {
-  target: string;                    // Address, signature, or program ID
-  targetType: 'wallet' | 'transaction' | 'program';
-  rpcClient: RPCClient;
-  maxSignatures?: number;            // For wallet/program scans (default: 100)
-  includeTokenAccounts?: boolean;    // For wallet scans (default: true)
-  maxAccounts?: number;              // For program scans (default: 10)
-  maxTransactions?: number;          // For program scans (default: 20)
-}
-```
-
-**Returns:**
-```typescript
-interface PrivacyReport {
-  version: string;
-  timestamp: number;
-  targetType: 'wallet' | 'transaction' | 'program';
-  target: string;
-  overallRisk: 'LOW' | 'MEDIUM' | 'HIGH';
-  signals: RiskSignal[];
-  summary: {
-    totalSignals: number;
-    highRiskSignals: number;
-    mediumRiskSignals: number;
-    lowRiskSignals: number;
-    transactionsAnalyzed: number;
-  };
-  mitigations: string[];
-  knownEntities: Label[];
-}
-```
+**Note**: The RPC URL is automatically trimmed to handle whitespace.
 
 ---
 
 ### Data Collection
 
-#### `collectWalletData(rpc, address, options)`
+#### `collectWalletData(rpc, address, options?)`
 
 Collects raw on-chain data for a wallet.
 
@@ -251,7 +267,10 @@ Collects raw on-chain data for a wallet.
 async function collectWalletData(
   rpc: RPCClient,
   address: string,
-  options?: CollectionOptions
+  options?: {
+    maxSignatures?: number;         // Default: 100
+    includeTokenAccounts?: boolean; // Default: true
+  }
 ): Promise<RawWalletData>
 ```
 
@@ -266,7 +285,7 @@ async function collectTransactionData(
 ): Promise<RawTransactionData>
 ```
 
-#### `collectProgramData(rpc, programId, options)`
+#### `collectProgramData(rpc, programId, options?)`
 
 Collects data for a program's activity.
 
@@ -274,7 +293,10 @@ Collects data for a program's activity.
 async function collectProgramData(
   rpc: RPCClient,
   programId: string,
-  options?: ProgramCollectionOptions
+  options?: {
+    maxAccounts?: number;      // Default: 10
+    maxTransactions?: number;  // Default: 20
+  }
 ): Promise<RawProgramData>
 ```
 
@@ -289,6 +311,17 @@ Transforms raw wallet data into structured context.
 ```typescript
 function normalizeWalletData(
   rawData: RawWalletData,
+  labelProvider?: LabelProvider
+): ScanContext
+```
+
+#### `normalizeTransactionData(rawData, labelProvider?)`
+
+Transforms raw transaction data into structured context.
+
+```typescript
+function normalizeTransactionData(
+  rawData: RawTransactionData,
   labelProvider?: LabelProvider
 ): ScanContext
 ```
@@ -342,28 +375,24 @@ Creates a complete privacy report from a scan context.
 function generateReport(context: ScanContext): PrivacyReport
 ```
 
----
-
-### RPC Client
-
-#### `new RPCClient(rpcUrl, options?)`
-
-Creates an RPC client with rate limiting and retry logic.
-
+**Returns:**
 ```typescript
-class RPCClient {
-  constructor(rpcUrl: string, options?: {
-    maxConcurrency?: number;  // Default: 3
-    maxRetries?: number;      // Default: 3
-    retryDelay?: number;      // Default: 1000ms
-  });
-
-  // Methods
-  async getSignaturesForAddress(address: PublicKey, options?): Promise<ConfirmedSignatureInfo[]>;
-  async getTransaction(signature: string): Promise<ParsedTransactionWithMeta | null>;
-  async getTokenAccountsByOwner(owner: PublicKey): Promise<any[]>;
-  async getProgramAccounts(programId: PublicKey, config?): Promise<any[]>;
-  async healthCheck(): Promise<boolean>;
+interface PrivacyReport {
+  version: string;
+  timestamp: number;
+  targetType: 'wallet' | 'transaction' | 'program';
+  target: string;
+  overallRisk: 'LOW' | 'MEDIUM' | 'HIGH';
+  signals: RiskSignal[];
+  summary: {
+    totalSignals: number;
+    highRiskSignals: number;
+    mediumRiskSignals: number;
+    lowRiskSignals: number;
+    transactionsAnalyzed: number;
+  };
+  mitigations: string[];
+  knownEntities: Label[];
 }
 ```
 
@@ -385,8 +414,6 @@ function createDefaultLabelProvider(): StaticLabelProvider
 class StaticLabelProvider implements LabelProvider {
   lookup(address: string): Label | null;
   lookupMany(addresses: string[]): Map<string, Label>;
-  getAllLabels(): Label[];
-  getCount(): number;
 }
 ```
 
@@ -398,24 +425,12 @@ class StaticLabelProvider implements LabelProvider {
 // Risk signal
 interface RiskSignal {
   id: string;
-  name: string;
+  type: string;
   severity: 'LOW' | 'MEDIUM' | 'HIGH';
-  reason: string;
-  impact: string;
-  evidence: Evidence[];
-  mitigation: string;
-  confidence: number;  // 0-1
-}
-
-// Evidence
-interface Evidence {
-  type: EvidenceType;
   description: string;
-  data?: Record<string, unknown>;
-  reference?: string;
+  evidence: string[];
+  mitigation: string;
 }
-
-type EvidenceType = 'transaction' | 'pattern' | 'label' | 'timing' | 'amount';
 
 // Transfer
 interface Transfer {
@@ -431,29 +446,33 @@ interface Transfer {
 interface Label {
   address: string;
   name: string;
-  type: LabelType;
+  type: 'exchange' | 'bridge' | 'protocol' | 'program' | 'defi' | 'nft' | 'other';
   description?: string;
-  relatedAddresses?: string[];
 }
-
-type LabelType = 'exchange' | 'bridge' | 'protocol' | 'program' | 'mixer' | 'other';
 ```
 
 ## Error Handling
 
 ```typescript
-import { scan, RPCClient } from 'solana-privacy-scanner-core';
+import { 
+  RPCClient, 
+  collectWalletData, 
+  normalizeWalletData, 
+  generateReport,
+  createDefaultLabelProvider 
+} from 'solana-privacy-scanner-core';
 
 async function safeAnalysis(address: string, rpcUrl: string) {
   try {
     const rpc = new RPCClient(rpcUrl);
+    const labelProvider = createDefaultLabelProvider();
     
-    const report = await scan({
-      target: address,
-      targetType: 'wallet',
-      rpcClient: rpc,
+    const rawData = await collectWalletData(rpc, address, {
       maxSignatures: 50,
     });
+    
+    const context = normalizeWalletData(rawData, labelProvider);
+    const report = generateReport(context);
 
     return { success: true, report };
   } catch (error) {
@@ -477,19 +496,26 @@ Common errors:
 
 ```typescript
 import express from 'express';
-import { scan, RPCClient } from 'solana-privacy-scanner-core';
+import { 
+  RPCClient, 
+  collectWalletData, 
+  normalizeWalletData, 
+  generateReport,
+  createDefaultLabelProvider 
+} from 'solana-privacy-scanner-core';
 
 const app = express();
 const rpc = new RPCClient(process.env.SOLANA_RPC!);
+const labelProvider = createDefaultLabelProvider();
 
 app.get('/api/scan/:address', async (req, res) => {
   try {
-    const report = await scan({
-      target: req.params.address,
-      targetType: 'wallet',
-      rpcClient: rpc,
+    const rawData = await collectWalletData(rpc, req.params.address, {
       maxSignatures: 50,
     });
+    
+    const context = normalizeWalletData(rawData, labelProvider);
+    const report = generateReport(context);
 
     res.json(report);
   } catch (error) {
@@ -504,7 +530,14 @@ app.listen(3000);
 
 ```typescript
 import { useState, useEffect } from 'react';
-import { scan, RPCClient, type PrivacyReport } from 'solana-privacy-scanner-core';
+import { 
+  RPCClient, 
+  collectWalletData, 
+  normalizeWalletData, 
+  generateReport,
+  createDefaultLabelProvider,
+  type PrivacyReport 
+} from 'solana-privacy-scanner-core';
 
 export function usePrivacyScan(address: string | null, rpcUrl: string) {
   const [report, setReport] = useState<PrivacyReport | null>(null);
@@ -522,12 +555,14 @@ export function usePrivacyScan(address: string | null, rpcUrl: string) {
 
       try {
         const rpc = new RPCClient(rpcUrl);
-        const result = await scan({
-          target: address,
-          targetType: 'wallet',
-          rpcClient: rpc,
+        const labelProvider = createDefaultLabelProvider();
+        
+        const rawData = await collectWalletData(rpc, address, {
           maxSignatures: 50,
         });
+        
+        const context = normalizeWalletData(rawData, labelProvider);
+        const result = generateReport(context);
 
         if (!cancelled) {
           setReport(result);
@@ -559,7 +594,16 @@ export function usePrivacyScan(address: string | null, rpcUrl: string) {
 ```typescript
 // pages/api/scan.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { scan, RPCClient } from 'solana-privacy-scanner-core';
+import { 
+  RPCClient, 
+  collectWalletData, 
+  normalizeWalletData, 
+  generateReport,
+  createDefaultLabelProvider 
+} from 'solana-privacy-scanner-core';
+
+const rpc = new RPCClient(process.env.SOLANA_RPC!);
+const labelProvider = createDefaultLabelProvider();
 
 export default async function handler(
   req: NextApiRequest,
@@ -576,14 +620,12 @@ export default async function handler(
   }
 
   try {
-    const rpc = new RPCClient(process.env.SOLANA_RPC!);
-    
-    const report = await scan({
-      target: address,
-      targetType: 'wallet',
-      rpcClient: rpc,
+    const rawData = await collectWalletData(rpc, address, {
       maxSignatures: 50,
     });
+    
+    const context = normalizeWalletData(rawData, labelProvider);
+    const report = generateReport(context);
 
     res.status(200).json(report);
   } catch (error) {
@@ -596,17 +638,26 @@ export default async function handler(
 
 ## Performance Tips
 
-### 1. Reuse RPC Client
+### 1. Reuse RPC Client and Label Provider
 
 ```typescript
-// ✅ Good: Reuse client
+// ✅ Good: Reuse client and label provider
 const rpc = new RPCClient(rpcUrl);
-await scan({ target: address1, rpcClient: rpc });
-await scan({ target: address2, rpcClient: rpc });
+const labelProvider = createDefaultLabelProvider();
 
-// ❌ Bad: Create new client each time
-await scan({ target: address1, rpcClient: new RPCClient(rpcUrl) });
-await scan({ target: address2, rpcClient: new RPCClient(rpcUrl) });
+const rawData1 = await collectWalletData(rpc, address1, { maxSignatures: 50 });
+const context1 = normalizeWalletData(rawData1, labelProvider);
+const report1 = generateReport(context1);
+
+const rawData2 = await collectWalletData(rpc, address2, { maxSignatures: 50 });
+const context2 = normalizeWalletData(rawData2, labelProvider);
+const report2 = generateReport(context2);
+
+// ❌ Bad: Create new instances each time
+const report1 = generateReport(normalizeWalletData(
+  await collectWalletData(new RPCClient(rpcUrl), address1),
+  createDefaultLabelProvider()
+));
 ```
 
 ### 2. Limit Signatures
@@ -624,16 +675,16 @@ maxSignatures: 200
 ```typescript
 async function batchAnalyze(addresses: string[], rpcUrl: string) {
   const rpc = new RPCClient(rpcUrl);
+  const labelProvider = createDefaultLabelProvider();
   
   const reports = await Promise.all(
-    addresses.map(address =>
-      scan({
-        target: address,
-        targetType: 'wallet',
-        rpcClient: rpc,
+    addresses.map(async address => {
+      const rawData = await collectWalletData(rpc, address, {
         maxSignatures: 30,
-      })
-    )
+      });
+      const context = normalizeWalletData(rawData, labelProvider);
+      return generateReport(context);
+    })
   );
 
   return reports;

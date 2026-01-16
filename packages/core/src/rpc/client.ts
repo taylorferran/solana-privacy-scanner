@@ -101,14 +101,22 @@ export class RPCClient {
   private config: Required<RPCClientConfig>;
   private rateLimiter: RateLimiter;
 
-  constructor(config: RPCClientConfig) {
+  constructor(configOrUrl: RPCClientConfig | string) {
+    // Handle both string URL and config object
+    const config: RPCClientConfig = typeof configOrUrl === 'string' 
+      ? { rpcUrl: configOrUrl }
+      : configOrUrl;
+    
+    // Trim the RPC URL to handle trailing/leading whitespace
+    const rpcUrl = config.rpcUrl.trim();
+    
     this.config = {
       maxRetries: config.maxRetries ?? 3,
       retryDelay: config.retryDelay ?? 1000,
       timeout: config.timeout ?? 30000,
       maxConcurrency: config.maxConcurrency ?? 10,
       debug: config.debug ?? false,
-      rpcUrl: config.rpcUrl,
+      rpcUrl,
     };
 
     const connectionConfig: ConnectionConfig = {

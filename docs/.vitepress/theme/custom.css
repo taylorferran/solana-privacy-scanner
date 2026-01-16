@@ -651,7 +651,7 @@
   }
 }
 
-/* Medium screens */
+/* Medium screens - hide right sidebar, keep left */
 @media (max-width: 1279px) {
   :root {
     --vp-sidebar-width: 260px;
@@ -671,16 +671,25 @@
   }
 }
 
-/* Tablet */
+/* Tablet and below - sidebar becomes overlay/hamburger */
 @media (max-width: 959px) {
+  /* Sidebar becomes an overlay that VitePress handles */
   .VPSidebar {
     width: 280px !important;
     padding: 0 16px 48px 16px !important;
     padding-top: 28px !important;
+    /* VitePress handles transform/transition for mobile sidebar */
   }
   
+  /* Content takes full width when sidebar is hidden */
   .VPDoc .content {
     padding: 8px 24px 0 24px !important;
+    margin-left: 0 !important;
+  }
+  
+  /* Remove any left margin from content when sidebar is closed */
+  .VPDoc > .container {
+    margin-left: 0 !important;
   }
   
   .vp-doc h1 {
@@ -692,10 +701,11 @@
   }
 }
 
-/* Mobile */
+/* Mobile - full width content */
 @media (max-width: 640px) {
   .VPDoc .content {
     padding: 8px 16px 0 16px !important;
+    margin-left: 0 !important;
   }
   
   .vp-doc h1 {
@@ -716,6 +726,17 @@
   .vp-doc p,
   .vp-doc li {
     font-size: 14px;
+  }
+}
+
+/* Ensure content doesn't overlap with sidebar on larger screens */
+@media (min-width: 960px) {
+  .VPDoc .content {
+    margin-left: var(--vp-sidebar-width);
+  }
+  
+  .VPDoc > .container {
+    padding-left: 0;
   }
 }
 

@@ -1,0 +1,40 @@
+name: 'Solana Privacy Scanner'
+description: 'Scan Solana transactions for privacy risks in CI/CD'
+author: 'Taylor Ferran'
+
+branding:
+  icon: 'shield'
+  color: 'purple'
+
+inputs:
+  wallet:
+    description: 'Wallet address to scan'
+    required: false
+  config:
+    description: 'Path to .privacyrc config file'
+    required: false
+    default: '.privacyrc'
+  fail-on:
+    description: 'Fail the build on this risk level or higher (LOW, MEDIUM, HIGH)'
+    required: false
+    default: 'HIGH'
+  output:
+    description: 'Output file path for JSON report'
+    required: false
+    default: 'privacy-report.json'
+  comment-pr:
+    description: 'Comment privacy report on pull request'
+    required: false
+    default: 'true'
+
+outputs:
+  risk-level:
+    description: 'Overall risk level (LOW, MEDIUM, HIGH)'
+  signals-count:
+    description: 'Number of privacy signals detected'
+  report-path:
+    description: 'Path to the generated report'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

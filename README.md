@@ -3,6 +3,9 @@
 [![npm - core](https://img.shields.io/npm/v/solana-privacy-scanner-core?label=core&color=blue)](https://www.npmjs.com/package/solana-privacy-scanner-core)
 [![npm - cli](https://img.shields.io/npm/v/solana-privacy-scanner?label=cli&color=blue)](https://www.npmjs.com/package/solana-privacy-scanner)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Powered by QuickNode](https://img.shields.io/badge/Powered%20by-QuickNode-0d9488?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMiA3TDEyIDEyTDIyIDdMMTIgMloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yIDEwTDEyIDE1TDIyIDEwVjE0TDEyIDE5TDIgMTRWMTBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=)](https://www.quicknode.com/)
+
+> **Powered by [QuickNode](https://www.quicknode.com/)** - Enterprise-grade Solana RPC infrastructure provided as a public good. Zero configuration required.
 
 A developer tool that analyzes Solana wallets, transactions, or programs using public on-chain data and produces deterministic privacy risk reports.
 
@@ -41,6 +44,35 @@ solana-privacy-scanner scan-wallet <ADDRESS>
 
 No setup required - includes a reliable RPC endpoint!
 
+**Why It Just Works:** QuickNode provides enterprise-grade Solana RPC infrastructure with 99.9% uptime, <100ms response times, and global edge routing. This enables:
+- **Zero configuration** - No API keys or setup needed
+- **Reliable scans** - Consistent, fast results every time
+- **Public good** - Free access for personal projects and learning
+
+[Learn more about QuickNode's infrastructure →](https://sps.guide/guide/quicknode)
+
+### CI/CD Integration
+
+```bash
+npm install --save-dev solana-privacy-scanner-ci-tools
+npx privacy-scanner-init
+```
+
+Test privacy in your development workflow:
+
+```typescript
+import { simulateTransactionPrivacy } from 'solana-privacy-scanner-ci-tools/simulator';
+import 'solana-privacy-scanner-ci-tools/matchers';
+
+test('transfer maintains privacy', async () => {
+  const tx = await createTransfer(user, recipient, amount);
+  const report = await simulateTransactionPrivacy(tx, connection);
+  
+  expect(report).toHavePrivacyRisk('LOW');
+  expect(report).toNotLeakUserRelationships();
+});
+```
+
 ### Use as Library
 
 ```bash
@@ -75,6 +107,7 @@ console.log('Signals Found:', report.signals.length);
 |---------|---------|-------------|
 | [`solana-privacy-scanner-core`](https://www.npmjs.com/package/solana-privacy-scanner-core) | ![npm](https://img.shields.io/npm/v/solana-privacy-scanner-core) | Core scanning engine |
 | [`solana-privacy-scanner`](https://www.npmjs.com/package/solana-privacy-scanner) | ![npm](https://img.shields.io/npm/v/solana-privacy-scanner) | CLI tool |
+| [`solana-privacy-scanner-ci-tools`](https://www.npmjs.com/package/solana-privacy-scanner-ci-tools) | ![npm](https://img.shields.io/npm/v/solana-privacy-scanner-ci-tools) | CI/CD testing tools |
 
 ---
 
@@ -97,10 +130,11 @@ This is a monorepo containing multiple packages:
 
 ```
 solana-privacy-scanner/
-├── docs/                   # VitePress documentation + web UI
+├── docs/                   # Docusaurus documentation + web UI
 ├── packages/
 │   ├── core/              # solana-privacy-scanner-core (npm package)
-│   └── cli/               # solana-privacy-scanner (npm package)
+│   ├── cli/               # solana-privacy-scanner (npm package)
+│   └── ci-tools/          # solana-privacy-scanner-ci-tools (npm package)
 ├── examples/              # Code examples for library usage
 └── tests/                 # Comprehensive test suite (36 tests)
 ```
@@ -267,8 +301,61 @@ Special thanks to:
 - **[GitHub Repository](https://github.com/taylorferran/solana-privacy-scanner)** - Source code
 - **[npm - Core Package](https://www.npmjs.com/package/solana-privacy-scanner-core)** - Scanning engine
 - **[npm - CLI Package](https://www.npmjs.com/package/solana-privacy-scanner)** - Command-line tool
+- **[npm - CI Tools](https://www.npmjs.com/package/solana-privacy-scanner-ci-tools)** - Testing & CI/CD integration
 - **[Changelog](./docs/changelog.md)** - Version history and updates
 
 ---
 
-**Made with care for the Solana ecosystem 🌟**
+## 🌐 Infrastructure
+
+This project is powered by **[QuickNode](https://www.quicknode.com/)** as a public good for the Solana ecosystem.
+
+### Why QuickNode?
+
+**Reliability & Performance:**
+- 99.9% uptime SLA
+- <100ms average response time
+- Global edge network for low latency
+- Auto-scaling infrastructure
+
+**Developer Experience:**
+- Zero configuration required
+- No API keys or sign-up needed
+- Works immediately after installation
+- Same reliability for everyone
+
+**Public Good Commitment:**
+- Free access for personal projects
+- Open source enablement
+- Educational use supported
+- Community-first approach
+
+QuickNode's infrastructure makes privacy scanning **just work** - no setup friction, no configuration complexity, no reliability concerns.
+
+[Read more about QuickNode's partnership →](https://sps.guide/guide/quicknode)
+
+### For Production Use
+
+Building a high-volume service? Get your own [QuickNode endpoint](https://www.quicknode.com/) for:
+- Higher rate limits (10-100+ req/s)
+- Custom SLAs
+- Premium support
+- Analytics dashboard
+
+---
+
+## 🙏 Acknowledgments
+
+**Special thanks to [QuickNode](https://www.quicknode.com/)** for providing the RPC infrastructure that powers this tool as a public good. Without QuickNode:
+- Users would need to configure their own RPC endpoints
+- Reliability would be inconsistent
+- Setup friction would limit adoption
+- Privacy analysis wouldn't be accessible to everyone
+
+QuickNode's commitment to supporting open source tools demonstrates their dedication to building a better Solana ecosystem.
+
+**Also thanks to:**
+- The Solana community for feedback
+- Contributors who help expand the known addresses database
+- Everyone testing and reporting issues
+- Vercel for documentation hosting

@@ -136,6 +136,12 @@ const config: Config = {
           label: 'CLI',
         },
         {
+          type: 'docSidebar',
+          sidebarId: 'ciToolsSidebar',
+          position: 'left',
+          label: 'CI/CD',
+        },
+        {
           href: 'https://github.com/taylorferran/solana-privacy-scanner',
           label: 'GitHub',
           position: 'right',
@@ -144,6 +150,51 @@ const config: Config = {
     },
     footer: {
       style: 'dark',
+      links: [
+        {
+          title: 'Packages',
+          items: [
+            {
+              label: 'Core Library',
+              href: 'https://www.npmjs.com/package/solana-privacy-scanner-core',
+            },
+            {
+              label: 'CLI Tool',
+              href: 'https://www.npmjs.com/package/solana-privacy-scanner',
+            },
+            {
+              label: 'CI/CD Tools',
+              href: 'https://www.npmjs.com/package/solana-privacy-scanner-ci-tools',
+            },
+          ],
+        },
+        {
+          title: 'Community',
+          items: [
+            {
+              label: 'GitHub',
+              href: 'https://github.com/taylorferran/solana-privacy-scanner',
+            },
+            {
+              label: 'Issues',
+              href: 'https://github.com/taylorferran/solana-privacy-scanner/issues',
+            },
+          ],
+        },
+        {
+          title: 'Powered By',
+          items: [
+            {
+              label: 'QuickNode',
+              href: 'https://www.quicknode.com/',
+            },
+            {
+              label: 'Vercel',
+              href: 'https://vercel.com',
+            },
+          ],
+        },
+      ],
       copyright: 'Built for privacy awareness. Not surveillance. | MIT Licensed | Made for the Solana ecosystem',
     },
     prism: {

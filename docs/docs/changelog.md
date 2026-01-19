@@ -7,6 +7,109 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0 / CI Tools 0.1.0] - 2026-01-19
+
+### 🎉 New Package: CI/CD Tools
+
+Introducing `solana-privacy-scanner-ci-tools` - integrate privacy analysis directly into your development workflow!
+
+#### Added
+
+**Transaction Simulator**
+- `simulateTransactionPrivacy()` - Analyze transactions before sending to mainnet
+- `simulateTransactionFlow()` - Analyze multi-transaction user flows
+- `compareImplementations()` - Compare privacy of different approaches
+- Detects emergent patterns across transaction sequences
+
+**Testing Matchers**
+- Custom Vitest/Jest matchers for privacy assertions:
+  - `toHavePrivacyRisk(level)` - Assert risk level
+  - `toNotLeakUserRelationships()` - Verify no counterparty/signer linkage
+  - `toHaveNoHighRiskSignals()` - No HIGH severity signals
+  - `toNotHaveSignal(type)` - Specific signal not present
+  - `toHavePrivacyScore(min)` - Minimum privacy score
+  - Plus 6 more specialized matchers
+
+**Configuration System**
+- `.privacyrc` file for project-level privacy policies
+- JSON schema validation with helpful error messages
+- Environment-specific configurations
+- Threshold settings (maxHighSeverity, maxMediumSeverity, etc.)
+
+**GitHub Actions Integration**
+- Pre-built workflow templates
+- Automated privacy checks on PRs
+- PR comments with scan results
+- Configurable fail conditions
+
+**Pre-commit Hooks**
+- Catch privacy issues before committing
+- Fast local validation
+- Skip hooks when needed
+
+**Docker Support**
+- Containerized CLI for any CI/CD platform
+- Alpine-based lightweight image
+- GitLab CI, CircleCI, Jenkins compatible
+
+**Setup Wizard**
+- Interactive `npx privacy-scanner-init` command
+- Generates `.privacyrc` configuration
+- Installs integrations (GitHub Actions, hooks, testing)
+- Guided setup with sensible defaults
+
+#### Infrastructure
+
+**Default RPC Endpoint**
+- All packages now include a default QuickNode RPC endpoint
+- No configuration required to get started
+- Removed `--rpc` requirement from CLI
+- Library works without explicit RPC initialization
+
+**Documentation Updates**
+- New CI/CD Tools section with guides:
+  - [Overview](https://sps.guide/ci-tools/overview) - Quick start and features
+  - [Testing Guide](https://sps.guide/ci-tools/testing) - Complete testing examples
+  - [GitHub Actions](https://sps.guide/ci-tools/github-actions) - CI/CD setup
+- Updated all docs to mention QuickNode partnership
+- Added infrastructure acknowledgments
+
+**Website Improvements**
+- Updated favicon to detective emoji (🕵️)
+- Added QuickNode mention in footer and scanner UI
+- Better SEO images and metadata
+- CI/CD Tools added to packages table
+
+### Version Bumps
+
+- `solana-privacy-scanner-core`: `0.2.0` → `0.3.0`
+- `solana-privacy-scanner` (CLI): `0.2.0` → `0.3.0`
+- `solana-privacy-scanner-ci-tools`: NEW package at `0.1.0`
+
+### Example Usage
+
+```typescript
+// Test privacy in your test suite
+import { simulateTransactionPrivacy } from 'solana-privacy-scanner-ci-tools/simulator';
+import 'solana-privacy-scanner-ci-tools/matchers';
+
+test('transfer maintains privacy', async () => {
+  const tx = await createTransfer(user, recipient, amount);
+  const report = await simulateTransactionPrivacy(tx, connection);
+  
+  expect(report).toHavePrivacyRisk('LOW');
+  expect(report).toNotLeakUserRelationships();
+});
+```
+
+### Links
+
+- **[CI Tools npm Package](https://www.npmjs.com/package/solana-privacy-scanner-ci-tools)**
+- **[CI Tools Documentation](https://sps.guide/ci-tools/overview)**
+- **[GitHub Repository](https://github.com/taylorferran/solana-privacy-scanner)**
+
+---
+
 ## [0.2.0] - 2026-01-19
 
 ### 🚀 Major Release: Solana-Native Privacy Model

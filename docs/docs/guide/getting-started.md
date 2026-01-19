@@ -1,94 +1,85 @@
 # Getting Started
 
-Get up and running with Solana Privacy Scanner in just a few minutes.
-
 ## Installation
-
-### Install Globally (Recommended)
 
 ```bash
 npm install -g solana-privacy-scanner
 ```
 
-### Use with npx (No Installation)
+Or use without installing:
 
 ```bash
-npx solana-privacy-scanner scan-wallet <address> --rpc <your-rpc-url>
+npx solana-privacy-scanner scan-wallet <address>
 ```
 
-## Prerequisites
+**Requirements:** Node.js 20+
 
-You'll need:
+No RPC configuration needed - powered by [QuickNode](./quicknode).
 
-1. **Node.js** (version 20 or higher)
-2. **A Solana RPC endpoint** - Get a free one from:
-   - [Helius](https://helius.dev)
-   - [QuickNode](https://quicknode.com)
-   - [Alchemy](https://alchemy.com)
+## Basic Usage
 
-## Quick Start
-
-### Scan a Wallet
+### Scan Wallet
 
 ```bash
-solana-privacy-scanner scan-wallet <WALLET_ADDRESS> \
-  --rpc https://your-rpc-endpoint.com \
-  --max-signatures 50
-```
-
-### Scan a Transaction
-
-```bash
-solana-privacy-scanner scan-transaction <TX_SIGNATURE> \
-  --rpc https://your-rpc-endpoint.com
-```
-
-### Scan a Program
-
-```bash
-solana-privacy-scanner scan-program <PROGRAM_ID> \
-  --rpc https://your-rpc-endpoint.com \
-  --max-accounts 10 \
-  --max-transactions 20
-```
-
-## Using Environment Variables
-
-Instead of passing `--rpc` every time, set an environment variable:
-
-```bash
-export SOLANA_RPC=https://your-rpc-endpoint.com
-
-# Now you can omit --rpc
 solana-privacy-scanner scan-wallet <ADDRESS>
+```
+
+With options:
+
+```bash
+solana-privacy-scanner scan-wallet <ADDRESS> \
+  --max-signatures 100 \
+  --include-tokens \
+  --json \
+  --output report.json
+```
+
+### Scan Transaction
+
+```bash
+solana-privacy-scanner scan-transaction <SIGNATURE>
+```
+
+### Scan Program
+
+```bash
+solana-privacy-scanner scan-program <PROGRAM_ID> --max-transactions 50
 ```
 
 ## Output Formats
 
-### Human-Readable (Default)
+**Terminal (default):** Color-coded report
 
 ```bash
 solana-privacy-scanner scan-wallet <ADDRESS>
 ```
 
-Outputs a formatted report to your terminal.
-
-### JSON Output
+**JSON:** Machine-readable
 
 ```bash
 solana-privacy-scanner scan-wallet <ADDRESS> --json
 ```
 
-Machine-readable JSON for programmatic use.
-
-### Save to File
+**File:** Save output
 
 ```bash
-solana-privacy-scanner scan-wallet <ADDRESS> --output report.txt
+solana-privacy-scanner scan-wallet <ADDRESS> --output report.json
+```
+
+## Example
+
+```bash
+# Scan and save JSON report
+solana-privacy-scanner scan-wallet \
+  CG2j5yV6XokVsDBgGdgxUSi6jSAq6oq8J83LPivwJwwb \
+  --json --output report.json
+
+# View risk level
+cat report.json | jq '.overallRisk'
 ```
 
 ## Next Steps
 
-- **[CLI Quickstart](/docs/cli/quickstart)** - More CLI examples
-- **[Understanding Reports](/docs/reports/risk-levels)** - Learn to interpret results
-- **[CLI User Guide](/docs/cli/user-guide)** - Complete command reference
+- **[CLI Commands](../cli/quickstart)** - Full command reference
+- **[Understanding Reports](../reports/risk-levels)** - Interpret results  
+- **[Library Usage](../library/usage)** - Use in code

@@ -33,7 +33,38 @@ html[data-theme='dark'] .scannerHeader h1 {
   font-size: 24px;
   font-weight: 400;
   color: var(--ifm-color-emphasis-700);
+  margin: 0 0 12px 0;
+}
+
+.poweredBy {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ifm-color-emphasis-600);
   margin: 0 0 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.poweredBy a {
+  color: #0d9488;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.poweredBy a:hover {
+  color: #0f766e;
+  text-decoration: underline;
+}
+
+html[data-theme='dark'] .poweredBy a {
+  color: #14b8a6;
+}
+
+html[data-theme='dark'] .poweredBy a:hover {
+  color: #2dd4bf;
 }
 
 .description {

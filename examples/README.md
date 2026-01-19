@@ -19,7 +19,13 @@ Install dependencies:
 npm install
 ```
 
-**No RPC configuration needed!** The scanner includes a reliable default endpoint.
+**Powered by [QuickNode](https://www.quicknode.com/)** - No RPC configuration needed! The scanner includes a reliable QuickNode endpoint for immediate use. This provides:
+- Enterprise-grade reliability (99.9% uptime)
+- Fast response times (<100ms average)
+- Global edge network
+- Zero setup friction
+
+[Learn more about QuickNode's partnership →](https://sps.guide/guide/quicknode)
 
 ## Examples
 

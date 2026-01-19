@@ -159,6 +159,9 @@ export default function PrivacyScanner() {
       <div className={styles.scannerHeader}>
         <h1>Solana Privacy Scanner</h1>
         <p className={styles.tagline}>Measure your on-chain privacy exposure</p>
+        <p className={styles.poweredBy}>
+          ⚡ Powered by <a href="https://www.quicknode.com/" target="_blank" rel="noopener">QuickNode</a> as a public good
+        </p>
         <p className={styles.description}>
           Enter a Solana wallet address to analyze privacy risks.
           All analysis happens in your browser using public blockchain data.
@@ -299,7 +302,8 @@ export default function PrivacyScanner() {
       )}
 
       <div className={styles.privacyNote}>
-        <p><strong>Privacy:</strong> All scanning happens in your browser. Your addresses are never sent to our servers. We use a public RPC endpoint for blockchain data.</p>
+        <p><strong>Privacy:</strong> All scanning happens in your browser. Your addresses are never sent to our servers.</p>
+        <p><strong>Infrastructure:</strong> Powered by <a href="https://www.quicknode.com/" target="_blank" rel="noopener">QuickNode</a> - Enterprise-grade Solana RPC infrastructure provided as a public good. Learn more about <a href="/docs/guide/quicknode">why QuickNode makes this tool better</a>.</p>
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ const sidebars: SidebarsConfig = {
         'guide/what-is-this',
         'guide/getting-started',
         'guide/concepts',
+        'guide/quicknode',
       ],
     },
     {
@@ -44,6 +45,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'library/usage',
         'library/examples',
+        'library/for-llms',
       ],
     },
   ],
@@ -56,6 +58,20 @@ const sidebars: SidebarsConfig = {
         'cli/quickstart',
         'cli/user-guide',
         'cli/examples',
+        'cli/for-llms',
+      ],
+    },
+  ],
+  
+  ciToolsSidebar: [
+    {
+      type: 'category',
+      label: 'CI/CD Tools',
+      items: [
+        'ci-tools/overview',
+        'ci-tools/testing',
+        'ci-tools/github-actions',
+        'ci-tools/for-llms',
       ],
     },
   ],

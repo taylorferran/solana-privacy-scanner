@@ -20,7 +20,7 @@ export function PrivacyScanner() {
 
     setLoading(true);
     try {
-      const rpc = new RPCClient(process.env.NEXT_PUBLIC_SOLANA_RPC!);
+      const rpc = new RPCClient();
       const result = await scan({
         target: address,
         targetType: 'wallet',
@@ -110,7 +110,7 @@ const WALLETS_TO_MONITOR = [
   'wallet3...',
 ];
 
-const rpc = new RPCClient(process.env.SOLANA_RPC!);
+const rpc = new RPCClient();
 
 // Run every day at midnight
 cron.schedule('0 0 * * *', async () => {
@@ -160,7 +160,7 @@ import NodeCache from 'node-cache';
 
 const app = express();
 const cache = new NodeCache({ stdTTL: 3600 }); // 1 hour cache
-const rpc = new RPCClient(process.env.SOLANA_RPC!);
+const rpc = new RPCClient();
 
 app.get('/api/scan/:address', async (req, res) => {
   const { address } = req.params;
@@ -205,7 +205,7 @@ const scanQueue = new Bull('privacy-scans', {
   redis: { host: 'localhost', port: 6379 }
 });
 
-const rpc = new RPCClient(process.env.SOLANA_RPC!);
+const rpc = new RPCClient();
 
 // Process scans from queue
 scanQueue.process(async (job) => {
@@ -270,7 +270,7 @@ import { PrismaClient } from '@prisma/client';
 import { scan, RPCClient } from 'solana-privacy-scanner-core';
 
 const prisma = new PrismaClient();
-const rpc = new RPCClient(process.env.SOLANA_RPC!);
+const rpc = new RPCClient();
 
 export async function scanAndSave(address: string) {
   const report = await scan({
@@ -324,7 +324,7 @@ program
   .action(async (address) => {
     console.log('Checking', address);
 
-    const rpc = new RPCClient(process.env.SOLANA_RPC!);
+    const rpc = new RPCClient();
     const report = await scan({
       target: address,
       targetType: 'wallet',
@@ -354,7 +354,7 @@ describe('Privacy Scanner', () => {
   let rpc: RPCClient;
 
   beforeAll(() => {
-    rpc = new RPCClient(process.env.SOLANA_RPC!);
+    rpc = new RPCClient();
   });
 
   it('should scan a wallet', async () => {
@@ -425,7 +425,7 @@ describe('Custom Heuristics', () => {
 import { scan, RPCClient } from 'solana-privacy-scanner-core';
 
 async function compareWallets(addresses: string[], rpcUrl: string) {
-  const rpc = new RPCClient(rpcUrl);
+  const rpc = new RPCClient();
 
   const reports = await Promise.all(
     addresses.map(address =>
@@ -464,7 +464,7 @@ interface ScanHistory {
 const history: Map<string, ScanHistory[]> = new Map();
 
 async function trackWallet(address: string, rpcUrl: string) {
-  const rpc = new RPCClient(rpcUrl);
+  const rpc = new RPCClient();
   
   const report = await scan({
     target: address,
@@ -508,7 +508,7 @@ async function scanWithRetry(
 
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const rpc = new RPCClient(rpcUrl);
+      const rpc = new RPCClient();
       return await scan({
         target: address,
         targetType: 'wallet',
@@ -531,7 +531,7 @@ async function scanWithRetry(
 ```typescript
 async function scanOrDefault(address: string, rpcUrl: string) {
   try {
-    const rpc = new RPCClient(rpcUrl);
+    const rpc = new RPCClient();
     return await scan({
       target: address,
       targetType: 'wallet',

@@ -1,6 +1,6 @@
 {
   "name": "solana-privacy-scanner",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "description": "CLI tool for analyzing Solana wallet privacy and on-chain exposure - scan wallets, transactions, and programs",
   "bin": {
@@ -37,7 +37,7 @@
     "url": "https://github.com/taylorferran/solana-privacy-scanner/issues"
   },
   "dependencies": {
-    "solana-privacy-scanner-core": "^0.1.0",
+    "solana-privacy-scanner-core": "^0.3.0",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "dotenv": "^16.4.7"

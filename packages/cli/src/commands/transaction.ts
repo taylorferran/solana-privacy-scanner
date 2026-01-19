@@ -17,22 +17,20 @@ interface TransactionOptions {
 
 export async function scanTransaction(signature: string, options: TransactionOptions) {
   try {
-    // Validate RPC URL
-    if (!options.rpc) {
-      console.error('Error: RPC URL is required. Set SOLANA_RPC env var or use --rpc flag.');
-      process.exit(1);
-    }
-
     console.error(`Scanning transaction: ${signature}`);
-    console.error(`Using RPC: ${options.rpc.substring(0, 30)}...`);
     console.error('');
 
-    // Create RPC client
-    const client = new RPCClient({
-      rpcUrl: options.rpc,
-      maxConcurrency: 5,
-      maxRetries: 3,
-    });
+    // Create RPC client (uses default RPC if not provided)
+    const client = new RPCClient(
+      options.rpc ? {
+        rpcUrl: options.rpc,
+        maxConcurrency: 5,
+        maxRetries: 3,
+      } : {
+        maxConcurrency: 5,
+        maxRetries: 3,
+      }
+    );
 
     // Collect transaction data
     console.error('Fetching transaction...');

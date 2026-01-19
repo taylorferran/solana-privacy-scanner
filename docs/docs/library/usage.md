@@ -21,9 +21,9 @@ import {
   createDefaultLabelProvider 
 } from 'solana-privacy-scanner-core';
 
-async function analyzeWallet(address: string, rpcUrl: string) {
-  // Initialize RPC client (accepts string URL or config object)
-  const rpc = new RPCClient(rpcUrl);
+async function analyzeWallet(address: string) {
+  // Initialize RPC client (no configuration needed)
+  const rpc = new RPCClient();
   
   // Create label provider for known entity detection
   const labelProvider = createDefaultLabelProvider();
@@ -98,8 +98,8 @@ import {
   createDefaultLabelProvider 
 } from 'solana-privacy-scanner-core';
 
-async function analyzeWallet(address: string, rpcUrl: string) {
-  const rpc = new RPCClient(rpcUrl);
+async function analyzeWallet(address: string) {
+  const rpc = new RPCClient();
   const labelProvider = createDefaultLabelProvider();
   
   // Collect data
@@ -153,9 +153,9 @@ import {
   createDefaultLabelProvider,
 } from 'solana-privacy-scanner-core';
 
-async function customAnalysis(address: string, rpcUrl: string) {
+async function customAnalysis(address: string) {
   // Step 1: Initialize
-  const rpc = new RPCClient(rpcUrl);
+  const rpc = new RPCClient();
   const labelProvider = createDefaultLabelProvider();
 
   // Step 2: Collect raw data
@@ -196,7 +196,7 @@ import {
 } from 'solana-privacy-scanner-core';
 
 async function analyzeTransaction(signature: string, rpcUrl: string) {
-  const rpc = new RPCClient(rpcUrl);
+  const rpc = new RPCClient();
   const labelProvider = createDefaultLabelProvider();
 
   // Collect transaction data
@@ -262,12 +262,15 @@ async function analyzeWithCustomHeuristic(context: ScanContext) {
 
 ### RPC Client
 
-#### `new RPCClient(configOrUrl, options?)`
+#### `new RPCClient(configOrUrl?, options?)`
 
-Creates an RPC client with rate limiting and retry logic.
+Creates an RPC client with rate limiting and retry logic. **No configuration required** - uses a reliable default RPC endpoint.
 
 ```typescript
-// Simple usage with URL string
+// Use default RPC (recommended)
+const rpc = new RPCClient();
+
+// Or provide your own RPC (optional)
 const rpc = new RPCClient('https://your-rpc-url.com');
 
 // Advanced usage with config object
@@ -492,7 +495,7 @@ import {
 
 async function safeAnalysis(address: string, rpcUrl: string) {
   try {
-    const rpc = new RPCClient(rpcUrl);
+    const rpc = new RPCClient();
     const labelProvider = createDefaultLabelProvider();
     
     const rawData = await collectWalletData(rpc, address, {
@@ -533,7 +536,7 @@ import {
 } from 'solana-privacy-scanner-core';
 
 const app = express();
-const rpc = new RPCClient(process.env.SOLANA_RPC!);
+const rpc = new RPCClient();
 const labelProvider = createDefaultLabelProvider();
 
 app.get('/api/scan/:address', async (req, res) => {
@@ -582,7 +585,7 @@ export function usePrivacyScan(address: string | null, rpcUrl: string) {
       setError(null);
 
       try {
-        const rpc = new RPCClient(rpcUrl);
+        const rpc = new RPCClient();
         const labelProvider = createDefaultLabelProvider();
         
         const rawData = await collectWalletData(rpc, address, {
@@ -630,7 +633,7 @@ import {
   createDefaultLabelProvider 
 } from 'solana-privacy-scanner-core';
 
-const rpc = new RPCClient(process.env.SOLANA_RPC!);
+const rpc = new RPCClient();
 const labelProvider = createDefaultLabelProvider();
 
 export default async function handler(
@@ -683,7 +686,7 @@ const report2 = generateReport(context2);
 
 // ❌ Bad: Create new instances each time
 const report1 = generateReport(normalizeWalletData(
-  await collectWalletData(new RPCClient(rpcUrl), address1),
+  await collectWalletData(new RPCClient(), address1),
   createDefaultLabelProvider()
 ));
 ```
@@ -702,7 +705,7 @@ maxSignatures: 200
 
 ```typescript
 async function batchAnalyze(addresses: string[], rpcUrl: string) {
-  const rpc = new RPCClient(rpcUrl);
+  const rpc = new RPCClient();
   const labelProvider = createDefaultLabelProvider();
   
   const reports = await Promise.all(

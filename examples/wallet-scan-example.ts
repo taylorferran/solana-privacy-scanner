@@ -14,17 +14,15 @@ import {
 } from 'solana-privacy-scanner-core';
 
 // Configuration
-const RPC_URL = 'https://late-hardworking-waterfall.solana-mainnet.quiknode.pro/4017b48acf3a2a1665603cac096822ce4bec3a90/';
 const WALLET_ADDRESS = 'CG2j5yV6XokVsDBgGdgxUSi6jSAq6oq8J83LPivwJwwb';
 
 async function main() {
   console.log('🔍 Solana Privacy Scanner - Wallet Scan Example\n');
-  console.log(`Scanning wallet: ${WALLET_ADDRESS}`);
-  console.log(`Using RPC: ${RPC_URL.split('quiknode.pro')[0]}quiknode.pro/***\n`);
+  console.log(`Scanning wallet: ${WALLET_ADDRESS}\n`);
 
   try {
-    // Initialize RPC client
-    const rpc = new RPCClient(RPC_URL);
+    // Initialize RPC client (uses default RPC automatically)
+    const rpc = new RPCClient();
     
     // Initialize label provider (for known entity detection)
     const labelProvider = createDefaultLabelProvider();

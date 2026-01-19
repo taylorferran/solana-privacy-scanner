@@ -19,5 +19,5 @@ export * from './scanner/index.js';
 // Export label provider
 export * from './labels/index.js';
 
-// Export version
-export const VERSION = '0.1.0';
+// Export constants (version, default RPC, etc.)
+export * from './constants.js';

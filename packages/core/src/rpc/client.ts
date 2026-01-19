@@ -1,13 +1,14 @@
 import { Connection, ConnectionConfig } from '@solana/web3.js';
+import { DEFAULT_RPC_URL } from '../constants.js';
 
 /**
  * Configuration for the RPC client
  */
 export interface RPCClientConfig {
   /**
-   * RPC endpoint URL (Helius, QuickNode, or any Solana-compatible RPC)
+   * RPC endpoint URL (optional - uses default if not provided)
    */
-  rpcUrl: string;
+  rpcUrl?: string;
 
   /**
    * Maximum number of retries for failed requests
@@ -94,21 +95,23 @@ function sleep(ms: number): Promise<void> {
  * - Automatic retries with exponential backoff
  * - Rate limiting for concurrent requests
  * - Centralized error handling
- * - No CLI or UI logic
+ * - Default RPC endpoint (no configuration required)
  */
 export class RPCClient {
   private connection: Connection;
-  private config: Required<RPCClientConfig>;
+  private config: Required<Omit<RPCClientConfig, 'rpcUrl'>> & { rpcUrl: string };
   private rateLimiter: RateLimiter;
 
-  constructor(configOrUrl: RPCClientConfig | string) {
-    // Handle both string URL and config object
-    const config: RPCClientConfig = typeof configOrUrl === 'string' 
-      ? { rpcUrl: configOrUrl }
-      : configOrUrl;
+  constructor(configOrUrl?: RPCClientConfig | string) {
+    // Handle string URL, config object, or no arguments (use default)
+    const config: RPCClientConfig = !configOrUrl
+      ? {}
+      : typeof configOrUrl === 'string' 
+        ? { rpcUrl: configOrUrl }
+        : configOrUrl;
     
-    // Trim the RPC URL to handle trailing/leading whitespace
-    const rpcUrl = config.rpcUrl.trim();
+    // Use default RPC if none provided, trim to handle whitespace
+    const rpcUrl = (config.rpcUrl || DEFAULT_RPC_URL).trim();
     
     this.config = {
       maxRetries: config.maxRetries ?? 3,

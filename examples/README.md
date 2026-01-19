@@ -7,6 +7,7 @@ This directory contains working examples demonstrating how to use the Solana Pri
 - **4 new Solana-specific heuristics**: Fee Payer Reuse, Signer Overlap, Instruction Fingerprinting, Token Account Lifecycle
 - **Enhanced existing heuristics**: Better program/PDA detection, contextualized for Solana
 - **9 total heuristics** ranked by real-world Solana deanonymization power
+- **No RPC configuration needed** - Works out of the box!
 - Robust error handling and backwards compatibility
 :::
 
@@ -17,6 +18,8 @@ Install dependencies:
 ```bash
 npm install
 ```
+
+**No RPC configuration needed!** The scanner includes a reliable default endpoint.
 
 ## Examples
 

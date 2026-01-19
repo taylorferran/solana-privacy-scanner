@@ -8,18 +8,9 @@ Get scanning in under 2 minutes.
 npm install -g solana-privacy-scanner
 ```
 
-## Set Your RPC
+## Start Scanning Immediately
 
-```bash
-export SOLANA_RPC=https://your-helius-rpc-url.com
-```
-
-Or create `.env.local`:
-```
-SOLANA_RPC=https://your-helius-rpc-url.com
-```
-
-## Three Quick Commands
+No setup required! The scanner includes a reliable RPC endpoint.
 
 ### 1. Scan a Wallet
 
@@ -51,7 +42,7 @@ solana-privacy-scanner scan-program <PROGRAM_ID>
 # Save to file
 --output report.txt
 
-# Use custom RPC
+# Use custom RPC (optional)
 --rpc https://your-rpc.com
 ```
 

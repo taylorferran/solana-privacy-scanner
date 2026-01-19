@@ -14,17 +14,15 @@ import {
 } from 'solana-privacy-scanner-core';
 
 // Configuration
-const RPC_URL = 'https://late-hardworking-waterfall.solana-mainnet.quiknode.pro/4017b48acf3a2a1665603cac096822ce4bec3a90/';
 const TRANSACTION_SIGNATURE = '3Jxo3MpgA5wzrsuBbUEpBt6TtFN6g3ewevQ1EUr9mxNvr3CpZEZoePB2PqSFRGF6LaRWtPVN4vxCqzTZXYnE9Sxa';
 
 async function main() {
   console.log('🔍 Solana Privacy Scanner - Transaction Scan Example\n');
-  console.log(`Scanning transaction: ${TRANSACTION_SIGNATURE.slice(0, 20)}...`);
-  console.log(`Using RPC: ${RPC_URL.split('quiknode.pro')[0]}quiknode.pro/***\n`);
+  console.log(`Scanning transaction: ${TRANSACTION_SIGNATURE.slice(0, 20)}...\n`);
 
   try {
-    // Initialize RPC client
-    const rpc = new RPCClient(RPC_URL);
+    // Initialize RPC client (uses default RPC automatically)
+    const rpc = new RPCClient();
     
     // Initialize label provider (for known entity detection)
     const labelProvider = createDefaultLabelProvider();

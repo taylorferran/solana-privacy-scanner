@@ -6,7 +6,7 @@
 
 A developer tool that analyzes Solana wallets, transactions, or programs using public on-chain data and produces deterministic privacy risk reports.
 
-**Current Version:** `0.2.0` - [Changelog](./docs/changelog.md)
+**Current Version:** `0.3.0` - [Changelog](./docs/changelog.md)
 
 ---
 
@@ -36,8 +36,10 @@ Paste any Solana wallet address and scan instantly in your browser.
 
 ```bash
 npm install -g solana-privacy-scanner
-solana-privacy-scanner scan-wallet <ADDRESS> --rpc <RPC_URL>
+solana-privacy-scanner scan-wallet <ADDRESS>
 ```
+
+No setup required - includes a reliable RPC endpoint!
 
 ### Use as Library
 
@@ -54,7 +56,8 @@ import {
   createDefaultLabelProvider 
 } from 'solana-privacy-scanner-core';
 
-const rpc = new RPCClient('https://api.mainnet-beta.solana.com');
+// No RPC configuration needed!
+const rpc = new RPCClient();
 const labelProvider = createDefaultLabelProvider();
 const rawData = await collectWalletData(rpc, 'WALLET_ADDRESS');
 const context = normalizeWalletData(rawData, labelProvider);

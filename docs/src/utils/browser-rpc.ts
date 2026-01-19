@@ -1,6 +1,13 @@
+// Default RPC endpoint
+const DEFAULT_RPC_URL = 'https://late-hardworking-waterfall.solana-mainnet.quiknode.pro/4017b48acf3a2a1665603cac096822ce4bec3a90/';
+
 // Browser-compatible RPC client
 export class BrowserRPCClient {
-  constructor(private endpoint: string) {}
+  private endpoint: string;
+
+  constructor(endpoint?: string) {
+    this.endpoint = endpoint || DEFAULT_RPC_URL;
+  }
 
   async call(method: string, params: any[] = []) {
     const response = await fetch(this.endpoint, {

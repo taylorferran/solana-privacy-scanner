@@ -16,19 +16,16 @@
     "test": "vitest",
     "test:ci": "vitest run",
     "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
+    "docs:dev": "cd docs && npm start",
+    "docs:build": "cd docs && npm run build",
+    "docs:preview": "cd docs && npm run serve",
     "generate-images": "cd scripts && npm install && node generate-images.js"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
-    "buffer": "^6.0.3",
     "dotenv": "^16.4.7",
     "esbuild": "^0.24.2",
     "typescript": "^5.7.2",
-    "vite-plugin-node-polyfills": "^0.25.0",
-    "vitepress": "^1.6.4",
     "vitest": "^2.1.8"
   }
 }

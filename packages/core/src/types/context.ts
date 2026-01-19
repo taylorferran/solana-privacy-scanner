@@ -34,6 +34,44 @@ export interface NormalizedInstruction {
   signature: string;
   blockTime: number | null;
   data?: Record<string, unknown>;
+  // Solana-specific: accounts involved in instruction
+  accounts?: string[];
+}
+
+/**
+ * Transaction-level Solana metadata
+ */
+export interface TransactionMetadata {
+  signature: string;
+  blockTime: number | null;
+  feePayer: string;
+  signers: string[];
+  computeUnitsUsed?: number;
+  priorityFee?: number;
+  memo?: string;
+}
+
+/**
+ * Token account lifecycle event
+ */
+export interface TokenAccountEvent {
+  type: 'create' | 'close';
+  tokenAccount: string;
+  owner: string;
+  mint?: string;
+  signature: string;
+  blockTime: number | null;
+  rentRefund?: number; // SOL refunded on close
+}
+
+/**
+ * Program-Derived Address (PDA) interaction
+ */
+export interface PDAInteraction {
+  pda: string;
+  programId: string;
+  signature: string;
+  seeds?: string[]; // if derivable
 }
 
 /**
@@ -91,4 +129,36 @@ export interface ScanContext {
    * Total number of transactions analyzed
    */
   transactionCount: number;
+
+  // ===== SOLANA-SPECIFIC FIELDS =====
+
+  /**
+   * Transaction metadata (fee payers, signers, memos)
+   */
+  transactions: TransactionMetadata[];
+
+  /**
+   * Token account lifecycle events
+   */
+  tokenAccountEvents: TokenAccountEvent[];
+
+  /**
+   * PDA interactions detected
+   */
+  pdaInteractions: PDAInteraction[];
+
+  /**
+   * Unique fee payers across all transactions
+   */
+  feePayers: Set<string>;
+
+  /**
+   * Unique signers across all transactions
+   */
+  signers: Set<string>;
+
+  /**
+   * Program IDs interacted with
+   */
+  programs: Set<string>;
 }

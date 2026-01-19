@@ -1,6 +1,6 @@
 {
   "name": "solana-privacy-scanner-core",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "type": "module",
   "description": "Core scanning engine for Solana privacy analysis - analyze on-chain privacy exposure using heuristic-based risk detection",
   "main": "./dist/index.cjs",

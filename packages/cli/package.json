@@ -1,6 +1,6 @@
 {
   "name": "solana-privacy-scanner",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "type": "module",
   "description": "CLI tool for analyzing Solana wallet privacy and on-chain exposure - scan wallets, transactions, and programs",
   "bin": {

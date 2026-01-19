@@ -4,6 +4,9 @@ import type {
   InstructionCategory,
   ScanContext,
   LabelProvider,
+  TransactionMetadata,
+  TokenAccountEvent,
+  PDAInteraction,
 } from '../types/index.js';
 import type {
   RawWalletData,
@@ -24,6 +27,235 @@ const PROGRAM_IDS = {
   MEMO: 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr',
   MEMO_V1: 'Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo',
 };
+
+/**
+ * Extract transaction metadata (fee payer, signers, memos)
+ */
+function extractTransactionMetadata(
+  tx: ParsedTransactionWithMeta,
+  signature: string
+): TransactionMetadata {
+  // Defensive checks
+  if (!tx || !tx.transaction || !tx.transaction.message || !tx.transaction.message.accountKeys) {
+    // Return minimal metadata if transaction is malformed
+    return {
+      signature,
+      blockTime: tx?.blockTime || null,
+      feePayer: 'unknown',
+      signers: [],
+    };
+  }
+
+  const feePayer = tx.transaction.message.accountKeys[0];
+  const feePayerAddress = typeof feePayer === 'string' ? feePayer : feePayer.pubkey.toString();
+
+  // Extract signers (accounts with signatures)
+  const signers: string[] = [];
+  const accountKeys = tx.transaction.message.accountKeys;
+  
+  // First account is always fee payer/signer
+  signers.push(feePayerAddress);
+  
+  // Check for additional signers (those marked as signers in message)
+  if (accountKeys && Array.isArray(accountKeys)) {
+    for (let i = 1; i < accountKeys.length; i++) {
+      const key = accountKeys[i];
+      const address = typeof key === 'string' ? key : key.pubkey?.toString();
+      
+      // If key has signer property set to true, it's a signer
+      if (typeof key !== 'string' && key.signer) {
+        if (address && !signers.includes(address)) {
+          signers.push(address);
+        }
+      }
+    }
+  }
+
+  // Extract memo if present
+  let memo: string | undefined;
+  const instructions = tx.transaction.message.instructions;
+  if (instructions && Array.isArray(instructions)) {
+    for (const instruction of instructions) {
+      if (!instruction || !instruction.programId) continue;
+      
+      const programId = instruction.programId.toString();
+      if (programId === PROGRAM_IDS.MEMO || programId === PROGRAM_IDS.MEMO_V1) {
+        // Try to extract memo data
+        if ('parsed' in instruction && instruction.parsed) {
+          const parsed = instruction.parsed as any;
+          if (parsed.type === 'memo' && typeof parsed.info === 'string') {
+            memo = parsed.info;
+          }
+        } else if ('data' in instruction && typeof instruction.data === 'string') {
+          // Base58/base64 encoded memo
+          try {
+            memo = Buffer.from(instruction.data, 'base64').toString('utf8');
+          } catch {
+            // Keep raw data if decoding fails
+            memo = instruction.data;
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  // Extract compute units and priority fee if available
+  let computeUnitsUsed: number | undefined;
+  let priorityFee: number | undefined;
+  
+  if (tx.meta) {
+    computeUnitsUsed = tx.meta.computeUnitsConsumed;
+    
+    // Priority fee is in the fee field, minus base fee
+    if (tx.meta.fee !== undefined && tx.meta.fee > 5000) {
+      priorityFee = tx.meta.fee - 5000; // Subtract base fee
+    }
+  }
+
+  return {
+    signature,
+    blockTime: tx.blockTime,
+    feePayer: feePayerAddress,
+    signers,
+    computeUnitsUsed,
+    priorityFee,
+    memo,
+  };
+}
+
+/**
+ * Extract token account lifecycle events (create/close)
+ */
+function extractTokenAccountEvents(
+  tx: ParsedTransactionWithMeta,
+  signature: string
+): TokenAccountEvent[] {
+  const events: TokenAccountEvent[] = [];
+  
+  if (!tx.transaction?.message?.instructions) {
+    return events;
+  }
+
+  for (const instruction of tx.transaction.message.instructions) {
+    if (!instruction || !instruction.programId) continue;
+    
+    const programId = instruction.programId.toString();
+    
+    // Check for SPL Token or Associated Token Program instructions
+    if (programId === PROGRAM_IDS.TOKEN || programId === PROGRAM_IDS.ASSOCIATED_TOKEN) {
+      if ('parsed' in instruction && instruction.parsed) {
+        const parsed = instruction.parsed as any;
+        
+        // InitializeAccount = token account creation
+        if (parsed.type === 'initializeAccount' || parsed.type === 'create') {
+          const info = parsed.info;
+          events.push({
+            type: 'create',
+            tokenAccount: info.account || info.newAccount,
+            owner: info.owner,
+            mint: info.mint,
+            signature,
+            blockTime: tx.blockTime,
+          });
+        }
+        
+        // CloseAccount = token account closure (rent refund)
+        if (parsed.type === 'closeAccount') {
+          const info = parsed.info;
+          
+          // Calculate rent refund from balance changes
+          let rentRefund: number | undefined;
+          if (tx.meta?.postBalances && tx.meta?.preBalances) {
+            const accountKeys = tx.transaction.message.accountKeys;
+            for (let i = 0; i < accountKeys.length; i++) {
+              const key = accountKeys[i];
+              const address = typeof key === 'string' ? key : key.pubkey.toString();
+              if (address === info.destination) {
+                const diff = tx.meta.postBalances[i] - tx.meta.preBalances[i];
+                if (diff > 0) {
+                  rentRefund = diff / 1e9; // Convert lamports to SOL
+                }
+                break;
+              }
+            }
+          }
+          
+          events.push({
+            type: 'close',
+            tokenAccount: info.account,
+            owner: info.owner || info.destination,
+            signature,
+            blockTime: tx.blockTime,
+            rentRefund,
+          });
+        }
+      }
+    }
+  }
+
+  return events;
+}
+
+/**
+ * Detect if an address is likely a PDA (Program-Derived Address)
+ * PDAs have specific characteristics: they're off-curve addresses
+ * In practice, we look for accounts owned by programs that appear in multiple txs
+ */
+function extractPDAInteractions(
+  tx: ParsedTransactionWithMeta,
+  signature: string
+): PDAInteraction[] {
+  const interactions: PDAInteraction[] = [];
+  
+  if (!tx.transaction?.message?.accountKeys) {
+    return interactions;
+  }
+
+  // Build a map of accounts and which programs interact with them
+  const accountProgramMap = new Map<string, Set<string>>();
+  
+  for (const instruction of tx.transaction.message.instructions) {
+    if (!instruction || !instruction.programId) continue;
+    
+    const programId = instruction.programId.toString();
+    
+    // Get accounts involved in this instruction
+    const accounts: string[] = [];
+    if ('accounts' in instruction && Array.isArray(instruction.accounts)) {
+      for (const acc of instruction.accounts) {
+        const address = typeof acc === 'string' ? acc : acc.toString();
+        accounts.push(address);
+      }
+    }
+    
+    // Record program-account relationships
+    for (const account of accounts) {
+      if (!accountProgramMap.has(account)) {
+        accountProgramMap.set(account, new Set());
+      }
+      accountProgramMap.get(account)!.add(programId);
+    }
+  }
+
+  // Accounts interacted with by non-system programs are likely PDAs or program accounts
+  for (const [address, programs] of accountProgramMap) {
+    for (const programId of programs) {
+      // Skip system program and well-known user-controlled programs
+      if (programId === PROGRAM_IDS.SYSTEM || programId === PROGRAM_IDS.MEMO || programId === PROGRAM_IDS.MEMO_V1) {
+        continue;
+      }
+      
+      interactions.push({
+        pda: address,
+        programId,
+        signature,
+      });
+    }
+  }
+
+  return interactions;
+}
 
 /**
  * Extract SOL transfers from a parsed transaction
@@ -284,12 +516,22 @@ function extractInstructions(
       data = instruction.parsed as Record<string, unknown>;
     }
 
+    // Extract accounts involved in instruction
+    const accounts: string[] = [];
+    if ('accounts' in instruction && Array.isArray(instruction.accounts)) {
+      for (const acc of instruction.accounts) {
+        const address = typeof acc === 'string' ? acc : acc.toString();
+        accounts.push(address);
+      }
+    }
+
     instructions.push({
       programId,
       category,
       signature,
       blockTime: tx.blockTime,
       data,
+      accounts: accounts.length > 0 ? accounts : undefined,
     });
   }
 
@@ -347,6 +589,9 @@ export function normalizeWalletData(
 ): ScanContext {
   const allTransfers: Transfer[] = [];
   const allInstructions: NormalizedInstruction[] = [];
+  const allTransactionMetadata: TransactionMetadata[] = [];
+  const allTokenAccountEvents: TokenAccountEvent[] = [];
+  const allPDAInteractions: PDAInteraction[] = [];
 
   // Ensure transactions exists and is an array
   const transactions = rawData.transactions || [];
@@ -364,6 +609,18 @@ export function normalizeWalletData(
       // Extract instructions
       const instructions = extractInstructions(rawTx.transaction, rawTx.signature);
       allInstructions.push(...instructions);
+
+      // Extract Solana-specific metadata
+      const metadata = extractTransactionMetadata(rawTx.transaction, rawTx.signature);
+      allTransactionMetadata.push(metadata);
+
+      // Extract token account events
+      const tokenEvents = extractTokenAccountEvents(rawTx.transaction, rawTx.signature);
+      allTokenAccountEvents.push(...tokenEvents);
+
+      // Extract PDA interactions
+      const pdaInteractions = extractPDAInteractions(rawTx.transaction, rawTx.signature);
+      allPDAInteractions.push(...pdaInteractions);
     } catch (error) {
       // Skip problematic transactions but continue processing
       console.warn(`Failed to normalize transaction ${rawTx.signature}:`, error);
@@ -396,16 +653,39 @@ export function normalizeWalletData(
     }
   }).filter((ta): ta is NonNullable<typeof ta> => ta !== null);
 
+  // Aggregate Solana-specific data
+  const feePayers = new Set<string>();
+  const signers = new Set<string>();
+  const programs = new Set<string>();
+
+  for (const metadata of allTransactionMetadata) {
+    feePayers.add(metadata.feePayer);
+    for (const signer of metadata.signers) {
+      signers.add(signer);
+    }
+  }
+
+  for (const instruction of allInstructions) {
+    programs.add(instruction.programId);
+  }
+
   return {
     target: rawData.address,
     targetType: 'wallet',
     transfers: allTransfers,
     instructions: allInstructions,
     counterparties,
-    labels: new Map(),
+    labels,
     tokenAccounts,
     timeRange,
     transactionCount: transactions.length,
+    // Solana-specific fields
+    transactions: allTransactionMetadata,
+    tokenAccountEvents: allTokenAccountEvents,
+    pdaInteractions: allPDAInteractions,
+    feePayers,
+    signers,
+    programs,
   };
 }
 
@@ -419,6 +699,12 @@ export function normalizeTransactionData(
   const allTransfers: Transfer[] = [];
   const allInstructions: NormalizedInstruction[] = [];
   const counterparties = new Set<string>();
+  const allTransactionMetadata: TransactionMetadata[] = [];
+  const allTokenAccountEvents: TokenAccountEvent[] = [];
+  const allPDAInteractions: PDAInteraction[] = [];
+  const feePayers = new Set<string>();
+  const signers = new Set<string>();
+  const programs = new Set<string>();
 
   if (rawData.transaction) {
     try {
@@ -431,6 +717,22 @@ export function normalizeTransactionData(
       const instructions = extractInstructions(rawData.transaction, rawData.signature);
       allInstructions.push(...instructions);
 
+      // Extract Solana-specific metadata
+      const metadata = extractTransactionMetadata(rawData.transaction, rawData.signature);
+      allTransactionMetadata.push(metadata);
+      feePayers.add(metadata.feePayer);
+      for (const signer of metadata.signers) {
+        signers.add(signer);
+      }
+
+      // Extract token account events
+      const tokenEvents = extractTokenAccountEvents(rawData.transaction, rawData.signature);
+      allTokenAccountEvents.push(...tokenEvents);
+
+      // Extract PDA interactions
+      const pdaInteractions = extractPDAInteractions(rawData.transaction, rawData.signature);
+      allPDAInteractions.push(...pdaInteractions);
+
       // Extract all unique addresses involved
       const accountKeys = rawData.transaction.transaction.message.accountKeys;
       if (accountKeys && Array.isArray(accountKeys)) {
@@ -439,10 +741,19 @@ export function normalizeTransactionData(
           counterparties.add(address);
         }
       }
+
+      // Collect programs
+      for (const instruction of instructions) {
+        programs.add(instruction.programId);
+      }
     } catch (error) {
       console.warn(`Failed to normalize transaction ${rawData.signature}:`, error);
     }
   }
+
+  const labels = labelProvider
+    ? labelProvider.lookupMany(Array.from(counterparties))
+    : new Map();
 
   return {
     target: rawData.signature,
@@ -450,13 +761,20 @@ export function normalizeTransactionData(
     transfers: allTransfers,
     instructions: allInstructions,
     counterparties,
-    labels: new Map(),
+    labels,
     tokenAccounts: [],
     timeRange: {
       earliest: rawData.transaction ? rawData.blockTime : null,
       latest: rawData.transaction ? rawData.blockTime : null,
     },
     transactionCount: rawData.transaction ? 1 : 0,
+    // Solana-specific fields
+    transactions: allTransactionMetadata,
+    tokenAccountEvents: allTokenAccountEvents,
+    pdaInteractions: allPDAInteractions,
+    feePayers,
+    signers,
+    programs,
   };
 }
 
@@ -470,6 +788,12 @@ export function normalizeProgramData(
   const allTransfers: Transfer[] = [];
   const allInstructions: NormalizedInstruction[] = [];
   const counterparties = new Set<string>();
+  const allTransactionMetadata: TransactionMetadata[] = [];
+  const allTokenAccountEvents: TokenAccountEvent[] = [];
+  const allPDAInteractions: PDAInteraction[] = [];
+  const feePayers = new Set<string>();
+  const signers = new Set<string>();
+  const programs = new Set<string>();
 
   // Ensure relatedTransactions exists and is an array
   const transactions = rawData.relatedTransactions || [];
@@ -488,6 +812,22 @@ export function normalizeProgramData(
       const instructions = extractInstructions(rawTx.transaction, rawTx.signature);
       allInstructions.push(...instructions);
 
+      // Extract Solana-specific metadata
+      const metadata = extractTransactionMetadata(rawTx.transaction, rawTx.signature);
+      allTransactionMetadata.push(metadata);
+      feePayers.add(metadata.feePayer);
+      for (const signer of metadata.signers) {
+        signers.add(signer);
+      }
+
+      // Extract token account events
+      const tokenEvents = extractTokenAccountEvents(rawTx.transaction, rawTx.signature);
+      allTokenAccountEvents.push(...tokenEvents);
+
+      // Extract PDA interactions
+      const pdaInteractions = extractPDAInteractions(rawTx.transaction, rawTx.signature);
+      allPDAInteractions.push(...pdaInteractions);
+
       // Extract counterparties
       const accountKeys = rawTx.transaction.transaction.message.accountKeys;
       if (accountKeys && Array.isArray(accountKeys)) {
@@ -495,6 +835,11 @@ export function normalizeProgramData(
           const address = typeof key === 'string' ? key : key.pubkey.toString();
           counterparties.add(address);
         }
+      }
+
+      // Collect programs
+      for (const instruction of instructions) {
+        programs.add(instruction.programId);
       }
     } catch (error) {
       console.warn(`Failed to normalize program transaction ${rawTx.signature}:`, error);
@@ -516,9 +861,16 @@ export function normalizeProgramData(
     transfers: allTransfers,
     instructions: allInstructions,
     counterparties,
-    labels: new Map(),
+    labels,
     tokenAccounts: [],
     timeRange,
     transactionCount: transactions.length,
+    // Solana-specific fields
+    transactions: allTransactionMetadata,
+    tokenAccountEvents: allTokenAccountEvents,
+    pdaInteractions: allPDAInteractions,
+    feePayers,
+    signers,
+    programs,
   };
 }

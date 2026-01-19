@@ -6,14 +6,16 @@
 
 A developer tool that analyzes Solana wallets, transactions, or programs using public on-chain data and produces deterministic privacy risk reports.
 
-**Current Version:** `0.1.4` - [Changelog](./docs/changelog.md)
+**Current Version:** `0.2.0` - [Changelog](./docs/changelog.md)
 
 ---
 
 ## ✨ Features
 
 - 🔍 **Comprehensive scanning** - Analyze wallets, transactions, and programs
+- 🎯 **Solana-native heuristics** - 9 privacy signals tailored to Solana's unique architecture
 - 📊 **Clear risk assessments** - LOW/MEDIUM/HIGH ratings with transparent scoring
+- ⚠️ **Critical leak detection** - Fee payer reuse, signer overlap, and more
 - 🏷️ **Known entity detection** - Identifies CEXs, bridges, protocols, and major programs
 - 💡 **Actionable guidance** - Specific mitigation recommendations for each risk
 - 🧪 **Robust & tested** - 36 tests covering edge cases and error handling
@@ -200,15 +202,42 @@ Found a bug? [Open an issue](https://github.com/taylorferran/solana-privacy-scan
 
 ## 🔒 Privacy Heuristics
 
-The scanner uses five transparent heuristics:
+The scanner uses **nine Solana-specific heuristics**, ranked by deanonymization power:
 
-1. **Counterparty Reuse** - Repeated interactions with same addresses
-2. **Amount Reuse** - Round numbers and repeated amounts
-3. **Timing Patterns** - Transaction bursts and regular intervals
-4. **Known Entity Interaction** - Connections to CEXs, bridges, protocols
-5. **Balance Traceability** - Matching send/receive patterns
+### Critical Solana-Specific Heuristics
 
-All heuristics are [fully documented](https://sps.guide/reports/heuristics).
+1. **Fee Payer Reuse** ⚠️ CRITICAL  
+   Detects when one wallet pays fees for multiple accounts, creating hard linkage. Most powerful deanonymization vector on Solana.
+
+2. **Signer Overlap** 🔴 HIGH  
+   Identifies when the same signers appear across transactions, revealing control structures and multi-sig patterns.
+
+3. **Known Entity Interaction** 🔴 HIGH  
+   Flags direct interactions with CEXs, bridges, and KYC services.
+
+### Behavioral Fingerprinting
+
+4. **Counterparty & PDA Reuse** 🟡 MEDIUM  
+   Tracks repeated interactions with the same addresses, PDAs, and program accounts.
+
+5. **Instruction Fingerprinting** 🟡 MEDIUM  
+   Detects unique program interaction patterns and instruction sequences.
+
+6. **Token Account Lifecycle** 🟡 MEDIUM  
+   Traces rent refunds from closed token accounts, linking burner accounts to owners.
+
+### Traditional Heuristics (Solana-Adapted)
+
+7. **Timing Patterns** 🟢 LOW-MEDIUM  
+   Identifies transaction bursts, periodic patterns, and automation signatures.
+
+8. **Amount Reuse** 🟢 LOW  
+   Flags repeated amounts (downgraded for Solana - round numbers are common and benign).
+
+9. **Balance Traceability** 🟢 LOW  
+   Analyzes balance changes and flow patterns across transactions.
+
+All heuristics are [fully documented](https://sps.guide/reports/heuristics) with severity thresholds and mitigation guidance.
 
 ---
 

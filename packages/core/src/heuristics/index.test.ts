@@ -28,16 +28,17 @@ describe('Privacy Heuristics', () => {
         transactionCount: 4,
       };
 
-      const signal = detectCounterpartyReuse(context);
+      const signals = detectCounterpartyReuse(context);
 
-      expect(signal).not.toBeNull();
-      expect(signal?.id).toBe('counterparty-reuse');
-      expect(signal?.severity).toBeDefined();
-      expect(signal?.evidence.length).toBeGreaterThan(0);
-      console.log(`✓ Detected counterparty reuse: ${signal?.severity} severity`);
+      expect(signals).toBeInstanceOf(Array);
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0].id).toBe('counterparty-reuse'); // Not -direct, just 'counterparty-reuse'
+      expect(signals[0].severity).toBeDefined();
+      expect(signals[0].evidence.length).toBeGreaterThan(0);
+      console.log(`✓ Detected counterparty reuse: ${signals[0].severity} severity`);
     });
 
-    it('should return null for wallet with diverse counterparties', () => {
+    it('should return empty array for wallet with diverse counterparties', () => {
       const context: ScanContext = {
         target: 'wallet1',
         targetType: 'wallet',
@@ -54,8 +55,9 @@ describe('Privacy Heuristics', () => {
         transactionCount: 3,
       };
 
-      const signal = detectCounterpartyReuse(context);
-      expect(signal).toBeNull();
+      const signals = detectCounterpartyReuse(context);
+      expect(signals).toBeInstanceOf(Array);
+      expect(signals.length).toBe(0);
       console.log('✓ No counterparty reuse detected (diverse interactions)');
     });
   });
@@ -69,20 +71,24 @@ describe('Privacy Heuristics', () => {
           { from: 'wallet1', to: 'wallet2', amount: 10, signature: 'sig1', blockTime: 1000 },
           { from: 'wallet1', to: 'wallet3', amount: 100, signature: 'sig2', blockTime: 2000 },
           { from: 'wallet1', to: 'wallet4', amount: 1, signature: 'sig3', blockTime: 3000 },
+          { from: 'wallet1', to: 'wallet5', amount: 5, signature: 'sig4', blockTime: 4000 },
+          { from: 'wallet1', to: 'wallet6', amount: 50, signature: 'sig5', blockTime: 5000 },
+          { from: 'wallet1', to: 'wallet7', amount: 25, signature: 'sig6', blockTime: 6000 },
         ],
         instructions: [],
-        counterparties: new Set(['wallet2', 'wallet3', 'wallet4']),
+        counterparties: new Set(['wallet2', 'wallet3', 'wallet4', 'wallet5', 'wallet6', 'wallet7']),
         labels: new Map(),
         tokenAccounts: [],
-        timeRange: { earliest: 1000, latest: 3000 },
-        transactionCount: 3,
+        timeRange: { earliest: 1000, latest: 6000 },
+        transactionCount: 6,
       };
 
-      const signal = detectAmountReuse(context);
+      const signals = detectAmountReuse(context);
 
-      expect(signal).not.toBeNull();
-      expect(signal?.id).toBe('amount-reuse');
-      console.log(`✓ Detected amount reuse: ${signal?.severity} severity`);
+      expect(signals).toBeInstanceOf(Array);
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0].id).toBe('amount-round-numbers');
+      console.log(`✓ Detected amount reuse: ${signals[0].severity} severity`);
     });
 
     it('should detect repeated exact amounts', () => {
@@ -92,22 +98,26 @@ describe('Privacy Heuristics', () => {
         transfers: [
           { from: 'wallet1', to: 'wallet2', amount: 1.234, signature: 'sig1', blockTime: 1000 },
           { from: 'wallet1', to: 'wallet3', amount: 1.234, signature: 'sig2', blockTime: 2000 },
-          { from: 'wallet1', to: 'wallet4', amount: 5.678, signature: 'sig3', blockTime: 3000 },
+          { from: 'wallet1', to: 'wallet4', amount: 1.234, signature: 'sig3', blockTime: 3000 },
           { from: 'wallet1', to: 'wallet5', amount: 5.678, signature: 'sig4', blockTime: 4000 },
+          { from: 'wallet1', to: 'wallet6', amount: 5.678, signature: 'sig5', blockTime: 5000 },
+          { from: 'wallet1', to: 'wallet7', amount: 5.678, signature: 'sig6', blockTime: 6000 },
         ],
         instructions: [],
-        counterparties: new Set(['wallet2', 'wallet3', 'wallet4', 'wallet5']),
+        counterparties: new Set(['wallet2', 'wallet3', 'wallet4', 'wallet5', 'wallet6', 'wallet7']),
         labels: new Map(),
         tokenAccounts: [],
-        timeRange: { earliest: 1000, latest: 4000 },
-        transactionCount: 4,
+        timeRange: { earliest: 1000, latest: 6000 },
+        transactionCount: 6,
       };
 
-      const signal = detectAmountReuse(context);
+      const signals = detectAmountReuse(context);
 
-      expect(signal).not.toBeNull();
-      expect(signal?.id).toBe('amount-reuse');
-      console.log(`✓ Detected repeated amounts: ${signal?.evidence.length} patterns`);
+      expect(signals).toBeInstanceOf(Array);
+      expect(signals.length).toBeGreaterThan(0);
+      const exactSignal = signals.find(s => s.id === 'amount-reuse-pattern' || s.id === 'amount-reuse-counterparty' || s.id === 'amount-reuse-frequency');
+      expect(exactSignal).toBeDefined();
+      console.log(`✓ Detected repeated amounts: ${exactSignal?.evidence.length} patterns`);
     });
   });
 

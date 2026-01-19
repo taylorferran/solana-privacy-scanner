@@ -1,12 +1,13 @@
 # Examples
 
-This directory contains working examples demonstrating how to use the Solana Privacy Scanner (v0.1.4+).
+This directory contains working examples demonstrating how to use the Solana Privacy Scanner (v0.2.0+).
 
-::: tip What's New in v0.1.4
-- Robust error handling for RPC failures
-- Improved handling of undefined/null data
-- Comprehensive test coverage (36 tests)
-- Better defensive programming throughout
+::: tip What's New in v0.2.0
+- **Solana-native privacy model** - No longer Ethereum-biased!
+- **4 new Solana-specific heuristics**: Fee Payer Reuse, Signer Overlap, Instruction Fingerprinting, Token Account Lifecycle
+- **Enhanced existing heuristics**: Better program/PDA detection, contextualized for Solana
+- **9 total heuristics** ranked by real-world Solana deanonymization power
+- Robust error handling and backwards compatibility
 :::
 
 ## Setup

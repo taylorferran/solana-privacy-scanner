@@ -7,6 +7,12 @@ export type {
   ScanContext, 
   Transfer, 
   NormalizedInstruction, 
-  InstructionCategory 
+  InstructionCategory,
+  TransactionMetadata,
+  TokenAccountEvent,
+  PDAInteraction,
 } from './context.js';
 export type { Label, LabelType, LabelProvider } from './label.js';
+
+// Type aliases for convenience
+export type PrivacySignal = RiskSignal;

@@ -14,22 +14,27 @@ export type EvidenceType =
  */
 export interface Evidence {
   /**
-   * Type of evidence
-   */
-  type: EvidenceType;
-
-  /**
    * Human-readable description of the evidence
    */
   description: string;
 
   /**
-   * Structured data supporting the evidence
+   * Severity level of this specific evidence
    */
-  data: Record<string, unknown>;
+  severity?: 'LOW' | 'MEDIUM' | 'HIGH';
 
   /**
    * Optional reference (transaction signature, address, etc.)
    */
   reference?: string;
+
+  /**
+   * Type of evidence (optional, for backwards compatibility)
+   */
+  type?: EvidenceType;
+
+  /**
+   * Structured data supporting the evidence (optional, for backwards compatibility)
+   */
+  data?: Record<string, unknown>;
 }

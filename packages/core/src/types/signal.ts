@@ -21,6 +21,11 @@ export interface RiskSignal {
   severity: RiskLevel;
 
   /**
+   * Category of the signal (optional)
+   */
+  category?: 'linkability' | 'behavioral' | 'exposure';
+
+  /**
    * Why this signal was triggered
    */
   reason: string;
@@ -43,6 +48,7 @@ export interface RiskSignal {
   /**
    * Confidence level in this signal (0-1)
    * Lower values indicate more speculative heuristics
+   * Optional for backwards compatibility
    */
-  confidence: number;
+  confidence?: number;
 }

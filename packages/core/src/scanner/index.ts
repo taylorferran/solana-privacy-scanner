@@ -5,6 +5,10 @@ import {
   detectTimingPatterns,
   detectKnownEntityInteraction,
   detectBalanceTraceability,
+  detectFeePayerReuse,
+  detectSignerOverlap,
+  detectInstructionFingerprinting,
+  detectTokenAccountLifecycle,
 } from '../heuristics/index.js';
 
 /**
@@ -16,10 +20,16 @@ const REPORT_VERSION = '1.0.0';
  * All available heuristic functions
  */
 const HEURISTICS = [
-  detectCounterpartyReuse,
-  detectAmountReuse,
-  detectTimingPatterns,
+  // Solana-specific (highest priority)
+  detectFeePayerReuse,
+  detectSignerOverlap,
   detectKnownEntityInteraction,
+  detectCounterpartyReuse,
+  detectInstructionFingerprinting,
+  detectTokenAccountLifecycle,
+  // Traditional heuristics
+  detectTimingPatterns,
+  detectAmountReuse,
   detectBalanceTraceability,
 ];
 
@@ -65,11 +75,29 @@ function generateMitigations(signals: RiskSignal[]): string[] {
   // Check for specific signal types and add relevant mitigations
   const signalIds = new Set(signals.map(s => s.id));
 
+  // Solana-specific mitigations
+  if (signalIds.has('fee-payer-never-self') || signalIds.has('fee-payer-external')) {
+    mitigations.add('Always pay your own transaction fees to avoid linkage.');
+  }
+
+  if (signalIds.has('signer-repeated') || signalIds.has('signer-set-reuse')) {
+    mitigations.add('Use separate signing keys for unrelated activities.');
+  }
+
+  if (signalIds.has('instruction-sequence-pattern') || signalIds.has('program-usage-profile')) {
+    mitigations.add('Diversify transaction patterns and protocols to reduce behavioral fingerprinting.');
+  }
+
+  if (signalIds.has('token-account-churn') || signalIds.has('rent-refund-clustering')) {
+    mitigations.add('Avoid closing token accounts if privacy is important - the rent refund creates linkage.');
+  }
+
+  // Traditional mitigations
   if (signalIds.has('known-entity-interaction')) {
     mitigations.add('Avoid direct interactions between privacy-sensitive wallets and KYC services.');
   }
 
-  if (signalIds.has('counterparty-reuse')) {
+  if (signalIds.has('counterparty-reuse') || signalIds.has('pda-reuse')) {
     mitigations.add('Use different addresses for different counterparties or contexts.');
   }
 
@@ -95,9 +123,12 @@ export function evaluateHeuristics(context: ScanContext): RiskSignal[] {
 
   for (const heuristic of HEURISTICS) {
     try {
-      const signal = heuristic(context);
-      if (signal) {
-        signals.push(signal);
+      const result = heuristic(context);
+      // Handle both array and single/null returns for backwards compatibility
+      if (Array.isArray(result)) {
+        signals.push(...result);
+      } else if (result) {
+        signals.push(result);
       }
     } catch (error) {
       // Log but don't fail if a heuristic errors

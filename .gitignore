@@ -30,3 +30,6 @@ coverage/
 # VitePress
 docs/.vitepress/cache
 docs/.vitepress/dist
+
+# Example repo (separate git repo)
+solana-privacy-scanner-example/

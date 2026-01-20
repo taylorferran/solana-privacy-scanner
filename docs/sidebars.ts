@@ -7,6 +7,7 @@ const sidebars: SidebarsConfig = {
       label: 'Introduction',
       items: [
         'guide/what-is-this',
+        'guide/why-privacy',
         'guide/getting-started',
         'guide/concepts',
         'guide/quicknode',
@@ -19,6 +20,13 @@ const sidebars: SidebarsConfig = {
         'reports/risk-levels',
         'reports/heuristics',
         'reports/known-entities',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Advanced',
+      items: [
+        'advanced/custom-heuristics',
       ],
     },
     {
@@ -69,6 +77,7 @@ const sidebars: SidebarsConfig = {
       label: 'CI/CD Tools',
       items: [
         'ci-tools/overview',
+        'ci-tools/example',
         'ci-tools/testing',
         'ci-tools/github-actions',
         'ci-tools/for-llms',

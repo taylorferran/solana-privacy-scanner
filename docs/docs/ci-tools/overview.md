@@ -2,6 +2,16 @@
 
 Test privacy in your development workflow.
 
+## Live Example
+
+See it in action: **[solana-privacy-scanner-example](https://github.com/taylorferran/solana-privacy-scanner-example)**
+
+This repository demonstrates:
+- **[PR #1](https://github.com/taylorferran/solana-privacy-scanner-example/pull/1)** - Privacy leak detected (CI fails ❌)
+- **[PR #2](https://github.com/taylorferran/solana-privacy-scanner-example/pull/2)** - Privacy leak fixed (CI passes ✅)
+
+See the exact workflow, tests, and how privacy violations are caught automatically.
+
 ## Installation
 
 ```bash

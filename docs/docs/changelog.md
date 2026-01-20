@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.1] - 2026-01-20
+
+### Added
+
+**New Heuristics**
+- `memo-exposure` - Detects PII and sensitive information in transaction memos (3 signal types: PII exposure, descriptive content, general memo usage)
+- `address-reuse` - Analyzes wallet address diversity across counterparties (3 signal types: high/moderate diversity, long-term usage)
+
+**Enhanced Heuristics**
+- `timing-patterns` - Now returns multiple signals for different patterns (burst patterns, regular intervals, timezone patterns)
+- `balance-traceability` - Returns multiple signals (matching pairs, sequential similar amounts, full balance movements)
+- `known-entity` - Returns entity-specific signals (exchange, bridge, other) instead of generic interaction
+
+### Changed
+
+- All heuristics now return `PrivacySignal[]` arrays for consistency and better granularity
+- Removed Ethereum mentions from `amount-reuse` heuristic
+- Scanner updated to handle array returns from all heuristics
+- Improved mitigation suggestions for new signal types
+
+### Fixed
+
+- Test expectations updated for new array return types
+- All 40 tests passing
+
+---
+
 ## [0.3.0 / CI Tools 0.1.0] - 2026-01-19
 
 ### 🎉 New Package: CI/CD Tools

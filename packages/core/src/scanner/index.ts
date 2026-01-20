@@ -9,6 +9,8 @@ import {
   detectSignerOverlap,
   detectInstructionFingerprinting,
   detectTokenAccountLifecycle,
+  detectMemoExposure,
+  detectAddressReuse,
 } from '../heuristics/index.js';
 
 /**
@@ -23,6 +25,8 @@ const HEURISTICS = [
   // Solana-specific (highest priority)
   detectFeePayerReuse,
   detectSignerOverlap,
+  detectMemoExposure,
+  detectAddressReuse,
   detectKnownEntityInteraction,
   detectCounterpartyReuse,
   detectInstructionFingerprinting,
@@ -92,8 +96,16 @@ function generateMitigations(signals: RiskSignal[]): string[] {
     mitigations.add('Avoid closing token accounts if privacy is important - the rent refund creates linkage.');
   }
 
+  if (signalIds.has('memo-pii-exposure') || signalIds.has('memo-descriptive-content') || signalIds.has('memo-usage')) {
+    mitigations.add('Never include personal information in transaction memos - they are permanently public.');
+  }
+
+  if (signalIds.has('address-high-diversity') || signalIds.has('address-moderate-diversity') || signalIds.has('address-long-term-usage')) {
+    mitigations.add('Use separate addresses for different activity types to compartmentalize your behavior.');
+  }
+
   // Traditional mitigations
-  if (signalIds.has('known-entity-interaction')) {
+  if (signalIds.has('known-entity-exchange') || signalIds.has('known-entity-bridge') || signalIds.has('known-entity-other') || signalIds.has('known-entity-interaction')) {
     mitigations.add('Avoid direct interactions between privacy-sensitive wallets and KYC services.');
   }
 
@@ -101,8 +113,12 @@ function generateMitigations(signals: RiskSignal[]): string[] {
     mitigations.add('Use different addresses for different counterparties or contexts.');
   }
 
-  if (signalIds.has('timing-correlation') || signalIds.has('balance-traceability')) {
+  if (signalIds.has('timing-burst') || signalIds.has('timing-regular-interval') || signalIds.has('timing-timezone-pattern') || signalIds.has('timing-correlation')) {
     mitigations.add('Introduce timing delays and vary transaction patterns to reduce correlation.');
+  }
+
+  if (signalIds.has('balance-matching-pairs') || signalIds.has('balance-sequential-similar') || signalIds.has('balance-full-movement') || signalIds.has('balance-traceability')) {
+    mitigations.add('Vary transfer amounts and add delays to reduce balance traceability.');
   }
 
   if (signalIds.has('amount-reuse')) {

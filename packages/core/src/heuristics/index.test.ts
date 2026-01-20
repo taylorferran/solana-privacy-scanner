@@ -143,11 +143,11 @@ describe('Privacy Heuristics', () => {
         transactionCount: 6,
       };
 
-      const signal = detectTimingPatterns(context);
+      const signals = detectTimingPatterns(context);
 
-      expect(signal).not.toBeNull();
-      expect(signal?.id).toBe('timing-correlation');
-      expect(signal?.severity).toBe('HIGH');
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0]?.id).toBe('timing-burst');
+      expect(signals[0]?.severity).toBe('HIGH');
       console.log(`✓ Detected burst: ${context.transactionCount} txs in 5 minutes`);
     });
 
@@ -171,8 +171,8 @@ describe('Privacy Heuristics', () => {
         transactionCount: 3,
       };
 
-      const signal = detectTimingPatterns(context);
-      expect(signal).toBeNull();
+      const signals = detectTimingPatterns(context);
+      expect(signals.length).toBe(0);
       console.log('✓ No timing pattern detected (spread out over days)');
     });
   });
@@ -196,12 +196,12 @@ describe('Privacy Heuristics', () => {
         transactionCount: 2,
       };
 
-      const signal = detectKnownEntityInteraction(context);
+      const signals = detectKnownEntityInteraction(context);
 
-      expect(signal).not.toBeNull();
-      expect(signal?.id).toBe('known-entity-interaction');
-      expect(signal?.severity).toBe('HIGH');
-      console.log(`✓ Detected CEX interaction: ${signal?.evidence[0].description}`);
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0]?.id).toBe('known-entity-exchange');
+      expect(signals[0]?.severity).toBe('HIGH');
+      console.log(`✓ Detected CEX interaction: ${signals[0]?.evidence[0].description}`);
     });
 
     it('should return null with no labeled entities', () => {
@@ -219,8 +219,8 @@ describe('Privacy Heuristics', () => {
         transactionCount: 1,
       };
 
-      const signal = detectKnownEntityInteraction(context);
-      expect(signal).toBeNull();
+      const signals = detectKnownEntityInteraction(context);
+      expect(signals.length).toBe(0);
       console.log('✓ No known entity interactions');
     });
   });
@@ -244,11 +244,11 @@ describe('Privacy Heuristics', () => {
         transactionCount: 4,
       };
 
-      const signal = detectBalanceTraceability(context);
+      const signals = detectBalanceTraceability(context);
 
-      expect(signal).not.toBeNull();
-      expect(signal?.id).toBe('balance-traceability');
-      console.log(`✓ Detected balance traceability: ${signal?.evidence.length} patterns`);
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0]?.id).toBe('balance-matching-pairs');
+      console.log(`✓ Detected balance traceability: ${signals.length} patterns`);
     });
   });
 });

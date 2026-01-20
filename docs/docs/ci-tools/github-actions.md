@@ -2,6 +2,14 @@
 
 Automate privacy checks on every PR.
 
+## Live Example
+
+See a real implementation: **[solana-privacy-scanner-example](https://github.com/taylorferran/solana-privacy-scanner-example)**
+
+Compare:
+- **[PR #1 (Leak Detected)](https://github.com/taylorferran/solana-privacy-scanner-example/pull/1)** - CI fails, blocks merge
+- **[PR #2 (Leak Fixed)](https://github.com/taylorferran/solana-privacy-scanner-example/pull/2)** - CI passes, ready to merge
+
 ## Quick Setup
 
 ```bash

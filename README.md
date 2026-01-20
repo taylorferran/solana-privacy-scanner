@@ -9,14 +9,14 @@
 
 A developer tool that analyzes Solana wallets, transactions, or programs using public on-chain data and produces deterministic privacy risk reports.
 
-**Current Version:** `0.3.0` - [Changelog](./docs/changelog.md)
+**Current Version:** `0.3.1` - [Changelog](./docs/changelog.md)
 
 ---
 
 ## ✨ Features
 
 - 🔍 **Comprehensive scanning** - Analyze wallets, transactions, and programs
-- 🎯 **Solana-native heuristics** - 9 privacy signals tailored to Solana's unique architecture
+- 🎯 **Solana-native heuristics** - 11 privacy signals tailored to Solana's unique architecture
 - 📊 **Clear risk assessments** - LOW/MEDIUM/HIGH ratings with transparent scoring
 - ⚠️ **Critical leak detection** - Fee payer reuse, signer overlap, and more
 - 🏷️ **Known entity detection** - Identifies CEXs, bridges, protocols, and major programs
@@ -52,6 +52,8 @@ No setup required - includes a reliable RPC endpoint!
 [Learn more about QuickNode's infrastructure →](https://sps.guide/guide/quicknode)
 
 ### CI/CD Integration
+
+**See it in action:** [Example Repository](https://github.com/taylorferran/solana-privacy-scanner-example) with working PRs showing leak detection
 
 ```bash
 npm install --save-dev solana-privacy-scanner-ci-tools

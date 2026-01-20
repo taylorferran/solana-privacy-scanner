@@ -16,7 +16,7 @@ Deep dive into each detection method. The scanner uses **nine Solana-native heur
 - Creates permanent on-chain linkage
 - Reveals control structures (who funds whom)
 - Exposes bot infrastructure
-- Unlike Ethereum, fee payer is explicitly tracked
+- Fee payer is explicitly tracked in Solana's transaction structure
 
 **Example:**
 ```
@@ -301,6 +301,21 @@ Create token account → Use once → Close
 
 → OVERALL: HIGH RISK
 ```
+
+---
+
+## What's New in v0.3.1
+
+### Enhanced Granularity
+- **New:** Memo Exposure heuristic with 3 signal types (PII exposure, descriptive content, general usage)
+- **New:** Address Reuse heuristic with 3 signal types (high/moderate diversity, long-term usage)
+- All heuristics now return arrays of signals for better specificity
+- Enhanced mitigation suggestions for each signal type
+
+### Improved Detection
+- **Timing Patterns:** Now detects burst patterns, regular intervals, and timezone patterns separately
+- **Balance Traceability:** Identifies matching pairs, sequential similar amounts, and full balance movements
+- **Known Entity:** Returns entity-specific signals (exchange, bridge, other) instead of generic
 
 ---
 

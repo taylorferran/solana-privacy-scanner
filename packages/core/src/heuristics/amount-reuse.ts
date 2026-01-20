@@ -1,10 +1,10 @@
 import type { ScanContext, PrivacySignal, Evidence } from '../types/index.js';
 
 /**
- * Detect amount reuse - downgraded for Solana
+ * Detect amount reuse patterns
  * 
- * On Solana, this is WEAKER than on Ethereum because:
- * - SOL transfers are cheap, so round numbers are common and benign
+ * On Solana, amount reuse is weaker than other signals because:
+ * - Cheap transfers make round numbers common and benign
  * - SPL tokens have fixed decimals, making repeated amounts normal
  * - Many programs emit deterministic amounts by design
  * 
@@ -60,7 +60,7 @@ export function detectAmountReuse(context: ScanContext): PrivacySignal[] {
   const hasRoundNumbers = roundNumbers.length >= 3;
   const hasReusedAmounts = reusedAmounts.length >= 2;
 
-  // Case 1: Round numbers alone (LOW risk on Solana)
+  // Case 1: Round numbers alone (LOW risk)
   if (hasRoundNumbers && roundNumbers.length >= 5) {
     signals.push({
       id: 'amount-round-numbers',
@@ -68,8 +68,8 @@ export function detectAmountReuse(context: ScanContext): PrivacySignal[] {
       severity: 'LOW',
       category: 'behavioral',
       reason: `${roundNumbers.length} round-number transfers detected (e.g., 1 SOL, 10 SOL).`,
-      impact: 'Round numbers are common on Solana and relatively benign alone. Combined with other patterns, they can contribute to fingerprinting.',
-      mitigation: 'Vary amounts slightly if possible, but this is low priority on Solana.',
+      impact: 'Round numbers are common on Solana. Combined with other patterns, they can contribute to fingerprinting.',
+      mitigation: 'Vary amounts slightly if possible, but this is low priority.',
       evidence: [{
         description: `${roundNumbers.length} round-number transfers: ${roundNumbers.slice(0, 5).join(', ')}...`,
         severity: 'LOW',
@@ -132,7 +132,7 @@ export function detectAmountReuse(context: ScanContext): PrivacySignal[] {
       severity: 'LOW',
       category: 'behavioral',
       reason: `${signerReuse.length} amount(s) are reused multiple times with consistent signers.`,
-      impact: 'Amount reuse alone is relatively weak on Solana, but combined with other signals it contributes to behavioral fingerprinting.',
+      impact: 'Amount reuse alone is relatively weak, but combined with other signals it contributes to behavioral fingerprinting.',
       mitigation: 'Vary transaction amounts to reduce pattern visibility.',
       evidence,
     });

@@ -1,115 +1,121 @@
-# Contributing Known Addresses
+# Contributing Addresses
 
-We welcome community contributions to expand our database of known Solana addresses!
+## Add Known Entities
 
-## What We're Looking For
+The known addresses database is **community-maintained** and lives at the repository root. Submit PRs to add addresses without waiting for package releases.
 
-We maintain a curated list of **publicly known** Solana addresses that help identify privacy risks when users interact with:
+## Database Location
 
-- **Centralized Exchanges (CEXs)** - Binance, Coinbase, Kraken, etc.
-- **Bridges** - Wormhole, Allbridge, Portal, etc.
-- **Major DEX Programs** - Jupiter, Orca, Raydium, etc.
-- **NFT Marketplaces** - Magic Eden, Tensor, etc.
-- **DeFi Protocols** - Marinade, Lido, Drift, etc.
+**`known-addresses.json`** (repository root)
 
-## Guidelines
+This file is automatically included in published packages, but PRs update it immediately for all users of the repository.
 
-### DO Add
+## Requirements
 
-✅ **Publicly documented addresses** with verified sources  
-✅ **Major protocols** with significant user activity  
-✅ **Centralized services** that can link on-chain/off-chain identity  
-✅ **Bridges** that connect to other blockchains  
-✅ **Official program IDs** from protocol documentation
+1. **Verified ownership** - Public proof the address belongs to the entity (Solscan, official docs, etc.)
+2. **Privacy relevance** - Address impacts privacy analysis (CEXs, bridges, major protocols)
+3. **Active use** - Currently in use (defunct entities marked as such)
+4. **Accurate categorization** - Use correct type field
 
-### DON'T Add
+## Format
 
-❌ Individual user wallets (even if famous)  
-❌ Unverified addresses  
-❌ Addresses without clear documentation  
-❌ Personal addresses  
-❌ Addresses for "doxxing" purposes
-
-## How to Contribute
-
-### 1. Find the Address
-
-Ensure the address is:
-- Publicly documented by the protocol/exchange
-- Verifiable through official sources
-- Currently active and relevant
-
-### 2. Edit the JSON File
-
-Add your entry to `packages/core/src/labels/known-addresses.json`:
+Edit `known-addresses.json` at the repository root:
 
 ```json
 {
   "address": "YourAddressHere...",
-  "name": "Protocol Name",
-  "type": "exchange|bridge|protocol|program|mixer|other",
-  "description": "Brief description of the address/protocol"
+  "name": "Entity Name",
+  "type": "exchange",
+  "description": "Brief description with verification source"
 }
 ```
 
-**Address Types:**
-- `exchange` - Centralized exchanges (high privacy risk)
-- `bridge` - Cross-chain bridges
-- `protocol` - DeFi protocols, AMMs
-- `program` - Program IDs
-- `mixer` - Privacy protocols (if any)
-- `other` - Other known entities
+### Type Field Options
 
-### 3. Provide Source Documentation
+| Type | Description | Privacy Impact |
+|------|-------------|----------------|
+| `exchange` | Centralized exchanges (Binance, Coinbase, etc.) | **HIGH** - KYC linkage |
+| `bridge` | Cross-chain bridges (Wormhole, deBridge, etc.) | **MEDIUM** - Cross-chain correlation |
+| `protocol` | DeFi protocols (Jupiter, Raydium, etc.) | **INFO** - Usage fingerprinting |
+| `token` | Token mints (USDC, stablecoins, LSTs) | **INFO** - Asset tracking |
+| `mev` | MEV infrastructure (Jito tips, etc.) | **INFO** - MEV participation |
+| `program` | Core Solana programs | **INFO** - Standard operations |
 
-In your PR description, include:
-- Official documentation link
-- Block explorer link (Solscan/Solana Explorer)
-- Why this address is important for privacy analysis
+## Submission Steps
 
-### 4. Submit Pull Request
+1. **Fork the repository**
+   ```bash
+   git clone https://github.com/taylorferran/solana-privacy-scanner.git
+   cd solana-privacy-scanner
+   ```
 
-1. Fork the repository
-2. Create a branch: `git checkout -b add-protocol-name-address`
-3. Add your address to `known-addresses.json`
-4. Update `lastUpdated` field to current date
-5. Commit: `git commit -m "Add [Protocol Name] address"`
-6. Push and create PR
+2. **Edit `known-addresses.json`**
+   - Add your entry to the `labels` array
+   - Maintain alphabetical order within each category
+   - Include verification source in description
 
-## Example Addition
+3. **Verify the format**
+   ```bash
+   npm run build  # Ensures JSON is valid
+   ```
+
+4. **Create PR with**
+   - Address being added
+   - Verification source (Solscan link, official docs)
+   - Why this address matters for privacy analysis
+
+## Example PR Description
+
+```
+Add Kraken hot wallet addresses
+
+Addresses:
+- Kr4k3nH0tWa113t... (verified on Solscan)
+
+Source: https://solscan.io/account/Kr4k3n...
+Type: exchange
+Impact: HIGH - KYC linkage for Kraken users
+```
+
+## Bulk Additions
+
+For adding multiple related addresses (e.g., all Jito tip accounts), group them logically:
 
 ```json
 {
-  "address": "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
-  "name": "Serum DEX v3",
-  "type": "protocol",
-  "description": "Serum decentralized exchange program"
+  "address": "96gYZGLnJYVFmbjzopPSU6QiEV5fGqZNyN9nmNhvrZU5",
+  "name": "Jito Tip Account 1",
+  "type": "mev",
+  "description": "Jito MEV tip account"
+},
+{
+  "address": "HFqU5x63VTqvQss8hp11i4bVmkSQG8j2Dn9HwwP65esD",
+  "name": "Jito Tip Account 2",
+  "type": "mev",
+  "description": "Jito MEV tip account"
 }
 ```
 
-**PR Description:**
-```
-Adding Serum DEX v3 program address
+## What Gets Accepted
 
-Source: https://docs.projectserum.com/
-Explorer: https://solscan.io/account/9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin
+✅ **High-value additions:**
+- Major CEX hot wallets
+- Popular bridge contracts
+- Widely-used DeFi protocols
+- MEV infrastructure
+- Major stablecoin mints
 
-This is a widely-used DEX program that's important to identify in privacy analysis.
-```
+❌ **Low-value additions:**
+- Individual user wallets (not entities)
+- Inactive/defunct protocols (unless historically significant)
+- Obscure tokens
+- Unverified addresses
 
-## Quality Standards
+## After Your PR
 
-- **Accuracy**: Double-check addresses (one character wrong = wrong address!)
-- **Relevance**: Focus on high-impact, widely-used protocols
-- **Documentation**: Always provide verifiable sources
-- **Honesty**: Don't overclaim attribution or certainty
+1. Maintainers verify the addresses
+2. PR is merged
+3. **Immediately available** to repository users
+4. Included in next npm package release
 
-## Code of Conduct
-
-This tool is for **privacy awareness**, not surveillance. Contributions should:
-- Respect user privacy
-- Focus on institutional/protocol addresses, not individuals
-- Avoid enabling harassment or doxxing
-- Maintain honest, accurate descriptions
-
-Thank you for helping improve privacy awareness in the Solana ecosystem!
+[Submit PR →](https://github.com/taylorferran/solana-privacy-scanner/pulls)

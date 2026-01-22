@@ -121,7 +121,7 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'guideSidebar',
           position: 'left',
-          label: 'Docs',
+          label: 'SPS',
         },
         {
           type: 'docSidebar',

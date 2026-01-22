@@ -192,9 +192,11 @@ The scanner includes a **default public RPC endpoint** powered by QuickNode:
 ### Label Provider (`packages/core/src/labels/`)
 
 Known entity detection via `LabelProvider`:
-- `known-addresses.json` - Database of CEXs, bridges, protocols
+- `known-addresses.json` - **Database at repository root** (78+ addresses)
+  - Community-maintained, updated via PRs without package releases
+  - Copied to `dist/` during build for published packages
 - `createDefaultLabelProvider()` - Factory for default provider
-- Extensible: users can provide custom label databases
+- Extensible: users can provide custom label databases via constructor
 
 ## Development Patterns
 

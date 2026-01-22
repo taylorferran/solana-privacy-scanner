@@ -27,6 +27,12 @@ const config = {
 async function build() {
   try {
     await esbuild.build(config);
+
+    // Copy known-addresses.json from core package
+    const { copyFileSync, mkdirSync } = await import('fs');
+    mkdirSync('dist', { recursive: true });
+    copyFileSync('../core/dist/known-addresses.json', 'dist/known-addresses.json');
+
     console.log('✓ CLI build complete');
   } catch (error) {
     console.error('Build failed:', error);

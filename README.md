@@ -132,7 +132,7 @@ npx solana-privacy-analyzer scan src/
 
 [📖 Code Analyzer Documentation →](https://sps.guide/code-analyzer/overview)
 
-### Claude Code Plugin - AI-Powered Privacy Fixes
+### Claude Code Plugin
 
 Interactive plugin for Claude Code that combines static analysis with AI-powered fixing.
 
@@ -146,12 +146,6 @@ Claude will:
 2. Explain each privacy issue found
 3. Propose context-aware fixes
 4. Apply changes with your approval
-
-**Features:**
-- 🤖 **Smart Fixing** - Context-aware refactoring
-- 📚 **Learn as You Code** - Explains why patterns are problematic
-- ✅ **Safe Changes** - Review before applying
-- 🔄 **Interactive** - Discuss trade-offs and alternatives
 
 [📖 Claude Plugin Documentation →](https://sps.guide/claude-plugin/overview)
 
@@ -265,8 +259,10 @@ We welcome contributions! Here's how you can help:
 Help expand our database of known entities (CEXs, bridges, protocols):
 
 1. Read the [Adding Addresses Guide](https://sps.guide/contributing/addresses)
-2. Add your addresses to `packages/core/src/labels/known-addresses.json`
+2. Add your addresses to `known-addresses.json` (repository root)
 3. Submit a PR with evidence/documentation
+
+PRs update the database immediately - no need to wait for package releases!
 
 ### Report Bugs
 

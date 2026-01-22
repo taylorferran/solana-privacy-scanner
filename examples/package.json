@@ -10,7 +10,7 @@
     "program": "tsx program-scan-example.ts"
   },
   "dependencies": {
-    "solana-privacy-scanner-core": "^0.1.4"
+    "solana-privacy-scanner-core": "^0.4.0"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

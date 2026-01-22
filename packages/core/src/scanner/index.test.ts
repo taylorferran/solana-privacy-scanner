@@ -201,8 +201,124 @@ describe('Scanner - Report Generation', () => {
       expect(report1.overallRisk).toBe(report2.overallRisk);
       expect(report1.signals.length).toBe(report2.signals.length);
       expect(report1.summary).toEqual(report2.summary);
-      
+
       console.log('✓ Report generation is deterministic');
+    });
+  });
+
+  describe('Custom Heuristics Integration', () => {
+    it('should support custom heuristics alongside built-in ones', () => {
+      // Create a custom heuristic function
+      const detectCustomPattern = (context: ScanContext) => {
+        const signals = [];
+
+        // Custom logic: detect if wallet has many small transfers
+        const smallTransfers = context.transfers.filter(t => t.amount < 1);
+        if (smallTransfers.length >= 3) {
+          signals.push({
+            id: 'custom-small-transfers',
+            name: 'Many Small Transfers',
+            severity: 'MEDIUM' as const,
+            reason: `Detected ${smallTransfers.length} transfers under 1 SOL`,
+            impact: 'Pattern may indicate micro-transaction fingerprinting',
+            evidence: smallTransfers.slice(0, 3).map(t => ({
+              description: `Transfer of ${t.amount} SOL`,
+              severity: 'LOW' as const,
+              reference: t.signature,
+              type: 'amount' as const
+            })),
+            mitigation: 'Vary transaction amounts to reduce pattern detection',
+            confidence: 0.7
+          });
+        }
+
+        return signals;
+      };
+
+      const context: ScanContext = {
+        target: 'test-wallet',
+        targetType: 'wallet',
+        transfers: [
+          { from: 'test-wallet', to: 'wallet1', amount: 0.1, signature: 'sig1', blockTime: 1000 },
+          { from: 'test-wallet', to: 'wallet2', amount: 0.2, signature: 'sig2', blockTime: 1100 },
+          { from: 'test-wallet', to: 'wallet3', amount: 0.3, signature: 'sig3', blockTime: 1200 },
+          { from: 'test-wallet', to: 'wallet4', amount: 0.4, signature: 'sig4', blockTime: 1300 },
+        ],
+        instructions: [],
+        counterparties: new Set(['wallet1', 'wallet2', 'wallet3', 'wallet4']),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1300 },
+        transactionCount: 4,
+      };
+
+      // Get built-in signals
+      const builtInSignals = evaluateHeuristics(context);
+
+      // Get custom signals
+      const customSignals = detectCustomPattern(context);
+
+      // Verify custom heuristic detected the pattern
+      expect(customSignals.length).toBe(1);
+      expect(customSignals[0].id).toBe('custom-small-transfers');
+      expect(customSignals[0].severity).toBe('MEDIUM');
+      expect(customSignals[0].evidence.length).toBe(3);
+
+      // Combine signals
+      const allSignals = [...builtInSignals, ...customSignals];
+
+      // Verify we have both built-in and custom signals
+      expect(allSignals.length).toBeGreaterThan(customSignals.length);
+
+      // Verify custom signal is included
+      const hasCustomSignal = allSignals.some(s => s.id === 'custom-small-transfers');
+      expect(hasCustomSignal).toBe(true);
+
+      console.log(`\n✓ Custom heuristics integration:`);
+      console.log(`  Built-in signals: ${builtInSignals.length}`);
+      console.log(`  Custom signals: ${customSignals.length}`);
+      console.log(`  Total signals: ${allSignals.length}`);
+    });
+
+    it('should validate custom signal structure', () => {
+      const detectInvalidPattern = (context: ScanContext) => {
+        return [{
+          id: 'test-pattern',
+          name: 'Test Pattern',
+          severity: 'HIGH' as const,
+          reason: 'Test reason',
+          impact: 'Test impact',
+          evidence: [{
+            description: 'Test evidence'
+          }],
+          mitigation: 'Test mitigation'
+        }];
+      };
+
+      const context: ScanContext = {
+        target: 'test',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: null, latest: null },
+        transactionCount: 0,
+      };
+
+      const signals = detectInvalidPattern(context);
+
+      // Verify required fields are present
+      expect(signals[0].id).toBeDefined();
+      expect(signals[0].name).toBeDefined();
+      expect(signals[0].severity).toBeDefined();
+      expect(signals[0].reason).toBeDefined();
+      expect(signals[0].impact).toBeDefined();
+      expect(signals[0].evidence).toBeDefined();
+      expect(signals[0].mitigation).toBeDefined();
+
+      console.log('✓ Custom signal structure validated');
     });
   });
 });

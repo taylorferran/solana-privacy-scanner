@@ -7,4 +7,4 @@ export const DEFAULT_RPC_URL = 'https://late-hardworking-waterfall.solana-mainne
 /**
  * Application version
  */
-export const VERSION = '0.3.0';
+export const VERSION = '0.4.0';

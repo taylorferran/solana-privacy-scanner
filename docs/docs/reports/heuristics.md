@@ -1,6 +1,6 @@
 # Privacy Heuristics Explained
 
-Deep dive into each detection method. The scanner uses **nine Solana-native heuristics** ranked by deanonymization power.
+Deep dive into each detection method. The scanner uses **11 heuristics** ranked by deanonymization power.
 
 ---
 
@@ -67,7 +67,79 @@ Txs 6-10: Signed by [A, C]
 
 ---
 
-### 3. Known Entity Interaction 🔴 HIGH
+### 3. Memo Exposure 🔴 HIGH
+
+**Public on-chain data leaks.**
+
+**What It Detects:** Personal information or identifying details in transaction memos.
+
+**Why Important:**
+- Memos are permanently public on the blockchain
+- PII (personal identifiable information) exposure
+- Business logic leaks
+- User identifiers and references
+- Cannot be deleted or modified
+
+**Example:**
+```
+Memo: "Payment to John Smith for invoice #1234"
+→ Links transaction to real identity
+→ Reveals business relationship
+→ Permanent public record
+```
+
+**Mitigation:**
+- Never include PII in memos (names, emails, IDs)
+- Avoid descriptive content that identifies you
+- Use opaque references if memos are necessary
+- Consider off-chain communication instead
+
+**Severity:**
+- HIGH: PII detected (emails, names, phone numbers)
+- MEDIUM: Descriptive content (invoice numbers, purposes)
+- LOW: Memo field used but no obvious PII
+
+---
+
+### 4. Address Reuse 🟡 MEDIUM
+
+**Wallet compartmentalization analysis.**
+
+**What It Detects:**
+- Lack of wallet diversity
+- Long-term address usage
+- Activity concentration patterns
+
+**Why Important:**
+- Single wallet links all activity together
+- No compartmentalization of sensitive operations
+- Easier behavioral fingerprinting
+- All transactions permanently tied to one identity
+
+**Example:**
+```
+Single wallet used for:
+→ CEX deposits/withdrawals
+→ DeFi trading
+→ NFT purchases
+→ DAO voting
+All activities now linked
+```
+
+**Mitigation:**
+- Use multiple wallets for different purposes
+- Separate CEX interactions from privacy-sensitive activity
+- Rotate addresses for different contexts
+- Consider activity types when planning wallet structure
+
+**Severity:**
+- HIGH: Very limited diversity (1-2 main addresses for everything)
+- MEDIUM: Moderate diversity but still concentrated
+- LOW: Long-term usage without rotation
+
+---
+
+### 5. Known Entity Interaction 🔴 HIGH
 
 **Direct linkage to real-world identity.**
 
@@ -99,7 +171,7 @@ Transfer to Binance with memo
 
 ## Behavioral Fingerprinting
 
-### 4. Counterparty & PDA Reuse 🟡 MEDIUM
+### 6. Counterparty & PDA Reuse 🟡 MEDIUM
 
 **Solana-aware interaction tracking.**
 
@@ -133,7 +205,7 @@ Transfer to Binance with memo
 
 ---
 
-### 5. Instruction Fingerprinting 🟡 MEDIUM
+### 7. Instruction Fingerprinting 🟡 MEDIUM
 
 **Behavioral signatures through program interactions.**
 
@@ -167,7 +239,7 @@ Pattern: System → SPL Token → Jupiter → SPL Token
 
 ---
 
-### 6. Token Account Lifecycle 🟡 MEDIUM
+### 8. Token Account Lifecycle 🟡 MEDIUM
 
 **Rent refunds link burner accounts to owners.**
 
@@ -203,7 +275,7 @@ Create token account → Use once → Close
 
 ## Traditional Heuristics (Solana-Adapted)
 
-### 7. Timing Patterns 🟢 LOW-MEDIUM
+### 9. Timing Patterns 🟢 LOW-MEDIUM
 
 **Time-based behavioral patterns.**
 
@@ -228,7 +300,7 @@ Create token account → Use once → Close
 
 ---
 
-### 8. Amount Reuse 🟢 LOW
+### 10. Amount Reuse 🟢 LOW
 
 **Repeated amounts (DOWNGRADED for Solana).**
 
@@ -253,7 +325,7 @@ Create token account → Use once → Close
 
 ---
 
-### 9. Balance Traceability 🟢 LOW
+### 11. Balance Traceability 🟢 LOW
 
 **Fund flow analysis (adapted for Solana).**
 
@@ -276,13 +348,15 @@ Create token account → Use once → Close
 |------|-----------|----------|-------|
 | 1 | Fee Payer Reuse | CRITICAL | ⚠️⚠️⚠️ |
 | 2 | Signer Overlap | HIGH | 🔴🔴 |
-| 3 | Known Entity | HIGH | 🔴🔴 |
-| 4 | Counterparty/PDA | MEDIUM | 🟡 |
-| 5 | Instruction Fingerprinting | MEDIUM | 🟡 |
-| 6 | Token Lifecycle | MEDIUM | 🟡 |
-| 7 | Timing Patterns | LOW-MED | 🟢 |
-| 8 | Amount Reuse | LOW | 🟢 |
-| 9 | Balance Traceability | LOW | 🟢 |
+| 3 | Memo Exposure | HIGH | 🔴🔴 |
+| 4 | Address Reuse | MEDIUM | 🟡 |
+| 5 | Known Entity | HIGH | 🔴🔴 |
+| 6 | Counterparty/PDA | MEDIUM | 🟡 |
+| 7 | Instruction Fingerprinting | MEDIUM | 🟡 |
+| 8 | Token Lifecycle | MEDIUM | 🟡 |
+| 9 | Timing Patterns | LOW-MED | 🟢 |
+| 10 | Amount Reuse | LOW | 🟢 |
+| 11 | Balance Traceability | LOW | 🟢 |
 
 ---
 
@@ -301,62 +375,3 @@ Create token account → Use once → Close
 
 → OVERALL: HIGH RISK
 ```
-
----
-
-## What's New in v0.3.1
-
-### Enhanced Granularity
-- **New:** Memo Exposure heuristic with 3 signal types (PII exposure, descriptive content, general usage)
-- **New:** Address Reuse heuristic with 3 signal types (high/moderate diversity, long-term usage)
-- All heuristics now return arrays of signals for better specificity
-- Enhanced mitigation suggestions for each signal type
-
-### Improved Detection
-- **Timing Patterns:** Now detects burst patterns, regular intervals, and timezone patterns separately
-- **Balance Traceability:** Identifies matching pairs, sequential similar amounts, and full balance movements
-- **Known Entity:** Returns entity-specific signals (exchange, bridge, other) instead of generic
-
----
-
-## What's New in v0.2.0
-
-### Solana-Native Redesign
-- 4 new Solana-specific heuristics
-- Fee payer analysis (most critical)
-- Signer pattern detection
-- PDA and program awareness
-- Downgraded weak signals (amount reuse)
-
-### Why This Matters
-Previous versions missed Solana's unique architecture:
-- Fee payer as explicit linkage
-- Account-based model
-- Program-mediated interactions
-- Multi-signature patterns
-
----
-
-## Limitations
-
-:::warning What Heuristics Cannot Do
-- Cannot prove identity (patterns only)
-- Cannot see intent
-- Cannot decrypt
-- Privacy risk assessment, not certainty
-:::
-
-:::tip Solana Is Different
-- Fee payer creates hard linkage
-- Multi-sig exposes structure
-- PDAs are user-specific
-- Account model ≠ UTXO chains
-:::
-
----
-
-## Next Steps
-
-- [Risk Levels](/docs/reports/risk-levels) - Overall risk calculation
-- [Known Entities](/docs/reports/known-entities) - Labeled addresses
-- [CLI Examples](/docs/cli/examples) - See in action

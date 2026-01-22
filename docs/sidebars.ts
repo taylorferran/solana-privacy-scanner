@@ -4,11 +4,9 @@ const sidebars: SidebarsConfig = {
   guideSidebar: [
     {
       type: 'category',
-      label: 'Introduction',
+      label: 'Guide',
       items: [
         'guide/what-is-this',
-        'guide/why-privacy',
-        'guide/getting-started',
         'guide/concepts',
         'guide/quicknode',
       ],
@@ -37,78 +35,40 @@ const sidebars: SidebarsConfig = {
         'contributing/development',
       ],
     },
-    {
-      type: 'category',
-      label: 'Project',
-      items: [
-        'changelog',
-      ],
-    },
   ],
   
   librarySidebar: [
-    {
-      type: 'category',
-      label: 'Library',
-      items: [
-        'library/usage',
-        'library/examples',
-        'library/for-llms',
-      ],
-    },
+    'library/usage',
+    'library/api-reference',
+    'library/examples',
+    'library/for-llms',
   ],
-  
+
   cliSidebar: [
-    {
-      type: 'category',
-      label: 'CLI',
-      items: [
-        'cli/quickstart',
-        'cli/user-guide',
-        'cli/examples',
-        'cli/for-llms',
-      ],
-    },
+    'cli/guide',
+    'cli/for-llms',
   ],
-  
+
   ciToolsSidebar: [
-    {
-      type: 'category',
-      label: 'CI/CD Tools',
-      items: [
-        'ci-tools/overview',
-        'ci-tools/example',
-        'ci-tools/testing',
-        'ci-tools/github-actions',
-        'ci-tools/for-llms',
-      ],
-    },
+    'ci-tools/overview',
+    'ci-tools/example',
+    'ci-tools/testing',
+    'ci-tools/github-actions',
+    'ci-tools/for-llms',
   ],
 
   codeAnalyzerSidebar: [
-    {
-      type: 'category',
-      label: 'Code Analyzer',
-      items: [
-        'code-analyzer/overview',
-        'code-analyzer/installation',
-        'code-analyzer/ci-cd',
-        'code-analyzer/cli-reference',
-      ],
-    },
+    'code-analyzer/overview',
+    'code-analyzer/installation',
+    'code-analyzer/ci-cd',
+    'code-analyzer/cli-reference',
   ],
 
   claudePluginSidebar: [
-    {
-      type: 'category',
-      label: 'Claude Code Plugin',
-      items: [
-        'claude-plugin/overview',
-        'claude-plugin/installation',
-        'claude-plugin/usage',
-        'claude-plugin/examples',
-      ],
-    },
+    'claude-plugin/overview',
+    'claude-plugin/installation',
+    'claude-plugin/usage',
+    'claude-plugin/examples',
   ],
 };
 

@@ -1,199 +1,576 @@
 # For LLMs - Library Integration
 
-Copy the text below and paste it into your AI coding assistant (Claude, Cursor, ChatGPT, etc.) to get help integrating the Solana Privacy Scanner library into your project.
+This page provides a comprehensive reference for AI coding assistants. Copy the entire section below and paste it into your LLM (Claude, Cursor, ChatGPT, etc.) when you need help integrating the Solana Privacy Scanner library.
 
 ---
 
-## Prompt for AI Assistants
+## Complete Library Reference (Copy Everything Below)
 
 ```
-I want to integrate the Solana Privacy Scanner library into my Solana project.
+SOLANA PRIVACY SCANNER - LIBRARY INTEGRATION GUIDE
 
 LIBRARY: solana-privacy-scanner-core
-VERSION: 0.3.0
-DOCUMENTATION: https://sps.guide/library/usage
+VERSION: 0.3.1
+npm: npm install solana-privacy-scanner-core
+DOCUMENTATION: https://sps.guide/library/api-reference
 
-WHAT IT DOES:
-Analyzes Solana wallets, transactions, and programs for privacy risks using 9 Solana-specific heuristics. Returns deterministic privacy reports with risk levels (LOW/MEDIUM/HIGH), detected signals, and mitigation recommendations.
+═══════════════════════════════════════════════════════════════════════════════
+OVERVIEW
+═══════════════════════════════════════════════════════════════════════════════
 
-INSTALLATION:
+Analyzes Solana wallets, transactions, and programs for privacy risks using 11
+Solana-native heuristics. Returns deterministic privacy reports with risk levels
+(LOW/MEDIUM/HIGH), detected privacy signals, and actionable mitigation advice.
+
+Key Features:
+- No configuration required (default QuickNode RPC included)
+- 11 privacy heuristics (6 Solana-specific, 5 behavioral/traditional)
+- Deterministic analysis (same input = same output)
+- Built-in rate limiting and retry logic
+- Known entity detection (78+ CEXs, bridges, protocols)
+- TypeScript-first with full type definitions
+
+═══════════════════════════════════════════════════════════════════════════════
+INSTALLATION
+═══════════════════════════════════════════════════════════════════════════════
+
 npm install solana-privacy-scanner-core
 
-CORE CONCEPTS:
-1. RPCClient - Wrapper for Solana RPC with rate limiting and retry logic
-   - No configuration needed - includes default QuickNode RPC endpoint
-   
-2. Data Collection - Fetch raw on-chain data
-   - collectWalletData(client, address, options?) - Get wallet transaction history
-   - collectTransactionData(client, signature) - Get single transaction
-   - collectProgramData(client, programId, options?) - Get program interactions
-   
-3. Data Normalization - Transform raw data into analysis-ready format
-   - normalizeWalletData(rawData, labelProvider) - Wallet context
-   - normalizeTransactionData(rawData, labelProvider) - Transaction context
-   - normalizeProgramData(rawData, labelProvider) - Program context
-   
-4. Label Provider - Identifies known entities (CEXs, bridges, protocols)
-   - createDefaultLabelProvider() - Uses built-in known addresses database
-   
-5. Report Generation - Analyze and produce privacy report
-   - generateReport(context) - Runs all heuristics and returns PrivacyReport
+═══════════════════════════════════════════════════════════════════════════════
+CORE ARCHITECTURE
+═══════════════════════════════════════════════════════════════════════════════
 
-BASIC USAGE PATTERN:
-```typescript
-import { 
-  RPCClient, 
-  collectWalletData, 
-  normalizeWalletData, 
+The library follows a 4-step pipeline:
+
+1. DATA COLLECTION (collectors/)
+   - Fetch raw on-chain data via RPC
+   - Functions: collectWalletData, collectTransactionData, collectProgramData
+
+2. NORMALIZATION (normalizer/)
+   - Convert raw data to standardized ScanContext
+   - Functions: normalizeWalletData, normalizeTransactionData, normalizeProgramData
+
+3. HEURISTIC EVALUATION (heuristics/)
+   - Run 11 privacy heuristics on ScanContext
+   - Each heuristic returns PrivacySignal[] (array of detected risks)
+
+4. REPORT GENERATION (scanner/)
+   - Aggregate signals, calculate risk, generate mitigations
+   - Function: generateReport(context)
+
+═══════════════════════════════════════════════════════════════════════════════
+BASIC USAGE - WALLET SCAN
+═══════════════════════════════════════════════════════════════════════════════
+
+import {
+  RPCClient,
+  collectWalletData,
+  normalizeWalletData,
   generateReport,
-  createDefaultLabelProvider 
+  createDefaultLabelProvider,
+  type PrivacyReport
 } from 'solana-privacy-scanner-core';
 
-// 1. Create RPC client (no configuration needed)
-const rpc = new RPCClient();
+async function scanWallet(address: string): Promise<PrivacyReport> {
+  // 1. Initialize RPC client (no config needed - uses default)
+  const rpc = new RPCClient();
 
-// 2. Create label provider
-const labelProvider = createDefaultLabelProvider();
+  // 2. Initialize label provider for known entity detection
+  const labels = createDefaultLabelProvider();
 
-// 3. Collect raw data
-const rawData = await collectWalletData(
-  rpc, 
-  'WALLET_ADDRESS_HERE',
-  { 
-    maxSignatures: 100,
-    includeTokenAccounts: true 
-  }
-);
+  // 3. Collect raw blockchain data
+  const rawData = await collectWalletData(rpc, address, {
+    maxSignatures: 100,        // Limit transaction history
+    includeTokenAccounts: true // Include SPL token accounts
+  });
 
-// 4. Normalize data
-const context = normalizeWalletData(rawData, labelProvider);
+  // 4. Normalize into analysis-ready format
+  const context = normalizeWalletData(rawData, labels);
 
-// 5. Generate report
-const report = generateReport(context);
+  // 5. Generate privacy report
+  const report = generateReport(context);
 
-// 6. Use the results
-console.log('Risk Level:', report.overallRisk); // LOW | MEDIUM | HIGH
-console.log('Signals:', report.signals.length);
-console.log('Known Entities:', report.knownEntities.length);
+  return report;
+}
+
+// Usage
+const report = await scanWallet('WALLET_ADDRESS_HERE');
+
+console.log('Risk Level:', report.overallRisk);        // LOW | MEDIUM | HIGH
+console.log('Total Signals:', report.summary.totalSignals);
+console.log('HIGH Risks:', report.summary.highRiskSignals);
+console.log('Transactions Analyzed:', report.summary.transactionsAnalyzed);
 
 // Handle high-risk wallets
 if (report.overallRisk === 'HIGH') {
-  console.warn('High privacy risks detected!');
+  console.warn('⚠️ HIGH PRIVACY RISK DETECTED');
+
   report.signals
     .filter(s => s.severity === 'HIGH')
     .forEach(signal => {
-      console.log(`- ${signal.name}: ${signal.reason}`);
-      console.log(`  Mitigation: ${signal.mitigation}`);
+      console.log(`\n[${signal.severity}] ${signal.name}`);
+      console.log(`Reason: ${signal.reason}`);
+      console.log(`Confidence: ${signal.confidence}`);
+      if (signal.mitigation) {
+        console.log(`Fix: ${signal.mitigation}`);
+      }
     });
 }
-```
 
-TYPESCRIPT TYPES:
-- PrivacyReport - The final report with overallRisk, signals, mitigations
-- RiskSignal - Individual privacy risk detected
-- ScanContext - Normalized data passed to heuristics
-- RawWalletData, RawTransactionData, RawProgramData - Collected on-chain data
-- LabelProvider - Interface for entity labeling
+// Display mitigations
+console.log('\n📋 Recommended Actions:');
+report.mitigations.forEach(m => console.log(`- ${m}`));
 
-KEY HEURISTICS (9 total):
-1. Fee Payer Reuse - Critical linkage vector on Solana
-2. Signer Overlap - Multi-sig and control structure leaks
-3. Known Entity Interaction - CEX/bridge interactions
-4. Counterparty & PDA Reuse - Repeated interaction patterns
-5. Instruction Fingerprinting - Program interaction patterns
-6. Token Account Lifecycle - Rent refund tracing
-7. Timing Patterns - Transaction burst detection
-8. Amount Reuse - Repeated amounts (downgraded for Solana)
-9. Balance Traceability - Flow analysis
+// Check for known entity interactions
+if (report.knownEntities.length > 0) {
+  console.log('\n🏦 Known Entities Detected:');
+  report.knownEntities.forEach(entity => {
+    console.log(`- ${entity.name} (${entity.type}): ${entity.address}`);
+  });
+}
 
-OPTIONS:
-- collectWalletData options: `{ maxSignatures?, includeTokenAccounts? }`
-- collectProgramData options: `{ maxTransactions?, limit? }`
+═══════════════════════════════════════════════════════════════════════════════
+TRANSACTION SCAN
+═══════════════════════════════════════════════════════════════════════════════
 
-ERROR HANDLING:
-- All collectors include try/catch blocks
-- RPC failures degrade gracefully (empty arrays)
-- Normalizers handle undefined/null data
-- Always check report.signals.length before accessing
+import { collectTransactionData, normalizeTransactionData } from 'solana-privacy-scanner-core';
 
-COMMON USE CASES:
-1. Wallet Privacy Score - Scan a user's wallet before onboarding
-2. Transaction Pre-flight Check - Analyze before sending to chain
-3. Program Audit - Check if program creates privacy risks
-4. Batch Analysis - Loop through multiple addresses
-5. Privacy Dashboard - Display ongoing privacy metrics
+async function scanTransaction(signature: string) {
+  const rpc = new RPCClient();
+  const labels = createDefaultLabelProvider();
 
-INTEGRATION TIPS:
-- Use RPCClient's built-in rate limiting for batch operations
-- Cache label provider (createDefaultLabelProvider()) - don't recreate each time
-- Limit maxSignatures for faster scans (100-200 is reasonable)
+  const rawData = await collectTransactionData(rpc, signature);
+  const context = normalizeTransactionData(rawData, labels);
+  const report = generateReport(context);
+
+  return report;
+}
+
+═══════════════════════════════════════════════════════════════════════════════
+PROGRAM SCAN
+═══════════════════════════════════════════════════════════════════════════════
+
+import { collectProgramData, normalizeProgramData } from 'solana-privacy-scanner-core';
+
+async function scanProgram(programId: string) {
+  const rpc = new RPCClient();
+  const labels = createDefaultLabelProvider();
+
+  const rawData = await collectProgramData(rpc, programId, {
+    maxAccounts: 100,      // Limit program accounts to fetch
+    maxTransactions: 50    // Limit related transactions
+  });
+
+  const context = normalizeProgramData(rawData, labels);
+  const report = generateReport(context);
+
+  return report;
+}
+
+═══════════════════════════════════════════════════════════════════════════════
+CUSTOM RPC CONFIGURATION
+═══════════════════════════════════════════════════════════════════════════════
+
+// Use custom RPC URL (string)
+const rpc = new RPCClient('https://api.mainnet-beta.solana.com');
+
+// Or use full configuration object
+const rpc = new RPCClient({
+  rpcUrl: process.env.SOLANA_RPC_URL || 'https://your-rpc.com',
+  maxRetries: 5,           // Retry failed requests (default: 3)
+  retryDelay: 1000,        // Initial backoff delay ms (default: 1000)
+  timeout: 60000,          // Request timeout ms (default: 30000)
+  maxConcurrency: 10,      // Max parallel requests (default: 10)
+  debug: true              // Enable logging (default: false)
+});
+
+// Check RPC health
+const isHealthy = await rpc.healthCheck();
+
+// Get rate limiter stats
+const stats = rpc.getStats();
+console.log(`Active: ${stats.activeRequests}, Queued: ${stats.queueLength}`);
+
+═══════════════════════════════════════════════════════════════════════════════
+KEY TYPES & INTERFACES
+═══════════════════════════════════════════════════════════════════════════════
+
+## PrivacyReport
+{
+  version: string;              // Report schema version
+  timestamp: number;            // Generation time (Unix ms)
+  targetType: 'wallet' | 'transaction' | 'program';
+  target: string;               // Address/signature/program ID
+  overallRisk: 'LOW' | 'MEDIUM' | 'HIGH';
+  signals: PrivacySignal[];     // Array of detected privacy risks
+  summary: {
+    totalSignals: number;
+    highRiskSignals: number;
+    mediumRiskSignals: number;
+    lowRiskSignals: number;
+    transactionsAnalyzed: number;
+  };
+  mitigations: string[];        // Actionable recommendations
+  knownEntities: Label[];       // Detected CEXs, bridges, etc.
+}
+
+## PrivacySignal
+{
+  id: string;                   // Unique signal ID (e.g., 'fee-payer-never-self')
+  name: string;                 // Human-readable name
+  severity: 'LOW' | 'MEDIUM' | 'HIGH';
+  confidence: number;           // 0-1 confidence score
+  reason: string;               // Explanation of privacy risk
+  evidence: Evidence[];         // Supporting data (addresses, txs, etc.)
+  mitigation?: string;          // Optional: how to fix
+}
+
+## ScanContext (input to heuristics)
+{
+  target: string;
+  targetType: 'wallet' | 'transaction' | 'program';
+  transfers: Transfer[];              // SOL and SPL transfers
+  instructions: NormalizedInstruction[];
+  counterparties: Set<string>;        // Unique addresses interacted with
+  labels: Map<string, Label>;         // Known entity labels
+  tokenAccounts: Array<{ mint, address, balance }>;
+  timeRange: { earliest: number | null; latest: number | null };
+  transactionCount: number;
+
+  // Solana-specific fields
+  transactions: TransactionMetadata[];    // Fee payers, signers, memos
+  tokenAccountEvents: TokenAccountEvent[]; // Create/close events
+  pdaInteractions: PDAInteraction[];      // Program-derived address usage
+  feePayers: Set<string>;
+  signers: Set<string>;
+  programs: Set<string>;
+}
+
+## Label (known entity)
+{
+  address: string;
+  name: string;                 // e.g., "Binance Hot Wallet"
+  type: 'exchange' | 'bridge' | 'protocol' | 'service' | 'other';
+  description?: string;
+  relatedAddresses?: string[];
+}
+
+═══════════════════════════════════════════════════════════════════════════════
+11 PRIVACY HEURISTICS
+═══════════════════════════════════════════════════════════════════════════════
+
+SOLANA-SPECIFIC (CRITICAL):
+1. detectFeePayerReuse() - Fee payer reuse (MOST CRITICAL on Solana)
+   Signals: fee-payer-never-self (HIGH), fee-payer-external (HIGH/MEDIUM)
+
+2. detectSignerOverlap() - Repeated signer combinations
+   Signals: signer-repeated (HIGH/MEDIUM), signer-set-reuse (HIGH)
+
+3. detectMemoExposure() - PII in transaction memos
+   Signals: memo-pii-exposure (HIGH), memo-descriptive-content (MEDIUM), memo-usage (LOW)
+
+4. detectAddressReuse() - Lack of address rotation
+   Signals: address-high-diversity (LOW), address-moderate-diversity (MEDIUM), address-long-term-usage (LOW)
+
+BEHAVIORAL ANALYSIS:
+5. detectKnownEntityInteraction() - CEX/bridge/KYC interactions
+   Signals: known-entity-exchange (HIGH), known-entity-bridge (MEDIUM), known-entity-other (varies)
+
+6. detectCounterpartyReuse() - Repeated counterparty patterns
+   Signals: counterparty-reuse (varies), pda-reuse (varies)
+
+7. detectInstructionFingerprinting() - Unique program usage patterns
+   Signals: instruction-sequence-pattern (MEDIUM), program-usage-profile (MEDIUM)
+
+8. detectTokenAccountLifecycle() - Token account create/close patterns
+   Signals: token-account-churn (MEDIUM), rent-refund-clustering (MEDIUM)
+
+9. detectTimingPatterns() - Transaction timing analysis
+   Signals: timing-burst (MEDIUM), timing-regular-interval (MEDIUM), timing-timezone-pattern (LOW)
+
+TRADITIONAL (ADAPTED FOR SOLANA):
+10. detectAmountReuse() - Repeated transfer amounts
+    Signals: amount-reuse (LOW - downgraded for Solana)
+
+11. detectBalanceTraceability() - Balance flow analysis
+    Signals: balance-matching-pairs (MEDIUM), balance-sequential-similar (MEDIUM), balance-full-movement (MEDIUM)
+
+All heuristics are PURE FUNCTIONS: heuristic(ScanContext) => PrivacySignal[]
+
+═══════════════════════════════════════════════════════════════════════════════
+COMPLETE API REFERENCE
+═══════════════════════════════════════════════════════════════════════════════
+
+## RPCClient
+new RPCClient(config?: RPCClientConfig | string)
+  .getSignaturesForAddress(address, options?)
+  .getTransaction(signature, options?)
+  .getTransactions(signatures[], options?)
+  .getTokenAccountsByOwner(ownerAddress, mintAddress?)
+  .getProgramAccounts(programId, config?)
+  .getAccountInfo(address)
+  .getMultipleAccountsInfo(addresses[])
+  .getConnection()          // Returns underlying Solana Connection
+  .getStats()               // Rate limiter stats
+  .healthCheck()            // Check RPC health
+
+## Data Collection
+collectWalletData(client, address, options?)
+  options: { maxSignatures?: 100, includeTokenAccounts?: true }
+
+collectTransactionData(client, signature)
+
+collectProgramData(client, programId, options?)
+  options: { maxAccounts?: 100, maxTransactions?: 50 }
+
+## Normalization
+normalizeWalletData(rawData, labelProvider?) => ScanContext
+normalizeTransactionData(rawData, labelProvider?) => ScanContext
+normalizeProgramData(rawData, labelProvider?) => ScanContext
+
+## Report Generation
+generateReport(context) => PrivacyReport
+evaluateHeuristics(context) => PrivacySignal[]  // Used internally by generateReport
+
+## Label Provider
+createDefaultLabelProvider() => StaticLabelProvider
+new StaticLabelProvider(labelsPath?)
+  .lookup(address) => Label | null
+  .lookupMany(addresses[]) => Map<string, Label>
+  .getAllLabels() => Label[]
+  .getCount() => number
+
+## Individual Heuristics (can be called directly)
+detectFeePayerReuse(context) => PrivacySignal[]
+detectSignerOverlap(context) => PrivacySignal[]
+detectMemoExposure(context) => PrivacySignal[]
+detectAddressReuse(context) => PrivacySignal[]
+detectKnownEntityInteraction(context) => PrivacySignal[]
+detectCounterpartyReuse(context) => PrivacySignal[]
+detectInstructionFingerprinting(context) => PrivacySignal[]
+detectTokenAccountLifecycle(context) => PrivacySignal[]
+detectTimingPatterns(context) => PrivacySignal[]
+detectAmountReuse(context) => PrivacySignal[]
+detectBalanceTraceability(context) => PrivacySignal[]
+
+═══════════════════════════════════════════════════════════════════════════════
+COMMON USE CASES
+═══════════════════════════════════════════════════════════════════════════════
+
+## Use Case 1: Wallet Onboarding Screen
+async function checkWalletBeforeOnboarding(address: string) {
+  const report = await scanWallet(address);
+
+  if (report.overallRisk === 'HIGH') {
+    return { allowed: false, reason: 'High privacy risk detected' };
+  }
+
+  const hasCEX = report.knownEntities.some(e => e.type === 'exchange');
+  if (hasCEX) {
+    return {
+      allowed: true,
+      warning: 'CEX interaction detected - privacy may be limited'
+    };
+  }
+
+  return { allowed: true };
+}
+
+## Use Case 2: Batch Analysis
+async function scanMultipleWallets(addresses: string[]) {
+  const rpc = new RPCClient();
+  const labels = createDefaultLabelProvider();
+  const results = [];
+
+  for (const address of addresses) {
+    const rawData = await collectWalletData(rpc, address, { maxSignatures: 50 });
+    const context = normalizeWalletData(rawData, labels);
+    const report = generateReport(context);
+
+    results.push({
+      address,
+      risk: report.overallRisk,
+      signals: report.summary.totalSignals,
+      highRiskCount: report.summary.highRiskSignals,
+      hasCEX: report.knownEntities.some(e => e.type === 'exchange')
+    });
+
+    // Respect rate limits (RPCClient handles this, but add delay between wallets)
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+
+  return results;
+}
+
+## Use Case 3: Filter High-Risk Signals
+const report = await scanWallet(address);
+
+// Get only HIGH severity signals
+const criticalIssues = report.signals.filter(s => s.severity === 'HIGH');
+
+// Get fee payer issues specifically
+const feePayerIssues = report.signals.filter(s => s.id.includes('fee-payer'));
+
+// Check for specific signal
+const hasFeePayerReuse = report.signals.some(s => s.id === 'fee-payer-never-self');
+
+## Use Case 4: Export to JSON/CSV
+import { writeFileSync } from 'fs';
+
+const report = await scanWallet(address);
+
+// Save full report as JSON
+writeFileSync(`report-${address}.json`, JSON.stringify(report, null, 2));
+
+// Export signals as CSV
+const csv = [
+  'ID,Name,Severity,Confidence,Reason',
+  ...report.signals.map(s =>
+    `${s.id},"${s.name}",${s.severity},${s.confidence},"${s.reason}"`
+  )
+].join('\n');
+writeFileSync(`signals-${address}.csv`, csv);
+
+## Use Case 5: Custom Heuristic Integration
+import { evaluateHeuristics, type ScanContext, type PrivacySignal } from 'solana-privacy-scanner-core';
+
+// Run built-in heuristics
+const builtInSignals = evaluateHeuristics(context);
+
+// Add custom heuristic
+function detectMyCustomPattern(context: ScanContext): PrivacySignal[] {
+  const signals: PrivacySignal[] = [];
+
+  // Your custom analysis logic
+  const suspiciousPrograms = ['ProgramID1', 'ProgramID2'];
+  const hasSuspicious = Array.from(context.programs).some(p =>
+    suspiciousPrograms.includes(p)
+  );
+
+  if (hasSuspicious) {
+    signals.push({
+      id: 'custom-suspicious-program',
+      name: 'Suspicious Program Interaction',
+      severity: 'HIGH',
+      confidence: 0.9,
+      reason: 'Interacted with flagged program',
+      evidence: [{ type: 'program', value: 'ProgramID1' }],
+      mitigation: 'Avoid interacting with this program'
+    });
+  }
+
+  return signals;
+}
+
+// Combine signals
+const customSignals = detectMyCustomPattern(context);
+const allSignals = [...builtInSignals, ...customSignals];
+
+═══════════════════════════════════════════════════════════════════════════════
+ERROR HANDLING & BEST PRACTICES
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ DO:
+- Cache label provider instance (don't recreate for each scan)
+- Use maxSignatures to limit transaction history (100-200 is reasonable)
 - Check report.overallRisk first, then drill into signals
+- Handle RPC errors gracefully (collectors return partial data on failure)
+- Use RPCClient's built-in rate limiting for batch operations
 - Display mitigations to users for actionable guidance
 
-INFRASTRUCTURE:
-- Powered by QuickNode for reliable Solana RPC access
-- No API keys or configuration needed
-- Default rate limits: 5 requests/second with exponential backoff
+❌ DON'T:
+- Don't recreate RPCClient for every scan (reuse instances)
+- Don't fetch entire wallet history (unbounded maxSignatures)
+- Don't ignore error handling - RPC can fail
+- Don't assume all data will be present (check for null/undefined)
 
-MY PROJECT CONTEXT:
-[Describe your project here - what you're building, where you want to integrate privacy scanning, what your goals are, etc.]
+## Error Handling Pattern
+try {
+  const rawData = await collectWalletData(rpc, address);
+  const context = normalizeWalletData(rawData, labels);
+  const report = generateReport(context);
 
-WHAT I NEED HELP WITH:
-[Describe specifically what you need - e.g., "Scan user wallets before allowing deposits", "Add privacy checks to my DeFi protocol", "Build a privacy dashboard", etc.]
+  if (report.signals.length === 0) {
+    console.log('No privacy risks detected (or insufficient data)');
+  }
+
+  return report;
+} catch (error) {
+  console.error('Scan failed:', error);
+  // Return null or throw - depends on your app's needs
+  return null;
+}
+
+## Null Safety
+- RPC calls can return null transactions
+- Collectors degrade gracefully (empty arrays on failure)
+- Normalizers handle missing data (check blockTime, accountKeys, etc.)
+- Always validate report.signals.length before accessing
+
+═══════════════════════════════════════════════════════════════════════════════
+PERFORMANCE OPTIMIZATION
+═══════════════════════════════════════════════════════════════════════════════
+
+## Fast Scans (< 5 seconds)
+const report = await scanWallet(address, {
+  maxSignatures: 50,           // Fetch fewer transactions
+  includeTokenAccounts: false  // Skip token account lookup
+});
+
+## Parallel Scans (multiple wallets)
+const reports = await Promise.all(
+  addresses.map(addr => scanWallet(addr))
+);
+
+## Rate Limiting
+- RPCClient includes built-in rate limiting (10 concurrent by default)
+- For batch operations, add delays between wallets (200-500ms)
+- Use custom RPC with higher limits for production
+
+═══════════════════════════════════════════════════════════════════════════════
+TESTING & DEVELOPMENT
+═══════════════════════════════════════════════════════════════════════════════
+
+## Test with Known Addresses
+// Binance hot wallet (will trigger known-entity-exchange)
+const report = await scanWallet('5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9');
+
+// Test transaction
+const txReport = await scanTransaction('YOUR_TX_SIGNATURE');
+
+## Mock for Testing
+import { type ScanContext, generateReport } from 'solana-privacy-scanner-core';
+
+const mockContext: ScanContext = {
+  target: 'TEST_ADDRESS',
+  targetType: 'wallet',
+  transfers: [],
+  instructions: [],
+  counterparties: new Set(),
+  labels: new Map(),
+  tokenAccounts: [],
+  timeRange: { earliest: null, latest: null },
+  transactionCount: 0,
+  transactions: [],
+  tokenAccountEvents: [],
+  pdaInteractions: [],
+  feePayers: new Set(),
+  signers: new Set(),
+  programs: new Set()
+};
+
+const report = generateReport(mockContext);
+
+═══════════════════════════════════════════════════════════════════════════════
+ADDITIONAL RESOURCES
+═══════════════════════════════════════════════════════════════════════════════
+
+Documentation: https://sps.guide/library/api-reference
+Examples: https://sps.guide/library/examples
+npm: https://www.npmjs.com/package/solana-privacy-scanner-core
+GitHub: https://github.com/taylorferran/solana-privacy-scanner
+Report Format: https://sps.guide/reports/risk-levels
+Heuristics Guide: https://sps.guide/reports/heuristics
+
+═══════════════════════════════════════════════════════════════════════════════
 ```
-
----
-
-## Example Prompts for Specific Use Cases
-
-### For DeFi Protocols
-
-```
-Using solana-privacy-scanner-core, help me add privacy checks before allowing users to deposit funds into my lending protocol. I want to reject deposits from wallets that have HIGH risk privacy scores or direct CEX interactions in the last 10 transactions.
-```
-
-### For Wallet Applications
-
-```
-Using solana-privacy-scanner-core, help me build a "Privacy Score" feature in my Solana wallet that shows users their privacy rating and gives them actionable tips to improve it.
-```
-
-### For Batch Analysis
-
-```
-Using solana-privacy-scanner-core, help me scan 1000 wallet addresses efficiently, respecting rate limits, and export the results to a CSV with columns: address, risk_level, signals_count, known_entities.
-```
-
-### For Custom Heuristics
-
-```
-I'm using solana-privacy-scanner-core and want to add a custom heuristic that detects when wallets interact with specific program IDs that are known to be problematic. Show me how to access the ScanContext and implement this check.
-```
-
----
-
-## Quick Reference
-
-### Install
-```bash
-npm install solana-privacy-scanner-core
-```
-
-### Minimal Example
-```typescript
-import { RPCClient, collectWalletData, normalizeWalletData, generateReport, createDefaultLabelProvider } from 'solana-privacy-scanner-core';
-
-const rpc = new RPCClient();
-const labels = createDefaultLabelProvider();
-const raw = await collectWalletData(rpc, 'ADDRESS');
-const context = normalizeWalletData(raw, labels);
-const report = generateReport(context);
-
-console.log(report.overallRisk);
-```
-
-### Links
-- **Full Documentation:** https://sps.guide/library/usage
-- **Examples:** https://sps.guide/library/examples
-- **npm Package:** https://www.npmjs.com/package/solana-privacy-scanner-core
-- **GitHub:** https://github.com/taylorferran/solana-privacy-scanner

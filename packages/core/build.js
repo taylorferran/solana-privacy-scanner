@@ -37,8 +37,9 @@ async function build() {
       outfile: 'dist/index.cjs',
     });
 
-    // Copy static assets (JSON label file)
-    copyFileSync('src/labels/known-addresses.json', 'dist/known-addresses.json');
+    // Copy static assets (JSON label file from repository root)
+    // This allows the database to be updated via PRs without package releases
+    copyFileSync('../../known-addresses.json', 'dist/known-addresses.json');
 
     console.log('✓ Build complete');
   } catch (error) {

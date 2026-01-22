@@ -51,15 +51,6 @@ npm run docs:build
 npm run docs:preview
 ```
 
-### Running Examples
-```bash
-cd examples
-npm install
-npm run wallet        # Test wallet scan
-npm run transaction   # Test transaction scan
-npm run program       # Test program scan
-```
-
 ### CLI Testing
 ```bash
 # Test CLI locally (from packages/cli)
@@ -74,9 +65,8 @@ node dist/index.js scan-program <PROGRAM_ID>
 This is a TypeScript monorepo with npm workspaces:
 - **packages/core** - Core scanning engine (npm: `solana-privacy-scanner-core`)
 - **packages/cli** - Command-line interface (npm: `solana-privacy-scanner`)
-- **packages/ci-tools** - CI/CD integration tools (npm: `solana-privacy-scanner-ci-tools`)
+- **packages/devtools** - Developer tools with static analyzer, simulator, test matchers, CI/CD integration (npm: `solana-privacy-devtools`)
 - **docs/** - Docusaurus documentation site + web UI
-- **examples/** - Usage examples for library integration
 
 ### Core Package Architecture
 

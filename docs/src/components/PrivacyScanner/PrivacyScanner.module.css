@@ -1,50 +1,39 @@
 .scannerUI {
-  max-width: 900px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 32px 24px 60px;
+  padding: 0;
 }
 
 .scannerHeader {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 
 .scannerHeader h1 {
-  font-size: 56px;
+  font-size: 32px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin: 0 0 16px 0;
-  padding: 10px 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #505053 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-html[data-theme='dark'] .scannerHeader h1 {
-  background: linear-gradient(135deg, #f5f5f7 0%, #a1a1a6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  line-height: 1.1;
+  margin: 0 0 12px 0;
+  color: #fff;
 }
 
 .tagline {
-  font-size: 24px;
+  font-size: 17px;
   font-weight: 400;
-  color: var(--ifm-color-emphasis-700);
-  margin: 0 0 12px 0;
+  color: #86868b;
+  margin: 0 0 8px 0;
 }
 
 .poweredBy {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ifm-color-emphasis-600);
-  margin: 0 0 24px 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: #86868b;
+  margin: 0 0 12px 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .poweredBy a {
@@ -55,84 +44,72 @@ html[data-theme='dark'] .scannerHeader h1 {
 }
 
 .poweredBy a:hover {
-  color: #0f766e;
-  text-decoration: underline;
-}
-
-html[data-theme='dark'] .poweredBy a {
-  color: #14b8a6;
-}
-
-html[data-theme='dark'] .poweredBy a:hover {
-  color: #2dd4bf;
+  color: #0ea596;
 }
 
 .description {
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--ifm-color-emphasis-600);
+  font-size: 17px;
+  line-height: 1.47;
+  color: #86868b;
   max-width: 600px;
   margin: 0 auto;
 }
 
 .scannerInputs {
-  margin-bottom: 32px;
+  margin-bottom: 16px;
 }
 
 .inputGroup {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .inputGroup label {
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: var(--ifm-color-emphasis-700);
+  color: #f5f5f7;
   margin-bottom: 8px;
 }
 
 .inputGroup input {
   width: 100%;
-  padding: 16px 20px;
+  padding: 12px 16px;
   font-size: 16px;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 12px;
-  background: var(--ifm-background-surface-color);
-  color: var(--ifm-font-color-base);
-  transition: all 0.2s;
+  border: 1px solid #2a2a2a;
+  background: #0a0a0a;
+  color: #fff;
+  transition: all 0.2s ease;
   box-sizing: border-box;
+  font-weight: 400;
 }
 
 .inputGroup input:focus {
   outline: none;
-  border-color: var(--ifm-color-primary);
-  box-shadow: 0 0 0 3px var(--ifm-color-primary-lightest);
+  border-color: #0d9488;
 }
 
 .inputHint {
   display: block;
-  font-size: 13px;
-  color: var(--ifm-color-emphasis-600);
+  font-size: 12px;
+  color: #86868b;
   margin-top: 6px;
 }
 
 .scannerInputs button {
   width: 100%;
-  padding: 16px 32px;
-  font-size: 16px;
-  font-weight: 500;
-  background: #1a1a1a;
+  padding: 12px 24px;
+  font-size: 17px;
+  font-weight: 600;
+  background: #0d9488;
   color: white;
-  border: none;
-  border-radius: 980px;
+  border: 2px solid #0d9488;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .scannerInputs button:hover:not(:disabled) {
-  background: #2c2c2c;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  background: #0ea596;
+  border-color: #0ea596;
 }
 
 .scannerInputs button:disabled {
@@ -140,68 +117,61 @@ html[data-theme='dark'] .poweredBy a:hover {
   cursor: not-allowed;
 }
 
-html[data-theme='dark'] .scannerInputs button {
-  background: #f5f5f7;
-  color: #1a1a1a;
-}
-
-html[data-theme='dark'] .scannerInputs button:hover:not(:disabled) {
-  background: #ffffff;
-}
-
 .privacyNote {
   text-align: center;
-  padding: 24px;
-  background: var(--ifm-background-surface-color);
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 12px;
-  margin-top: 48px;
+  padding: 12px;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  margin-top: 12px;
 }
 
 .privacyNote p {
-  font-size: 14px;
-  color: var(--ifm-color-emphasis-700);
+  font-size: 12px;
+  color: #86868b;
   margin: 0;
+  font-weight: 400;
 }
 
 .errorMessage {
-  padding: 16px 20px;
-  background: rgba(255, 59, 48, 0.1);
-  border: 1px solid rgba(255, 59, 48, 0.3);
-  border-radius: 12px;
+  padding: 12px 16px;
+  background: #2a1a1a;
+  border: 1px solid #ff3b30;
   color: #ff3b30;
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .results {
-  margin-top: 48px;
+  margin-top: 32px;
 }
 
 .riskScore {
   text-align: center;
-  padding: 40px;
-  background: var(--ifm-background-surface-color);
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 16px;
-  margin-bottom: 32px;
+  padding: 32px;
+  background: #0a0a0a;
+  border: 2px solid #0d9488;
+  margin-bottom: 24px;
 }
 
 .riskBadge {
   display: inline-block;
-  padding: 12px 32px;
-  border-radius: 980px;
+  padding: 8px 24px;
   color: white;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  margin-bottom: 16px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  border: 2px solid;
 }
 
 .riskSummary {
-  color: var(--ifm-color-emphasis-700);
-  font-size: 16px;
+  color: #86868b;
+  font-size: 15px;
   margin: 0;
+  font-weight: 400;
 }
 
 .knownEntities {
@@ -209,57 +179,75 @@ html[data-theme='dark'] .scannerInputs button:hover:not(:disabled) {
 }
 
 .knownEntities h3 {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+  color: #fff;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #0d9488;
 }
 
 .entityList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
 }
 
 .entityCard {
   padding: 20px;
-  background: var(--ifm-background-surface-color);
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 12px;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  transition: border-color 0.2s ease;
+}
+
+.entityCard:hover {
+  border-color: #0d9488;
 }
 
 .entityType {
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--ifm-color-emphasis-600);
+  letter-spacing: 0.08em;
+  color: #0d9488;
   margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .entityName {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: var(--ifm-font-color-base);
-  margin-bottom: 4px;
+  color: #f5f5f7;
+  margin-bottom: 6px;
 }
 
 .entityDesc {
-  font-size: 14px;
-  color: var(--ifm-color-emphasis-700);
-  line-height: 1.5;
+  font-size: 13px;
+  color: #86868b;
+  line-height: 1.4;
+  font-weight: 400;
 }
 
 .signals h3 {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+  color: #fff;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #0d9488;
 }
 
 .signalCard {
-  padding: 32px;
-  background: var(--ifm-background-surface-color);
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 16px;
-  margin-bottom: 16px;
+  padding: 24px;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  margin-bottom: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.signalCard:hover {
+  border-color: #0d9488;
 }
 
 .signalHeader {
@@ -270,104 +258,117 @@ html[data-theme='dark'] .scannerInputs button:hover:not(:disabled) {
 }
 
 .signalHeader h4 {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   margin: 0;
+  letter-spacing: -0.01em;
+  color: #fff;
 }
 
 .severityBadge {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .signalReason {
-  font-size: 16px;
-  color: var(--ifm-color-emphasis-700);
-  margin-bottom: 24px;
+  font-size: 15px;
+  color: #86868b;
+  margin-bottom: 16px;
+  line-height: 1.47;
+  font-weight: 400;
 }
 
 .signalSection {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .signalSection h5 {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--ifm-color-emphasis-600);
+  letter-spacing: 0.04em;
+  color: #0d9488;
   margin-bottom: 8px;
 }
 
 .signalSection p {
   font-size: 15px;
-  line-height: 1.6;
-  color: var(--ifm-color-emphasis-700);
+  line-height: 1.47;
+  color: #86868b;
   margin: 0;
+  font-weight: 400;
 }
 
 .signalSection ul {
   margin: 0;
-  padding-left: 20px;
+  padding-left: 18px;
 }
 
 .signalSection li {
   font-size: 15px;
-  line-height: 1.6;
-  color: var(--ifm-color-emphasis-700);
+  line-height: 1.47;
+  color: #86868b;
   margin: 4px 0;
+  font-weight: 400;
 }
 
 .confidence {
-  font-size: 14px;
-  color: var(--ifm-color-emphasis-600);
-  margin-top: 16px;
+  font-size: 13px;
+  color: #86868b;
+  margin-top: 12px;
+  font-weight: 400;
 }
 
 .noRisks {
   text-align: center;
-  padding: 60px 40px;
-  background: var(--ifm-background-surface-color);
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 16px;
-  margin-bottom: 32px;
+  padding: 48px 32px;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  margin-bottom: 24px;
 }
 
 .checkmark {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 20px;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
   background: #34c759;
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
-  font-weight: 300;
+  font-size: 28px;
 }
 
 .noRisks h3 {
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 600;
   margin-bottom: 8px;
+  letter-spacing: -0.01em;
+  color: #f5f5f7;
 }
 
 .noRisks p {
-  font-size: 16px;
-  color: var(--ifm-color-emphasis-700);
+  font-size: 15px;
+  color: #86868b;
   margin: 0;
+  font-weight: 400;
 }
 
 .recommendations {
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 
 .recommendations h3 {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+  color: #fff;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #0d9488;
 }
 
 .recommendations ul {
@@ -377,56 +378,74 @@ html[data-theme='dark'] .scannerInputs button:hover:not(:disabled) {
 
 .recommendations li {
   padding: 16px 20px;
-  background: var(--ifm-background-surface-color);
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 12px;
-  margin-bottom: 12px;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  margin-bottom: 8px;
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.47;
+  color: #f5f5f7;
+  font-weight: 400;
+  transition: border-color 0.2s ease;
+}
+
+.recommendations li:hover {
+  border-color: #0d9488;
 }
 
 .educational {
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 
 .educational h3 {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 600;
   margin-bottom: 24px;
   text-align: center;
+  letter-spacing: -0.02em;
+  color: #f5f5f7;
 }
 
 .eduGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
 
 .eduCard {
-  padding: 28px;
-  background: var(--ifm-background-surface-color);
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 16px;
+  padding: 20px;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
 }
 
 .eduCard h4 {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+  color: #f5f5f7;
 }
 
 .eduCard p {
   font-size: 15px;
-  line-height: 1.6;
-  color: var(--ifm-color-emphasis-700);
+  line-height: 1.47;
+  color: #86868b;
   margin: 0;
+  font-weight: 400;
 }
 
-@media (max-width: 768px) {
-  .scannerHeader h1 {
-    font-size: 40px;
+@media (max-width: 734px) {
+  .scannerUI {
+    padding: 0;
   }
-  
+
+  .scannerHeader h1 {
+    font-size: 28px;
+  }
+
+  .tagline {
+    font-size: 15px;
+  }
+
   .eduGrid {
     grid-template-columns: 1fr;
   }

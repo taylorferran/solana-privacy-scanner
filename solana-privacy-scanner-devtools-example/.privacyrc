@@ -1,0 +1,10 @@
+{
+  "maxRiskLevel": "MEDIUM",
+  "enforceInCI": true,
+  "blockOnFailure": true,
+  "thresholds": {
+    "maxHighSeverity": 0,
+    "maxMediumSeverity": 2,
+    "minPrivacyScore": 70
+  }
+}

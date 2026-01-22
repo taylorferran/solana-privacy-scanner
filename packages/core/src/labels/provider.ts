@@ -23,7 +23,36 @@ export class StaticLabelProvider implements LabelProvider {
    */
   private loadLabels(customPath?: string): void {
     try {
-      const path = customPath || join(__dirname, 'known-addresses.json');
+      let path: string;
+
+      if (customPath) {
+        path = customPath;
+      } else {
+        // Try multiple locations for the database file:
+        // 1. In __dirname (works for dist/ after build)
+        // 2. Repository root (works for source during development/testing)
+        //    From src/labels: labels -> src -> core -> packages -> repo_root = 4 levels up
+        const locations = [
+          join(__dirname, 'known-addresses.json'),
+          join(__dirname, '../../../..', 'known-addresses.json'),
+        ];
+
+        const found = locations.find(loc => {
+          try {
+            readFileSync(loc, 'utf-8');
+            return true;
+          } catch {
+            return false;
+          }
+        });
+
+        if (!found) {
+          throw new Error(`Could not find known-addresses.json in any expected location: ${locations.join(', ')}`);
+        }
+
+        path = found;
+      }
+
       const data = readFileSync(path, 'utf-8');
       const parsed = JSON.parse(data);
 
@@ -44,7 +73,7 @@ export class StaticLabelProvider implements LabelProvider {
         }
       }
 
-      console.debug(`Loaded ${this.labels.size} address labels`);
+      console.debug(`Loaded ${this.labels.size} address labels from ${path}`);
     } catch (error) {
       console.warn('Failed to load labels file:', error);
     }

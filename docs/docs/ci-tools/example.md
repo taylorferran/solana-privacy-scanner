@@ -103,6 +103,44 @@ Each transaction is isolated with its own fee payer, maintaining privacy.
 
 ---
 
+### PR #3: Static Analysis Detection (Coming Soon)
+
+**Branch:** `feat/memo-pii` (planned)
+
+**What it will show:**
+- Code that hardcodes PII in transaction memos
+- Static analyzer catches it before runtime
+- Demonstrates AST-level detection
+
+**The violation:**
+```typescript
+const memo = `Transfer for user ${email}@${domain}`; // ❌ Email in memo
+await sendTransaction({ memo });
+```
+
+**CI Result:** ❌ **FAILS** (static analysis)
+
+---
+
+### PR #4: Static Analysis Fix (Coming Soon)
+
+**Branch:** `fix/memo-pii` (planned)
+
+**What it will show:**
+- Removing PII from memos
+- Static analyzer passes
+- Safe memo patterns
+
+**The fix:**
+```typescript
+const memo = `Transfer-${generateId()}`; // ✅ No PII
+await sendTransaction({ memo });
+```
+
+**CI Result:** ✅ **PASSES**
+
+---
+
 ## Key Files
 
 ### GitHub Actions Workflow

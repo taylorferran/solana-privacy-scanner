@@ -1,14 +1,18 @@
 {
-  "name": "solana-privacy-scanner-ci-tools",
+  "name": "solana-privacy-devtools",
   "version": "0.1.0",
   "type": "module",
-  "description": "CI/CD integration tools for Solana privacy scanning - testing matchers, transaction simulator, and GitHub Actions",
+  "description": "Developer tools for Solana privacy: static code analysis, transaction simulation, test matchers, and CI/CD integration",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./analyzer": {
+      "import": "./dist/analyzer/index.js",
+      "types": "./dist/analyzer/index.d.ts"
     },
     "./simulator": {
       "import": "./dist/simulator/index.js",
@@ -24,7 +28,8 @@
     }
   },
   "bin": {
-    "privacy-scanner-init": "./dist/cli/init.js"
+    "privacy-scanner-init": "./dist/cli/init.js",
+    "solana-privacy-devtools": "./dist/analyzer/cli.js"
   },
   "files": [
     "dist/**/*",
@@ -42,18 +47,21 @@
   "keywords": [
     "solana",
     "privacy",
+    "static-analysis",
+    "code-analyzer",
     "ci-cd",
     "testing",
     "github-actions",
     "simulator",
-    "devops"
+    "devtools",
+    "linter"
   ],
   "author": "Taylor Ferran",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/taylorferran/solana-privacy-scanner.git",
-    "directory": "packages/ci-tools"
+    "directory": "packages/devtools"
   },
   "homepage": "https://sps.guide",
   "bugs": {
@@ -62,8 +70,11 @@
   "dependencies": {
     "solana-privacy-scanner-core": "file:../core",
     "@solana/web3.js": "^1.95.8",
+    "@typescript-eslint/typescript-estree": "^7.0.0",
     "vitest": "^2.1.9",
     "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "glob": "^10.3.10",
     "prompts": "^2.4.2",
     "zod": "^3.24.1"
   },

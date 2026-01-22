@@ -9,12 +9,13 @@ Copy the text below and paste it into your AI coding assistant (Claude, Cursor, 
 ```
 I want to integrate privacy testing into my Solana development workflow using the Solana Privacy Scanner CI/CD Tools.
 
-PACKAGE: solana-privacy-scanner-ci-tools
+PACKAGE: solana-privacy-devtools
 VERSION: 0.1.0
 DOCUMENTATION: https://sps.guide/ci-tools/overview
 
 WHAT IT DOES:
 Brings privacy analysis into your development workflow with:
+- Static code analyzer (detect privacy anti-patterns in source code)
 - Transaction simulator (test privacy before sending to chain)
 - Testing matchers (privacy assertions in test suites)
 - GitHub Actions integration (automated CI checks)
@@ -23,7 +24,7 @@ Brings privacy analysis into your development workflow with:
 - Docker support (works with any CI/CD platform)
 
 INSTALLATION:
-npm install --save-dev solana-privacy-scanner-ci-tools
+npm install --save-dev solana-privacy-devtools
 
 QUICK SETUP:
 npx privacy-scanner-init
@@ -31,7 +32,46 @@ npx privacy-scanner-init
 
 CORE FEATURES:
 
-1. TRANSACTION SIMULATOR
+1. STATIC CODE ANALYZER
+   Detect privacy anti-patterns in source code before runtime
+
+   Command:
+   - npx solana-privacy-devtools analyze <paths> - Scan TypeScript/JavaScript files
+
+   Detects:
+   - Fee payer reuse in loops (CRITICAL)
+   - PII in transaction memos (HIGH/MEDIUM/LOW based on content)
+   - Hardcoded sensitive data
+   - Privacy anti-patterns
+
+   Example:
+   ```bash
+   # Scan entire project
+   npx solana-privacy-devtools analyze src/
+
+   # Scan specific files
+   npx solana-privacy-devtools analyze src/transfer.ts src/swap.ts
+
+   # Fail CI on any issues
+   npx solana-privacy-devtools analyze src/ --fail-on-error
+   ```
+
+   Output:
+   ```
+   Scanning 24 files...
+
+   ❌ src/transfer.ts:45:12
+      Fee Payer Reuse in Loop (CRITICAL)
+      Using the same fee payer across multiple transactions in a loop
+
+   ⚠️  src/memo.ts:23:8
+      PII in Memo Field (HIGH)
+      Detected potential email address in memo field
+
+   Found 2 issues (1 critical, 1 high)
+   ```
+
+2. TRANSACTION SIMULATOR
    Test privacy BEFORE sending transactions to mainnet
    
    Functions:
@@ -41,7 +81,7 @@ CORE FEATURES:
    
    Example:
    ```typescript
-   import { simulateTransactionPrivacy } from 'solana-privacy-scanner-ci-tools/simulator';
+   import { simulateTransactionPrivacy } from 'solana-privacy-devtools/simulator';
    
    const tx = await buildTransaction();
    const report = await simulateTransactionPrivacy(tx, connection);
@@ -51,7 +91,7 @@ CORE FEATURES:
    }
    ```
 
-2. TESTING MATCHERS
+3. TESTING MATCHERS
    Privacy assertions in Vitest/Jest test suites
    
    Available Matchers:
@@ -65,7 +105,7 @@ CORE FEATURES:
    
    Example:
    ```typescript
-   import 'solana-privacy-scanner-ci-tools/matchers';
+   import 'solana-privacy-devtools/matchers';
    
    test('swap maintains privacy', async () => {
      const tx = await program.methods.swap(amount).transaction();
@@ -77,7 +117,7 @@ CORE FEATURES:
    });
    ```
 
-3. CONFIGURATION SYSTEM
+4. CONFIGURATION SYSTEM
    Project-level privacy policies via .privacyrc
    
    Example .privacyrc:
@@ -98,11 +138,11 @@ CORE FEATURES:
    
    Load config in code:
    ```typescript
-   import { loadConfig } from 'solana-privacy-scanner-ci-tools/config';
+   import { loadConfig } from 'solana-privacy-devtools/config';
    const config = loadConfig(); // Finds and validates .privacyrc
    ```
 
-4. GITHUB ACTIONS
+5. GITHUB ACTIONS
    Automated privacy checks on every PR
    
    Setup with wizard or manually create .github/workflows/privacy-check.yml:
@@ -118,7 +158,7 @@ CORE FEATURES:
          - run: npm test  # Includes privacy matchers
    ```
 
-5. PRE-COMMIT HOOKS
+6. PRE-COMMIT HOOKS
    Local validation before commits
    
    Wizard installs .husky/pre-commit automatically:
@@ -127,13 +167,13 @@ CORE FEATURES:
    npm test -- --run  # Runs privacy tests before commit
    ```
 
-6. DOCKER SUPPORT
+7. DOCKER SUPPORT
    Containerized scanning for any CI platform
    
    Dockerfile included in package:
    ```dockerfile
    FROM node:20-alpine
-   RUN npm install -g solana-privacy-scanner-ci-tools
+   RUN npm install -g solana-privacy-devtools
    ENTRYPOINT ["privacy-scanner-init"]
    ```
 
@@ -207,7 +247,7 @@ TEST SETUP (Vitest):
 
 1. Create tests/setup.ts:
    ```typescript
-   import 'solana-privacy-scanner-ci-tools/matchers';
+   import 'solana-privacy-devtools/matchers';
    ```
 
 2. Update vitest.config.ts:
@@ -221,7 +261,7 @@ TEST SETUP (Vitest):
    ```typescript
    import { describe, it, expect } from 'vitest';
    import { Connection } from '@solana/web3.js';
-   import { simulateTransactionPrivacy } from 'solana-privacy-scanner-ci-tools/simulator';
+   import { simulateTransactionPrivacy } from 'solana-privacy-devtools/simulator';
    
    describe('Privacy Tests', () => {
      const connection = new Connection('https://api.devnet.solana.com');
@@ -333,7 +373,7 @@ WHAT I NEED HELP WITH:
 ### For Existing Test Suite
 
 ```
-I have an existing Vitest test suite for my Solana program. Using solana-privacy-scanner-ci-tools, help me:
+I have an existing Vitest test suite for my Solana program. Using solana-privacy-devtools, help me:
 1. Add privacy matchers to my tests
 2. Create privacy tests for all my main user flows
 3. Set up a configuration that enforces MEDIUM or lower risk
@@ -343,7 +383,7 @@ I have an existing Vitest test suite for my Solana program. Using solana-privacy
 ### For GitHub Actions
 
 ```
-Using solana-privacy-scanner-ci-tools, help me set up GitHub Actions that:
+Using solana-privacy-devtools, help me set up GitHub Actions that:
 1. Runs privacy tests on every PR
 2. Comments the privacy report on the PR
 3. Fails if any HIGH severity signals are detected
@@ -354,7 +394,7 @@ Using solana-privacy-scanner-ci-tools, help me set up GitHub Actions that:
 ### For Transaction Development
 
 ```
-I'm developing a new transaction type for my Solana protocol. Using solana-privacy-scanner-ci-tools, help me:
+I'm developing a new transaction type for my Solana protocol. Using solana-privacy-devtools, help me:
 1. Simulate the transaction to see privacy implications
 2. Compare it against an alternative implementation
 3. Write tests that ensure it maintains LOW risk
@@ -364,7 +404,7 @@ I'm developing a new transaction type for my Solana protocol. Using solana-priva
 ### For Privacy Policy Enforcement
 
 ```
-Using solana-privacy-scanner-ci-tools, help me enforce a privacy policy that:
+Using solana-privacy-devtools, help me enforce a privacy policy that:
 1. No transactions can have HIGH severity signals
 2. Maximum of 2 MEDIUM severity signals per transaction
 3. Privacy score must be at least 75
@@ -378,7 +418,7 @@ Using solana-privacy-scanner-ci-tools, help me enforce a privacy policy that:
 
 ### Install
 ```bash
-npm install --save-dev solana-privacy-scanner-ci-tools
+npm install --save-dev solana-privacy-devtools
 ```
 
 ### Setup
@@ -388,7 +428,7 @@ npx privacy-scanner-init
 
 ### Test with Matchers
 ```typescript
-import 'solana-privacy-scanner-ci-tools/matchers';
+import 'solana-privacy-devtools/matchers';
 
 test('private', async () => {
   const report = await simulateTransactionPrivacy(tx, connection);
@@ -398,13 +438,13 @@ test('private', async () => {
 
 ### Simulate Transaction
 ```typescript
-import { simulateTransactionPrivacy } from 'solana-privacy-scanner-ci-tools/simulator';
+import { simulateTransactionPrivacy } from 'solana-privacy-devtools/simulator';
 const report = await simulateTransactionPrivacy(tx, connection);
 ```
 
 ### Load Config
 ```typescript
-import { loadConfig } from 'solana-privacy-scanner-ci-tools/config';
+import { loadConfig } from 'solana-privacy-devtools/config';
 const config = loadConfig();
 ```
 
@@ -412,5 +452,5 @@ const config = loadConfig();
 - **Full Documentation:** https://sps.guide/ci-tools/overview
 - **Testing Guide:** https://sps.guide/ci-tools/testing
 - **GitHub Actions:** https://sps.guide/ci-tools/github-actions
-- **npm Package:** https://www.npmjs.com/package/solana-privacy-scanner-ci-tools
+- **npm Package:** https://www.npmjs.com/package/solana-privacy-devtools
 - **GitHub:** https://github.com/taylorferran/solana-privacy-scanner

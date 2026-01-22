@@ -1,23 +1,287 @@
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
-
-.heroBanner {
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+/* Hide navbar on homepage */
+.homeContainer {
+  min-height: 100vh;
+  background: #000;
 }
 
-@media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
+/* Hero Section */
+.hero {
+  padding: 100px 5% 70px;
+  background: #000;
+  border-bottom: 2px solid #0d9488;
+}
+
+.heroContent {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.heroLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #0d9488;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-size: 64px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  margin: 0 0 28px 0;
+  color: #fff;
+}
+
+.heroSubtitle {
+  font-size: 20px;
+  font-weight: 400;
+  color: #a1a1a6;
+  line-height: 1.5;
+  margin: 0 0 36px 0;
+  max-width: 680px;
+}
+
+.heroActions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.primaryButton {
+  display: inline-block;
+  padding: 14px 32px;
+  background: #0d9488;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid #0d9488;
+  transition: all 0.2s ease;
+}
+
+.primaryButton:hover {
+  background: #0ea596;
+  border-color: #0ea596;
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.secondaryButton {
+  display: inline-block;
+  padding: 14px 32px;
+  background: transparent;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid #2a2a2a;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  border-color: #fff;
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+/* Products Section */
+.products {
+  background: #0a0a0a;
+  padding: 70px 5% 70px;
+}
+
+.productsContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.productsTitle {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0 0 40px 0;
+  color: #fff;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.productCard {
+  display: block;
+  padding: 36px 28px;
+  background: #000;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  position: relative;
+  min-height: 260px;
+  border: 1px solid #1a1a1a;
+}
+
+.productCard:hover {
+  border-color: #0d9488;
+  transform: translateY(-3px);
+  text-decoration: none;
+}
+
+.productTag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #666;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.productCard:hover .productTag {
+  color: #0d9488;
+}
+
+.productTitle {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+}
+
+.productDescription {
+  font-size: 16px;
+  color: #86868b;
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 400;
+}
+
+.productArrow {
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  font-size: 24px;
+  color: #0d9488;
+  opacity: 0;
+  transition: all 0.25s ease;
+}
+
+.productCard:hover .productArrow {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+/* Scanner Section */
+.scanner {
+  background: #000;
+  padding: 70px 5% 90px;
+  border-top: 2px solid #0d9488;
+}
+
+.scannerContainer {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.scannerHeader {
+  text-align: center;
+  margin-bottom: 44px;
+}
+
+.scannerTitle {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px 0;
+  color: #fff;
+}
+
+.scannerSubtitle {
+  font-size: 18px;
+  color: #86868b;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Responsive */
+@media (max-width: 1068px) {
+  .heroTitle {
+    font-size: 52px;
+  }
+
+  .heroSubtitle {
+    font-size: 18px;
+  }
+
+  .productsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .productsTitle,
+  .scannerTitle {
+    font-size: 36px;
+  }
+
+  .productCard {
+    min-height: 200px;
   }
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@media (max-width: 734px) {
+  .hero {
+    padding: 70px 20px 50px;
+  }
+
+  .heroTitle {
+    font-size: 38px;
+  }
+
+  .heroSubtitle {
+    font-size: 17px;
+  }
+
+  .heroActions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+    text-align: center;
+  }
+
+  .products {
+    padding: 50px 20px 50px;
+  }
+
+  .scanner {
+    padding: 50px 20px 70px;
+  }
+
+  .productsTitle,
+  .scannerTitle {
+    font-size: 30px;
+  }
+
+  .productCard {
+    padding: 28px 24px;
+    min-height: auto;
+  }
+
+  .productTitle {
+    font-size: 22px;
+  }
+
+  .productDescription {
+    font-size: 15px;
+  }
+
+  .productArrow {
+    bottom: 24px;
+    right: 24px;
+    font-size: 20px;
+  }
 }

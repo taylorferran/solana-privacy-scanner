@@ -1,0 +1,21 @@
+{
+  "name": "solana-privacy-scanner-devtools-example",
+  "version": "1.0.0",
+  "description": "Example demonstrating solana-privacy-devtools for static analysis, testing, and CI/CD",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "analyze": "solana-privacy-devtools analyze src/",
+    "analyze:fail": "solana-privacy-devtools analyze src/ --fail-on-error"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.8"
+  },
+  "devDependencies": {
+    "solana-privacy-devtools": "^0.1.0",
+    "vitest": "^2.1.8",
+    "typescript": "^5.7.2"
+  }
+}

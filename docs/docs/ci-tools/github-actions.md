@@ -16,9 +16,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
       - run: npm install
-      - run: npm test
+
+      # Static code analysis
+      - name: Analyze code for privacy issues
+        run: npx solana-privacy-devtools analyze src/
+
+      # Runtime testing
+      - name: Run privacy tests
+        run: npm test
 ```
 
 ## Example

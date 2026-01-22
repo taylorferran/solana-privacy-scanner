@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Solana Privacy Scanner',
   tagline: 'Analyze Solana wallets, transactions, and programs for privacy risks. Get transparent risk assessments and actionable guidance.',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/detective-logo.svg',
 
   // Future flags
   future: {

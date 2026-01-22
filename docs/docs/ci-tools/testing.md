@@ -15,7 +15,7 @@ export default defineConfig({
 
 ```typescript
 // tests/setup.ts
-import { setupPrivacyMatchers } from 'solana-privacy-scanner-ci-tools/matchers';
+import { setupPrivacyMatchers } from 'solana-privacy-devtools/matchers';
 setupPrivacyMatchers();
 ```
 

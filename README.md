@@ -193,11 +193,9 @@ solana-privacy-scanner/
 ├── packages/
 │   ├── core/              # solana-privacy-scanner-core (npm package)
 │   ├── cli/               # solana-privacy-scanner (npm package)
-│   ├── ci-tools/          # solana-privacy-scanner-ci-tools (npm package)
-│   ├── code-analyzer/     # solana-privacy-analyzer (npm package)
+│   ├── devtools/          # solana-privacy-devtools (npm package)
 │   └── claude-plugin/     # Claude Code plugin (GitHub distribution)
-├── examples/              # Code examples for library usage
-└── tests/                 # Comprehensive test suite (36 tests)
+└── tests/                 # Comprehensive test suite (95 tests)
 ```
 
 ---
@@ -239,13 +237,6 @@ npm test
 
 # Run documentation site locally
 npm run docs:dev
-
-# Run examples
-cd examples
-npm install
-npm run wallet        # Test wallet scan
-npm run transaction   # Test transaction scan
-npm run program       # Test program scan
 ```
 
 ---

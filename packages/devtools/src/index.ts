@@ -1,3 +1,6 @@
+// Export analyzer
+export * from './analyzer/index.js';
+
 // Export simulator
 export * from './simulator/index.js';
 

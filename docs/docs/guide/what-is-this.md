@@ -6,10 +6,9 @@ It is a completely open-source, free to use public good tool, that can be taken 
 
 ## Tools Available
 
-**Core Library** (`solana-privacy-scanner-core`) - Scanner engine for integrating privacy analysis into apps  
-**CLI** (`solana-privacy-scanner`) - Command-line tool for scanning wallets/transactions/programs  
-**CI/CD Tools** (`solana-privacy-scanner-ci-tools`) - Testing matchers and GitHub Actions for automated checks  
-**Static Analyzer** (`solana-privacy-analyzer`) - AST-based code analyzer that detects privacy leaks in source code  
+**Core Library** (`solana-privacy-scanner-core`) - Scanner engine for integrating privacy analysis into apps
+**CLI** (`solana-privacy-scanner`) - Command-line tool for scanning wallets/transactions/programs
+**Developer Tools** (`solana-privacy-devtools`) - Static code analyzer, testing matchers, transaction simulator, and CI/CD integration
 **Claude Code Plugin** - Interactive plugin that combines static analysis with AI-powered fixing and explanations
 
 ## What it does
@@ -25,13 +24,13 @@ It is a completely open-source, free to use public good tool, that can be taken 
 
 ## How it works
 
-**On-Chain Analysis** (Core Library, CLI, CI/CD Tools)  
+**On-Chain Analysis** (Core Library, CLI, Developer Tools)
 Analyzes public blockchain data using standard Solana RPC calls (`getSignaturesForAddress`, `getTransaction`, etc).
 
-**Static Code Analysis** (Static Analyzer)  
+**Static Code Analysis** (Developer Tools)
 Parses your TypeScript/JavaScript source code using AST (Abstract Syntax Tree) analysis to detect privacy anti-patterns before deployment. Runs locally on your code, no on-chain data needed.
 
-**AI-Assisted Analysis** (Claude Code Plugin)  
+**AI-Assisted Analysis** (Claude Code Plugin)
 Combines the static analyzer with Claude's intelligence to explain issues and propose context-aware fixes. Interactive code review for privacy.
 
 ## Output

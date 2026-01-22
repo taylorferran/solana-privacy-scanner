@@ -182,4 +182,4 @@ const report = {
 };
 ```
 
-See [CI Tools](../ci-tools/overview) for testing custom heuristics.
+See [Devtools](../devtools/guide) for testing custom heuristics.

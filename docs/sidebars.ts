@@ -49,26 +49,13 @@ const sidebars: SidebarsConfig = {
     'cli/for-llms',
   ],
 
-  ciToolsSidebar: [
-    'ci-tools/overview',
-    'ci-tools/example',
-    'ci-tools/testing',
-    'ci-tools/github-actions',
-    'ci-tools/for-llms',
-  ],
-
-  codeAnalyzerSidebar: [
-    'code-analyzer/overview',
-    'code-analyzer/installation',
-    'code-analyzer/ci-cd',
-    'code-analyzer/cli-reference',
+  devtoolsSidebar: [
+    'devtools/guide',
+    'devtools/for-llms',
   ],
 
   claudePluginSidebar: [
-    'claude-plugin/overview',
-    'claude-plugin/installation',
-    'claude-plugin/usage',
-    'claude-plugin/examples',
+    'claude-plugin/guide',
   ],
 };
 

@@ -960,4 +960,4 @@ report.mitigations.forEach(mitigation => {
 
 - **[Examples](./examples)** - Practical usage examples
 - **[Custom Heuristics](../advanced/custom-heuristics)** - Extend the scanner
-- **[CLI Usage](../cli/quickstart)** - Command-line interface
+- **[CLI Usage](../cli/guide)** - Command-line interface

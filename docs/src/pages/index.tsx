@@ -41,16 +41,16 @@ const products: ProductCard[] = [
     link: '/docs/cli/guide',
   },
   {
-    title: 'CI/CD Tools',
+    title: 'Devtools',
     tag: 'DevTools',
-    description: 'GitHub Actions integration. Automated privacy checks on every PR. Catch leaks before mainnet.',
-    link: '/docs/ci-tools/overview',
+    description: 'Static analysis, transaction simulation, and CI/CD integration. Catch privacy leaks before deployment.',
+    link: '/docs/devtools/guide',
   },
   {
     title: 'Claude Plugin',
     tag: 'AI Assistant',
     description: 'Privacy analysis directly in Claude Code. Real-time recommendations during development.',
-    link: '/docs/claude-plugin/overview',
+    link: '/docs/claude-plugin/guide',
   },
 ];
 

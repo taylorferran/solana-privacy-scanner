@@ -1,6 +1,6 @@
 {
   "name": "solana-privacy-devtools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Developer tools for Solana privacy: static code analysis, transaction simulation, test matchers, and CI/CD integration",
   "main": "./dist/index.js",
@@ -68,7 +68,7 @@
     "url": "https://github.com/taylorferran/solana-privacy-scanner/issues"
   },
   "dependencies": {
-    "solana-privacy-scanner-core": "file:../core",
+    "solana-privacy-scanner-core": "^0.4.0",
     "@solana/web3.js": "^1.95.8",
     "@typescript-eslint/typescript-estree": "^7.0.0",
     "vitest": "^2.1.9",

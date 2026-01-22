@@ -137,15 +137,9 @@ const config: Config = {
         },
         {
           type: 'docSidebar',
-          sidebarId: 'ciToolsSidebar',
+          sidebarId: 'devtoolsSidebar',
           position: 'left',
-          label: 'CI/CD',
-        },
-        {
-          type: 'docSidebar',
-          sidebarId: 'codeAnalyzerSidebar',
-          position: 'left',
-          label: 'Code Analyzer',
+          label: 'Devtools',
         },
         {
           type: 'docSidebar',
@@ -175,12 +169,8 @@ const config: Config = {
               href: 'https://www.npmjs.com/package/solana-privacy-scanner',
             },
             {
-              label: 'CI/CD Tools',
-              href: 'https://www.npmjs.com/package/solana-privacy-scanner-ci-tools',
-            },
-            {
-              label: 'Code Analyzer',
-              href: 'https://www.npmjs.com/package/solana-privacy-analyzer',
+              label: 'Devtools',
+              href: 'https://www.npmjs.com/package/solana-privacy-devtools',
             },
           ],
         },

@@ -142,6 +142,18 @@ const config: Config = {
           label: 'CI/CD',
         },
         {
+          type: 'docSidebar',
+          sidebarId: 'codeAnalyzerSidebar',
+          position: 'left',
+          label: 'Code Analyzer',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'claudePluginSidebar',
+          position: 'left',
+          label: 'Claude Plugin',
+        },
+        {
           href: 'https://github.com/taylorferran/solana-privacy-scanner',
           label: 'GitHub',
           position: 'right',
@@ -165,6 +177,10 @@ const config: Config = {
             {
               label: 'CI/CD Tools',
               href: 'https://www.npmjs.com/package/solana-privacy-scanner-ci-tools',
+            },
+            {
+              label: 'Code Analyzer',
+              href: 'https://www.npmjs.com/package/solana-privacy-analyzer',
             },
           ],
         },

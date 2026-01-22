@@ -103,6 +103,60 @@ console.log('Signals Found:', report.signals.length);
 
 ---
 
+## 🛠️ Developer Tools
+
+### Code Analyzer - Catch Privacy Leaks Before Deployment
+
+Static code analysis tool that detects privacy vulnerabilities in your Solana TypeScript/JavaScript code during development.
+
+```bash
+npm install --save-dev solana-privacy-analyzer
+npx solana-privacy-analyzer scan src/
+```
+
+**What it detects:**
+- 🔴 **Fee payer reuse** in loops (CRITICAL) - Prevents transaction linkage
+- 🔴 **PII in memos** (CRITICAL/HIGH/MEDIUM) - Stops personal data leaks
+- ⚡ **Fast** - Scans projects in <5 seconds using AST parsing
+- 🎯 **100% Deterministic** - No false negatives for known patterns
+
+**CI/CD Ready:**
+```yaml
+# .github/workflows/privacy-check.yml
+- name: Privacy Scan
+  run: |
+    npx solana-privacy-analyzer scan src/ --json > report.json
+    CRITICAL=$(jq '.summary.critical' report.json)
+    [ "$CRITICAL" -eq 0 ] || exit 1
+```
+
+[📖 Code Analyzer Documentation →](https://sps.guide/code-analyzer/overview)
+
+### Claude Code Plugin - AI-Powered Privacy Fixes
+
+Interactive plugin for Claude Code that combines static analysis with AI-powered fixing.
+
+```bash
+# In Claude Code
+/solana-privacy-scan src/
+```
+
+Claude will:
+1. Run the static analyzer
+2. Explain each privacy issue found
+3. Propose context-aware fixes
+4. Apply changes with your approval
+
+**Features:**
+- 🤖 **Smart Fixing** - Context-aware refactoring
+- 📚 **Learn as You Code** - Explains why patterns are problematic
+- ✅ **Safe Changes** - Review before applying
+- 🔄 **Interactive** - Discuss trade-offs and alternatives
+
+[📖 Claude Plugin Documentation →](https://sps.guide/claude-plugin/overview)
+
+---
+
 ## 📦 Packages
 
 | Package | Version | Description |
@@ -110,6 +164,7 @@ console.log('Signals Found:', report.signals.length);
 | [`solana-privacy-scanner-core`](https://www.npmjs.com/package/solana-privacy-scanner-core) | ![npm](https://img.shields.io/npm/v/solana-privacy-scanner-core) | Core scanning engine |
 | [`solana-privacy-scanner`](https://www.npmjs.com/package/solana-privacy-scanner) | ![npm](https://img.shields.io/npm/v/solana-privacy-scanner) | CLI tool |
 | [`solana-privacy-scanner-ci-tools`](https://www.npmjs.com/package/solana-privacy-scanner-ci-tools) | ![npm](https://img.shields.io/npm/v/solana-privacy-scanner-ci-tools) | CI/CD testing tools |
+| [`solana-privacy-analyzer`](https://www.npmjs.com/package/solana-privacy-analyzer) | ![npm](https://img.shields.io/npm/v/solana-privacy-analyzer) | Code static analyzer |
 
 ---
 
@@ -117,10 +172,18 @@ console.log('Signals Found:', report.signals.length);
 
 **[View Full Documentation →](https://sps.guide)**
 
+### On-Chain Analysis
 - **[Getting Started](https://sps.guide/guide/getting-started)** - Installation and first scan
 - **[Library API Reference](https://sps.guide/library/usage)** - Integration guide
 - **[CLI Commands](https://sps.guide/cli/quickstart)** - Command-line reference
 - **[Understanding Reports](https://sps.guide/reports/risk-levels)** - How heuristics work
+
+### Developer Tools
+- **[Code Analyzer](https://sps.guide/code-analyzer/overview)** - Static analysis for Solana code
+- **[Claude Plugin](https://sps.guide/claude-plugin/overview)** - AI-powered privacy fixes
+- **[CI/CD Integration](https://sps.guide/code-analyzer/ci-cd)** - Automate privacy checks
+
+### Contributing
 - **[Contributing](https://sps.guide/contributing/development)** - Development guide
 - **[Changelog](./docs/changelog.md)** - Version history
 
@@ -136,7 +199,9 @@ solana-privacy-scanner/
 ├── packages/
 │   ├── core/              # solana-privacy-scanner-core (npm package)
 │   ├── cli/               # solana-privacy-scanner (npm package)
-│   └── ci-tools/          # solana-privacy-scanner-ci-tools (npm package)
+│   ├── ci-tools/          # solana-privacy-scanner-ci-tools (npm package)
+│   ├── code-analyzer/     # solana-privacy-analyzer (npm package)
+│   └── claude-plugin/     # Claude Code plugin (GitHub distribution)
 ├── examples/              # Code examples for library usage
 └── tests/                 # Comprehensive test suite (36 tests)
 ```
@@ -304,6 +369,7 @@ Special thanks to:
 - **[npm - Core Package](https://www.npmjs.com/package/solana-privacy-scanner-core)** - Scanning engine
 - **[npm - CLI Package](https://www.npmjs.com/package/solana-privacy-scanner)** - Command-line tool
 - **[npm - CI Tools](https://www.npmjs.com/package/solana-privacy-scanner-ci-tools)** - Testing & CI/CD integration
+- **[npm - Code Analyzer](https://www.npmjs.com/package/solana-privacy-analyzer)** - Static code analysis
 - **[Changelog](./docs/changelog.md)** - Version history and updates
 
 ---

@@ -1,0 +1,21 @@
+{
+  "name": "solana-privacy",
+  "description": "Automatic privacy analysis for Solana code - detects fee payer reuse, PII in memos, and other privacy vulnerabilities",
+  "version": "0.1.0",
+  "author": {
+    "name": "Taylor Ferran",
+    "url": "https://github.com/taylorferran/solana-privacy-scanner"
+  },
+  "homepage": "https://sps.guide",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taylorferran/solana-privacy-scanner.git"
+  },
+  "keywords": [
+    "solana",
+    "privacy",
+    "security",
+    "static-analysis"
+  ],
+  "license": "MIT"
+}

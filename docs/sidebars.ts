@@ -84,6 +84,32 @@ const sidebars: SidebarsConfig = {
       ],
     },
   ],
+
+  codeAnalyzerSidebar: [
+    {
+      type: 'category',
+      label: 'Code Analyzer',
+      items: [
+        'code-analyzer/overview',
+        'code-analyzer/installation',
+        'code-analyzer/ci-cd',
+        'code-analyzer/cli-reference',
+      ],
+    },
+  ],
+
+  claudePluginSidebar: [
+    {
+      type: 'category',
+      label: 'Claude Code Plugin',
+      items: [
+        'claude-plugin/overview',
+        'claude-plugin/installation',
+        'claude-plugin/usage',
+        'claude-plugin/examples',
+      ],
+    },
+  ],
 };
 
 export default sidebars;

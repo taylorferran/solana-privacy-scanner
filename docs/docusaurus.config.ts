@@ -119,27 +119,21 @@ const config: Config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'guideSidebar',
+          sidebarId: 'spsSidebar',
           position: 'left',
           label: 'SPS',
         },
         {
           type: 'docSidebar',
-          sidebarId: 'librarySidebar',
+          sidebarId: 'coreSidebar',
           position: 'left',
-          label: 'Library',
+          label: 'Core',
         },
         {
           type: 'docSidebar',
-          sidebarId: 'cliSidebar',
+          sidebarId: 'toolkitSidebar',
           position: 'left',
-          label: 'CLI',
-        },
-        {
-          type: 'docSidebar',
-          sidebarId: 'devtoolsSidebar',
-          position: 'left',
-          label: 'Devtools',
+          label: 'Toolkit',
         },
         {
           type: 'docSidebar',
@@ -161,16 +155,12 @@ const config: Config = {
           title: 'Packages',
           items: [
             {
-              label: 'Core Library',
+              label: 'Core (npm)',
               href: 'https://www.npmjs.com/package/solana-privacy-scanner-core',
             },
             {
-              label: 'CLI Tool',
+              label: 'Toolkit (npm)',
               href: 'https://www.npmjs.com/package/solana-privacy-scanner',
-            },
-            {
-              label: 'Devtools',
-              href: 'https://www.npmjs.com/package/solana-privacy-devtools',
             },
           ],
         },

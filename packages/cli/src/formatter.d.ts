@@ -1,4 +1,4 @@
-import type { PrivacyReport } from '@solana-privacy-scanner/core';
+import type { PrivacyReport } from 'solana-privacy-scanner-core';
 /**
  * Format a privacy report as human-readable text
  * @param report The privacy report to format

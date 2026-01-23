@@ -1,7 +1,9 @@
 import { Command } from 'commander';
 import * as dotenv from 'dotenv';
 import { scanWallet, scanTransaction, scanProgram } from './commands/index.js';
-import { VERSION } from '@solana-privacy-scanner/core';
+import { analyzeCommand } from './commands/analyze.js';
+import { initCommand } from './commands/init.js';
+import { VERSION } from 'solana-privacy-scanner-core';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
@@ -49,5 +51,22 @@ program
   .option('--max-transactions <number>', 'Maximum number of transactions to fetch', '50')
   .option('--output <file>', 'Write output to file')
   .action(scanProgram);
+
+// Static code analysis command
+program
+  .command('analyze')
+  .description('Analyze source code for privacy vulnerabilities')
+  .argument('<paths...>', 'Files or directories to analyze')
+  .option('--json', 'Output as JSON', false)
+  .option('--no-low', 'Exclude low severity issues')
+  .option('--quiet', 'Only show summary')
+  .option('--output <file>', 'Write output to file')
+  .action(analyzeCommand);
+
+// Interactive setup wizard
+program
+  .command('init')
+  .description('Interactive setup wizard for privacy configuration')
+  .action(initCommand);
 
 program.parse();

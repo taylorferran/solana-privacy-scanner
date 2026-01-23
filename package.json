@@ -5,8 +5,7 @@
   "type": "module",
   "workspaces": [
     "packages/core",
-    "packages/cli",
-    "packages/devtools"
+    "packages/cli"
   ],
   "engines": {
     "node": ">=18.0.0"

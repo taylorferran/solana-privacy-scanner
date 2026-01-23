@@ -10,7 +10,6 @@ const external = [
 const watchMode = process.argv.includes('--watch');
 
 const baseConfig = {
-  entryPoints: ['src/index.ts'],
   bundle: true,
   external,
   platform: 'node',
@@ -23,18 +22,34 @@ async function build() {
     // Ensure dist directory exists
     mkdirSync('dist', { recursive: true });
 
-    // ESM build
+    // Main package builds
     await esbuild.build({
       ...baseConfig,
+      entryPoints: ['src/index.ts'],
       format: 'esm',
       outfile: 'dist/index.js',
     });
 
-    // CJS build
     await esbuild.build({
       ...baseConfig,
+      entryPoints: ['src/index.ts'],
       format: 'cjs',
       outfile: 'dist/index.cjs',
+    });
+
+    // Matchers builds (separate entry point)
+    await esbuild.build({
+      ...baseConfig,
+      entryPoints: ['src/matchers.ts'],
+      format: 'esm',
+      outfile: 'dist/matchers.js',
+    });
+
+    await esbuild.build({
+      ...baseConfig,
+      entryPoints: ['src/matchers.ts'],
+      format: 'cjs',
+      outfile: 'dist/matchers.cjs',
     });
 
     // Copy static assets (JSON label file from repository root)
@@ -49,13 +64,23 @@ async function build() {
 }
 
 if (watchMode) {
-  const ctx = await esbuild.context({
+  // Watch both entry points in ESM mode
+  const ctxMain = await esbuild.context({
     ...baseConfig,
+    entryPoints: ['src/index.ts'],
     format: 'esm',
     outfile: 'dist/index.js',
   });
-  
-  await ctx.watch();
+
+  const ctxMatchers = await esbuild.context({
+    ...baseConfig,
+    entryPoints: ['src/matchers.ts'],
+    format: 'esm',
+    outfile: 'dist/matchers.js',
+  });
+
+  await ctxMain.watch();
+  await ctxMatchers.watch();
   console.log('Watching for changes...');
 } else {
   await build();

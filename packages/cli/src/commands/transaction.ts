@@ -6,7 +6,7 @@ import {
   generateReport,
   createDefaultLabelProvider,
   type PrivacyReport,
-} from '@solana-privacy-scanner/core';
+} from 'solana-privacy-scanner-core';
 import { formatReport } from '../formatter.js';
 
 interface TransactionOptions {

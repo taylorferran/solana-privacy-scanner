@@ -435,5 +435,5 @@ npm update -g solana-privacy-analyzer
 ## Links
 
 - [GitHub Repository](https://github.com/taylorferran/solana-privacy-scanner)
-- [Devtools CLI](../devtools/guide)
-- [Core Scanner](../library/usage)
+- [Toolkit CLI](../toolkit/overview)
+- [Core Library](../core/usage)

@@ -1,14 +1,14 @@
 import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 
 const sidebars: SidebarsConfig = {
-  guideSidebar: [
+  spsSidebar: [
     {
       type: 'category',
-      label: 'Guide',
+      label: 'SPS',
       items: [
-        'guide/what-is-this',
-        'guide/concepts',
-        'guide/quicknode',
+        'sps/what-is-this',
+        'sps/concepts',
+        'sps/quicknode',
       ],
     },
     {
@@ -36,22 +36,17 @@ const sidebars: SidebarsConfig = {
       ],
     },
   ],
-  
-  librarySidebar: [
-    'library/usage',
-    'library/api-reference',
-    'library/examples',
-    'library/for-llms',
+
+  coreSidebar: [
+    'core/usage',
+    'core/api-reference',
+    'core/for-llms',
   ],
 
-  cliSidebar: [
-    'cli/guide',
-    'cli/for-llms',
-  ],
-
-  devtoolsSidebar: [
-    'devtools/guide',
-    'devtools/for-llms',
+  toolkitSidebar: [
+    'toolkit/overview',
+    'toolkit/commands',
+    'toolkit/for-llms',
   ],
 
   claudePluginSidebar: [

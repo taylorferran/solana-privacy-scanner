@@ -17,7 +17,7 @@ function HeroSection() {
           Deterministic privacy analysis for Solana. 11 heuristics detect leaks across wallets, transactions, and programs. Open source. Zero config.
         </p>
         <div className={styles.heroActions}>
-          <Link className={styles.primaryButton} to="/docs/guide/what-is-this">
+          <Link className={styles.primaryButton} to="/docs/sps/what-is-this">
             Get Started →
           </Link>
         </div>
@@ -35,16 +35,16 @@ type ProductCard = {
 
 const products: ProductCard[] = [
   {
-    title: 'CLI',
-    tag: 'Command Line',
-    description: 'Scan wallets, transactions, and programs from your terminal. Install with npm. Zero configuration.',
-    link: '/docs/cli/guide',
+    title: 'Core',
+    tag: 'Library',
+    description: 'Programmatic API for on-chain scanning, static analysis, transaction simulation, and testing.',
+    link: '/docs/core/usage',
   },
   {
-    title: 'Devtools',
-    tag: 'DevTools',
-    description: 'Static analysis, transaction simulation, and CI/CD integration. Catch privacy leaks before deployment.',
-    link: '/docs/devtools/guide',
+    title: 'Toolkit',
+    tag: 'Command Line',
+    description: 'CLI for scanning wallets/transactions/programs and analyzing source code. Zero configuration.',
+    link: '/docs/toolkit/overview',
   },
   {
     title: 'Claude Plugin',

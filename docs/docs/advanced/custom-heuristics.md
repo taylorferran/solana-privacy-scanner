@@ -182,4 +182,4 @@ const report = {
 };
 ```
 
-See [Devtools](../devtools/guide) for testing custom heuristics.
+See [Devtools](../core/usage) for testing custom heuristics.

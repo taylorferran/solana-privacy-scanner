@@ -1,4 +1,4 @@
-import type { PrivacyReport } from '@solana-privacy-scanner/core';
+import type { PrivacyReport } from 'solana-privacy-scanner-core';
 import chalk from 'chalk';
 
 /**

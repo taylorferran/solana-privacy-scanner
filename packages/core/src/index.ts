@@ -21,3 +21,12 @@ export * from './labels/index.js';
 
 // Export constants (version, default RPC, etc.)
 export * from './constants.js';
+
+// Export analyzer (static code analysis)
+export * from './analyzer/index.js';
+
+// Export simulator (transaction testing)
+export * from './simulator/index.js';
+
+// Export config (privacy policy management)
+export * from './config/index.js';

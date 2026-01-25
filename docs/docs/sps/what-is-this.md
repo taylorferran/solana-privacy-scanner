@@ -1,14 +1,13 @@
 # What is SPS?
 
-Developer toolkit for analyzing Solana privacy risks using public on-chain data.
+Solana Privacy Scanner is a developer toolkit for analyzing Solana privacy risks using public on-chain data, transaction simulations, and static code analysis. 
 
 It is a completely open-source, free to use public good tool, that can be taken and extended where necessary. 
 
 ## Tools Available
 
 - **Core Library** (`solana-privacy-scanner-core`) - Scanner engine for integrating privacy analysis into apps
-- **CLI** (`solana-privacy-scanner`) - Command-line tool for scanning wallets/transactions/programs
-- **Developer Tools** (`solana-privacy-devtools`) - Static code analyzer, testing matchers, transaction simulator, and CI/CD integration
+- **Toolkit** (`solana-privacy-scanner`) - Complete developer toolkit including CLI, static code analyzer, testing matchers, transaction simulator, and CI/CD integration
 - **Claude Code Plugin** - Interactive plugin that combines static analysis with AI-powered fixing and explanations
 
 ## What it does
@@ -24,10 +23,10 @@ It is a completely open-source, free to use public good tool, that can be taken 
 
 ## How it works
 
-**On-Chain Analysis** (Core Library, CLI, Developer Tools)
+**On-Chain Analysis** (Core Library, Toolkit)
 Analyzes public blockchain data using standard Solana RPC calls (`getSignaturesForAddress`, `getTransaction`, etc).
 
-**Static Code Analysis** (Developer Tools)
+**Static Code Analysis** (Toolkit)
 Parses your TypeScript/JavaScript source code using AST (Abstract Syntax Tree) analysis to detect privacy anti-patterns before deployment. Runs locally on your code, no on-chain data needed.
 
 **AI-Assisted Analysis** (Claude Code Plugin)

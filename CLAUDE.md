@@ -33,10 +33,10 @@ npm run type-check
 # Build specific package
 cd packages/core && npm run build
 cd packages/cli && npm run build
-cd packages/ci-tools && npm run build
 
 # Watch mode for development
 cd packages/core && npm run dev
+cd packages/cli && npm run dev
 ```
 
 ### Documentation
@@ -64,8 +64,7 @@ node dist/index.js scan-program <PROGRAM_ID>
 ### Monorepo Structure
 This is a TypeScript monorepo with npm workspaces:
 - **packages/core** - Core scanning engine (npm: `solana-privacy-scanner-core`)
-- **packages/cli** - Command-line interface (npm: `solana-privacy-scanner`)
-- **packages/devtools** - Developer tools with static analyzer, simulator, test matchers, CI/CD integration (npm: `solana-privacy-devtools`)
+- **packages/cli** - Complete developer toolkit including CLI, static analyzer, simulator, test matchers, and CI/CD integration (npm: `solana-privacy-scanner`)
 - **docs/** - Docusaurus documentation site + web UI
 
 ### Core Package Architecture
@@ -234,9 +233,11 @@ export function detectYourPattern(context: ScanContext): PrivacySignal[] {
 - **Deterministic** - same input must always produce same output
 - Run tests before committing: `npm test -- --run`
 
-### CLI Package Structure
+### Toolkit Package Structure
 
-The CLI is a thin wrapper around core:
+The toolkit combines CLI functionality with developer tools:
+
+**CLI Commands:**
 1. Parses arguments via `commander`
 2. Creates `RPCClient` with optional custom endpoint
 3. Calls appropriate collector (`collectWalletData`, etc.)
@@ -244,13 +245,11 @@ The CLI is a thin wrapper around core:
 5. Generates report with `generateReport()`
 6. Formats output using `chalk` for terminal or JSON for `--json` flag
 
-### CI Tools Package
-
-Provides testing utilities for CI/CD:
+**Developer Tools:**
+- **Static Analyzer** - AST-based code analysis for detecting privacy anti-patterns in source code
 - **Simulator** - `simulateTransactionPrivacy()` for analyzing pre-built transactions
 - **Matchers** - Vitest/Jest custom matchers (e.g., `toHavePrivacyRisk()`, `toNotLeakUserRelationships()`)
-- **Config** - `.privacyrc` policy definitions
-- **Init CLI** - `npx privacy-scanner-init` for setup
+- **Config** - `.privacyrc` policy definitions for CI/CD
 - **GitHub Action** - Pre-built action for PR checks
 
 ## Important Notes
@@ -307,7 +306,7 @@ The web UI for interactive scanning is also hosted here.
 `solana-privacy-scanner-example` (separate repo) demonstrates CI integration:
 - PR #1 shows privacy leak detection (CI fails)
 - PR #2 shows fix (CI passes)
-- Uses `solana-privacy-scanner-ci-tools` package
+- Uses `solana-privacy-scanner` toolkit package
 - Example of automated privacy regression testing
 
 ## Related Files

@@ -8,58 +8,41 @@ Complete reference for `solana-privacy-scanner-core` library.
 npm install solana-privacy-scanner-core
 ```
 
-## Core Imports
+## Quick Start
+
+Most common workflow for scanning a wallet:
 
 ```typescript
 import {
-  // RPC Client
-  RPCClient,
-
-  // Data Collection
   collectWalletData,
-  collectTransactionData,
-  collectProgramData,
-
-  // Normalization
   normalizeWalletData,
-  normalizeTransactionData,
-  normalizeProgramData,
-
-  // Report Generation
   generateReport,
-  evaluateHeuristics,
-
-  // Label Provider
-  createDefaultLabelProvider,
-  StaticLabelProvider,
-
-  // Heuristics
-  detectFeePayerReuse,
-  detectSignerOverlap,
-  detectMemoExposure,
-  detectAddressReuse,
-  detectKnownEntityInteraction,
-  detectCounterpartyReuse,
-  detectInstructionFingerprinting,
-  detectTokenAccountLifecycle,
-  detectTimingPatterns,
-  detectAmountReuse,
-  detectBalanceTraceability,
-
-  // Types
-  type ScanContext,
-  type PrivacyReport,
-  type PrivacySignal,
-  type RiskLevel,
-  type RPCClientConfig,
+  createDefaultLabelProvider
 } from 'solana-privacy-scanner-core';
+
+const labels = createDefaultLabelProvider();
+const rawData = await collectWalletData('WALLET_ADDRESS');
+const context = normalizeWalletData(rawData, labels);
+const report = generateReport(context);
+
+console.log(`Risk: ${report.overallRisk}`);
 ```
+
+:::info Default RPC
+The scanner uses a QuickNode RPC endpoint by default - **no configuration needed**. For custom RPC endpoints, see the [RPCClient](#rpcclient) section below.
+:::
+
+For specific use cases, import only what you need. Each section below shows the relevant imports.
 
 ---
 
 ## RPCClient
 
 The RPC client handles all Solana blockchain data fetching with automatic retries, rate limiting, and error handling.
+
+```typescript
+import { RPCClient } from 'solana-privacy-scanner-core';
+```
 
 ### Constructor
 
@@ -264,6 +247,14 @@ Checks if the RPC connection is healthy.
 
 These functions fetch raw blockchain data from Solana RPC.
 
+```typescript
+import {
+  collectWalletData,
+  collectTransactionData,
+  collectProgramData
+} from 'solana-privacy-scanner-core';
+```
+
 ### `collectWalletData()`
 
 ```typescript
@@ -377,6 +368,14 @@ const rawData = await collectProgramData(rpc, 'PROGRAM_ID', {
 
 These functions convert raw blockchain data into standardized `ScanContext` objects for analysis.
 
+```typescript
+import {
+  normalizeWalletData,
+  normalizeTransactionData,
+  normalizeProgramData
+} from 'solana-privacy-scanner-core';
+```
+
 ### `normalizeWalletData()`
 
 ```typescript
@@ -463,6 +462,10 @@ const context = normalizeProgramData(rawData, labels);
 ---
 
 ## Report Generation
+
+```typescript
+import { generateReport, evaluateHeuristics } from 'solana-privacy-scanner-core';
+```
 
 ### `generateReport()`
 
@@ -559,6 +562,13 @@ const feePayerSignals = signals.filter(s => s.id.includes('fee-payer'));
 ## Label Provider
 
 The label provider identifies known entities (exchanges, bridges, etc.) in scan results.
+
+```typescript
+import {
+  createDefaultLabelProvider,
+  StaticLabelProvider
+} from 'solana-privacy-scanner-core';
+```
 
 ### `createDefaultLabelProvider()`
 
@@ -686,7 +696,21 @@ const exchanges = allLabels.filter(l => l.type === 'exchange');
 
 ## Heuristic Functions
 
-All heuristics are pure functions that take a `ScanContext` and return `PrivacySignal[]`. These can be called individually for custom analysis workflows.
+All heuristics are pure functions that take a `ScanContext` and return `PrivacySignal[]`.
+
+:::info
+Most users don't need to import these directly - `generateReport()` runs all heuristics automatically. Only import individual heuristics if you're building custom analysis workflows.
+:::
+
+```typescript
+import {
+  // Import only what you need for custom workflows
+  detectFeePayerReuse,
+  detectSignerOverlap,
+  detectMemoExposure,
+  // ... etc
+} from 'solana-privacy-scanner-core';
+```
 
 ### Solana-Specific Heuristics
 
@@ -854,6 +878,17 @@ Analyzes balance flow patterns for traceability.
 
 ## Types
 
+Import TypeScript types for type safety:
+
+```typescript
+import type {
+  ScanContext,
+  PrivacyReport,
+  PrivacySignal,
+  RiskLevel
+} from 'solana-privacy-scanner-core';
+```
+
 ### `ScanContext`
 
 The normalized input to all heuristics and report generation.
@@ -898,6 +933,10 @@ type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 ---
 
 ## Static Code Analysis
+
+```typescript
+import { analyze } from 'solana-privacy-scanner-core';
+```
 
 ### `analyze()`
 
@@ -971,6 +1010,14 @@ result.issues.forEach(issue => {
 ---
 
 ## Transaction Simulation
+
+```typescript
+import {
+  simulateTransactionPrivacy,
+  simulateTransactionFlow,
+  compareImplementations
+} from 'solana-privacy-scanner-core';
+```
 
 ### `simulateTransactionPrivacy()`
 
@@ -1143,6 +1190,10 @@ test('transaction maintains privacy', async () => {
 ---
 
 ## Configuration Management
+
+```typescript
+import { loadConfig, validateConfig } from 'solana-privacy-scanner-core';
+```
 
 ### `loadConfig()`
 

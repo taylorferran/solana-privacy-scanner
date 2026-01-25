@@ -1,35 +1,30 @@
 ---
 name: explain-risk
-description: This skill should be used when the user asks "explain this risk", "what is fee payer reuse", "why does this matter", wants to understand a specific privacy risk, or needs educational explanations about Solana privacy vulnerabilities.
+description: Brief explanation of a specific privacy risk
 version: 1.0.0
 ---
 
-# Explain Risk - Privacy Risk Education
+# Explain Risk
 
-Provides detailed, educational explanations of specific privacy risks detected in Solana applications.
-
-## Purpose
-
-When the scanner detects privacy issues, this skill helps developers understand:
-- What the risk is and how it works
-- Why it matters for user privacy
-- Real-world deanonymization scenarios
-- How to prevent and mitigate the issue
-- Solana-specific considerations
+Provides a concise explanation of what a privacy risk is and why it matters.
 
 ## Usage
 
 ```
-/explain-risk <signal-id>
-/explain-risk fee-payer-reuse
-/explain-risk memo-pii
-/explain-risk --list
+/explain-risk <risk-id>
 ```
+
+## Output Format
+
+- **Overview**: What the risk is (1-2 sentences)
+- **Why It Matters**: Impact on privacy (2-3 sentences)
+- **How to Fix**: High-level mitigation steps (bullets, no code)
+
+For code examples, use `/suggest-fix <risk-id>` instead.
 
 ## Parameters
 
-- `<signal-id>` - The ID of the privacy risk to explain (required)
-- `--list` - Show all available risk IDs with brief descriptions
+- `<risk-id>` - The privacy risk ID (e.g., fee-payer-reuse, memo-pii)
 
 ## Available Risk IDs
 

@@ -10,5 +10,5 @@
   "repository": "https://github.com/taylorferran/solana-privacy-scanner",
   "license": "MIT",
   "keywords": ["solana", "privacy", "security", "blockchain", "analysis"],
-  "category": "security"
+  "commands": "./skills"
 }

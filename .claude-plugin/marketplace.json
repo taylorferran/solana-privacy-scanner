@@ -6,13 +6,12 @@
   },
   "metadata": {
     "description": "Official marketplace for Solana Privacy Scanner plugins",
-    "version": "1.0.0",
-    "pluginRoot": "./packages"
+    "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "solana-privacy-scanner",
-      "source": "./claude-plugin",
+      "source": "./packages/claude-plugin",
       "description": "AI-powered Solana privacy analysis for developers. Detect privacy risks, get explanations, and receive fix suggestions.",
       "version": "0.1.0",
       "author": {

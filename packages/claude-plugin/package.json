@@ -45,8 +45,8 @@
     "url": "https://github.com/taylorferran/solana-privacy-scanner/issues"
   },
   "dependencies": {
-    "solana-privacy-scanner": "file:../cli",
-    "solana-privacy-scanner-core": "file:../core"
+    "solana-privacy-scanner": "^0.4.0",
+    "solana-privacy-scanner-core": "^0.5.0"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

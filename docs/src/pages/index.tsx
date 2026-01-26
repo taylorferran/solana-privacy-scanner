@@ -50,7 +50,7 @@ const products: ProductCard[] = [
     title: 'Claude Plugin',
     tag: 'AI Assistant',
     description: 'Privacy analysis directly in Claude Code. Real-time recommendations during development.',
-    link: '/docs/claude-plugin/guide',
+    link: '/docs/claude-plugin/overview',
   },
 ];
 

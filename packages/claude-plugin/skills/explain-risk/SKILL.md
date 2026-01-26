@@ -98,75 +98,11 @@ For code examples, use `/suggest-fix <risk-id>` instead.
 
 ## Example Usage
 
-### Explain a specific risk
 ```
 /explain-risk fee-payer-reuse
 ```
-
-**Output:**
-- Full explanation of fee payer reuse
-- Why it's the #1 privacy risk on Solana
-- Real-world deanonymization example
-- Code-level prevention strategies
-- Best practices
-
-### List all available risks
-```
-/explain-risk --list
-```
-
-**Output:**
-- Complete list of risk IDs
-- Brief description of each
-- Severity level
-- Related risks
-
-## Output Format
-
-Each explanation includes:
-
-1. **Overview** - What the risk is
-2. **Why It Matters** - Privacy impact
-3. **How It Works** - Technical explanation
-4. **Real-World Scenario** - Deanonymization example
-5. **Detection Methods** - How scanner finds it
-6. **Prevention** - How to avoid the risk
-7. **Mitigation** - How to fix existing issues
-8. **Solana-Specific Notes** - Platform considerations
-9. **Related Risks** - Connected privacy issues
-10. **Resources** - Links to documentation
-
-## Integration
-
-This skill is designed to be used after `/scan-code` or `/scan-wallet`:
-
-```
-1. /scan-wallet ADDRESS
-   → Detects "fee-payer-reuse" signal
-
-2. /explain-risk fee-payer-reuse
-   → Learn about the risk in detail
-
-3. /suggest-fix fee-payer-reuse
-   → Get code-level fix suggestions
-```
-
-## Knowledge Base
-
-Explanations cover all 11 heuristics used by the scanner:
-- 4 Solana-specific critical heuristics
-- 5 behavioral analysis heuristics
-- 3 traditional privacy heuristics (adapted for Solana)
-
-All explanations are:
-- **Accurate** - Based on actual Solana architecture
-- **Educational** - Teach privacy concepts
-- **Actionable** - Include specific fixes
-- **Context-aware** - Solana-native considerations
 
 ## Notes
 
 - Risk IDs match the `id` field in `PrivacySignal` objects
 - Use this after scanning to understand detected issues
-- Educational content suitable for developers at all levels
-- Explanations focus on Solana's unique privacy characteristics

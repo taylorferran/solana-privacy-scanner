@@ -50,7 +50,8 @@ const sidebars: SidebarsConfig = {
   ],
 
   claudePluginSidebar: [
-    'claude-plugin/guide',
+    'claude-plugin/overview',
+    'claude-plugin/skills',
   ],
 };
 

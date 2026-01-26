@@ -4,36 +4,31 @@ sidebar_position: 1
 
 # Claude Plugin
 
-Privacy analysis plugin for Claude Code with AI-powered explanations and code fixes.
+AI-powered privacy analysis integrated directly into Claude Code.
 
 ## Installation
 
-In Claude Code, add the marketplace:
+Open Claude Code and run:
 
 ```
 /plugins add-marketplace taylorferran/solana-privacy-scanner
 ```
 
-Install the plugin:
+Then install the plugin:
 
 ```
 /plugins install solana-privacy-scanner@solana-privacy-scanner-marketplace
 ```
 
-## Skills
+## Available Skills
 
-**Analysis:**
-- `/scan-wallet` - Analyze wallet privacy on-chain
-- `/scan-code` - Static analysis for privacy anti-patterns
-
-**Education:**
+- `/scan-wallet` - Analyze on-chain wallet privacy
+- `/scan-code` - Detect privacy risks in source code
 - `/explain-risk` - Learn about specific privacy risks
 - `/suggest-fix` - Get code fixes for detected issues
-
-**Audit:**
 - `/privacy-audit` - Full codebase privacy audit
 
-## Quick Start
+## Quick Examples
 
 **Scan a wallet:**
 
@@ -41,32 +36,44 @@ Install the plugin:
 /scan-wallet DRpbCBMxVnDK7maPM5tGv6MvB3v1sRMC86PZ8okm21hy
 ```
 
-**Analyze code:**
+**Analyze your code:**
 
 ```
 /scan-code src/transactions.ts
 ```
 
-**Learn about risks:**
+**Learn about a risk:**
 
 ```
 /explain-risk fee-payer-reuse
 ```
 
-## RPC Configuration
+**Get a fix suggestion:**
 
-The plugin uses a default QuickNode RPC endpoint. Override if needed:
+```
+/suggest-fix fee-payer-reuse
+```
+
+## Configuration
+
+**Custom RPC endpoint:**
 
 ```bash
 export SOLANA_RPC=https://your-rpc-url.com
 ```
 
-Or use `--rpc` flag:
+Or use the `--rpc` flag:
 
 ```
 /scan-wallet ADDRESS --rpc https://your-rpc.com
 ```
 
+**Limit transaction depth:**
+
+```
+/scan-wallet ADDRESS --max-signatures 50
+```
+
 ## Next Steps
 
-- **[Skills](./skills)** - Complete skill reference
+- **[Skills Reference](./skills)** - Complete skill documentation

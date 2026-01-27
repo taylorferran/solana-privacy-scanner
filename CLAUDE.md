@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Solana Privacy Scanner is a monorepo that analyzes Solana wallets, transactions, and programs using on-chain data to produce deterministic privacy risk reports. The scanner uses 11 Solana-native heuristics to detect privacy leaks such as fee payer reuse, signer overlap, memo exposure, and behavioral patterns.
+Solana Privacy Scanner is a monorepo that analyzes Solana wallets, transactions, and programs using on-chain data to produce deterministic privacy risk reports. The scanner uses 13 heuristics to detect privacy leaks such as fee payer reuse, signer overlap, memo exposure, and behavioral patterns.
 
-**Current Version:** 0.3.1
+**Current Version:** 0.6.1
 
 ## Common Commands
 
@@ -84,7 +84,7 @@ The core package follows a **pipeline architecture** for deterministic scanning:
 - Outputs standardized `ScanContext` object
 
 **3. Heuristic Evaluation** (`packages/core/src/heuristics/`)
-- 11 heuristic functions that analyze `ScanContext`
+- 13 heuristic functions that analyze `ScanContext`
 - Each heuristic returns `PrivacySignal[]` (array of detected privacy risks)
 - Heuristics are **pure functions** - same input always produces same output
 - Ordered by severity: Solana-specific critical heuristics first, then traditional
@@ -149,26 +149,23 @@ interface PrivacyReport {
 }
 ```
 
-### The 11 Heuristics
+### The 13 Heuristics
 
-**Solana-Specific (Critical):**
 1. **Fee Payer Reuse** - Detects when one wallet pays fees for multiple accounts (CRITICAL)
 2. **Signer Overlap** - Identifies repeated signer combinations (HIGH)
 3. **Memo Exposure** - Scans memos for PII (HIGH/MEDIUM/LOW)
-4. **Address Reuse** - Detects lack of address rotation (MEDIUM/LOW)
+4. **Known Entity Interaction** - Flags CEX/bridge/KYC interactions (VARIES)
+5. **Identity Metadata Exposure** - Detects .sol domain and NFT metadata linkage (HIGH/MEDIUM)
+6. **ATA Linkage** - One wallet funding token accounts for multiple owners (HIGH/MEDIUM)
+7. **Address Reuse** - Detects lack of address rotation (MEDIUM/LOW)
+8. **Counterparty Reuse** - Tracks repeated counterparty patterns (VARIES)
+9. **Instruction Fingerprinting** - Detects unique program usage patterns (MEDIUM)
+10. **Token Account Lifecycle** - Traces rent refunds linking accounts (MEDIUM)
+11. **Priority Fee Fingerprinting** - Consistent priority fee amounts (MEDIUM/LOW)
+12. **Staking Delegation** - Concentrated validator delegation patterns (MEDIUM/LOW)
+13. **Timing Patterns** - Identifies transaction bursts and regularity (MEDIUM)
 
-**Behavioral Analysis:**
-5. **Known Entity Interaction** - Flags CEX/bridge/KYC interactions (VARIES)
-6. **Counterparty Reuse** - Tracks repeated counterparty patterns (VARIES)
-7. **Instruction Fingerprinting** - Detects unique program usage patterns (MEDIUM)
-8. **Token Account Lifecycle** - Traces rent refunds linking accounts (MEDIUM)
-9. **Timing Patterns** - Identifies transaction bursts and regularity (MEDIUM)
-
-**Traditional (Adapted):**
-10. **Amount Reuse** - Flags repeated amounts (LOW on Solana)
-11. **Balance Traceability** - Analyzes balance flow patterns (MEDIUM)
-
-All heuristics must return `PrivacySignal[]` for consistency. Three older heuristics (timing-patterns, balance-traceability, known-entity) were refactored to return arrays.
+All heuristics return `PrivacySignal[]` and are pure functions (same input always produces same output).
 
 ### RPC Client (`packages/core/src/rpc/`)
 

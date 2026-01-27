@@ -62,9 +62,9 @@ export function detectKnownEntityInteraction(context: ScanContext): PrivacySigna
       severity: 'HIGH',
       confidence: 0.95,
       category: 'identity-linkage',
-      reason: `Wallet interacted with ${exchanges.length} centralized exchange(s) in ${totalExchangeTxs} transaction(s).`,
-      impact: 'Centralized exchanges have KYC data. Direct interactions can link your on-chain address to your real-world identity through account records, IP addresses, and withdrawal/deposit patterns.',
-      mitigation: 'Use intermediate wallets to break the direct link. Deposit to privacy protocols before going to CEX. Consider DEXs for better privacy.',
+      reason: `This wallet sent or received funds directly from ${exchanges.length} centralized exchange(s) across ${totalExchangeTxs} transaction(s). Exchanges know your real identity from KYC verification, so this links your wallet to your name.`,
+      impact: 'Anyone can see this wallet transacted with an exchange. Since exchanges keep records of who you are, your wallet address is now tied to your real identity.',
+      mitigation: 'Use an intermediate wallet between your main wallet and any exchange. Deposit to a fresh wallet first, then send to the exchange — this avoids a direct link.',
       evidence,
     });
   }
@@ -84,9 +84,9 @@ export function detectKnownEntityInteraction(context: ScanContext): PrivacySigna
       severity: 'MEDIUM',
       confidence: 0.85,
       category: 'identity-linkage',
-      reason: `Wallet interacted with ${bridges.length} bridge protocol(s).`,
-      impact: 'Bridge transactions can link your Solana address to addresses on other chains, expanding the tracking surface.',
-      mitigation: 'Use privacy-preserving bridges when available. Create separate addresses for cross-chain activity.',
+      reason: `This wallet used ${bridges.length} bridge protocol(s) to move funds between blockchains. Bridge transactions publicly connect your Solana address to addresses on other chains.`,
+      impact: 'Anyone watching this wallet can follow the bridge transaction to find your address on the destination chain, linking your activity across multiple blockchains.',
+      mitigation: 'Use a separate wallet for bridging. Send funds to a fresh wallet on the destination chain rather than bridging directly from your main wallet.',
       evidence,
     });
   }
@@ -111,9 +111,9 @@ export function detectKnownEntityInteraction(context: ScanContext): PrivacySigna
       severity: 'LOW',
       confidence: 0.75,
       category: 'behavioral',
-      reason: `Wallet interacted with ${allOtherEntities.length} known entit${allOtherEntities.length === 1 ? 'y' : 'ies'} (${totalOtherTxs} transactions).`,
-      impact: 'Interactions with known entities create reference points in your transaction history. These can be used to correlate activity and build behavioral profiles.',
-      mitigation: 'While interacting with known protocols is often necessary, be aware it creates public association with those services.',
+      reason: `This wallet interacted with ${allOtherEntities.length} known service(s) across ${totalOtherTxs} transaction(s). These are publicly identifiable addresses, so anyone can see which services you use.`,
+      impact: 'Known services act as landmarks in your transaction history. Someone analyzing your wallet can see exactly which protocols and services you use.',
+      mitigation: 'Using known services is often unavoidable, but be aware that each interaction publicly ties your wallet to that service.',
       evidence,
     });
   }
@@ -136,9 +136,9 @@ export function detectKnownEntityInteraction(context: ScanContext): PrivacySigna
         severity: label.type === 'exchange' ? 'HIGH' : 'MEDIUM',
         confidence: 0.85,
         category: 'behavioral',
-        reason: `${Math.round(concentration * 100)}% of transfers (${interactionCount}/${context.transfers.length}) involve ${label.name}.`,
-        impact: 'Heavy concentration of activity with one entity creates a strong link and behavioral dependency that is easily identified.',
-        mitigation: 'Diversify your interactions across multiple services. Use different addresses for different service providers.',
+        reason: `${Math.round(concentration * 100)}% of this wallet's transfers (${interactionCount} out of ${context.transfers.length}) go to or come from ${label.name}. This makes it easy to see what service you use the most.`,
+        impact: 'When most of your activity is with one service, anyone looking at your wallet can immediately see your primary use case and habits.',
+        mitigation: 'Spread your activity across different services, or use a dedicated wallet for each service you use frequently.',
         evidence: [{
           description: `${interactionCount} transfers with ${label.name} (${label.type})`,
           severity: label.type === 'exchange' ? 'HIGH' : 'MEDIUM',

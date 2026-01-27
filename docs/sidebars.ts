@@ -17,6 +17,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'reports/risk-levels',
         'reports/heuristics',
+        'reports/heuristic-internals',
         'reports/known-entities',
       ],
     },

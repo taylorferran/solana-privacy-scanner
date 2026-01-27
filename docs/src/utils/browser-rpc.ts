@@ -1,5 +1,6 @@
-// Default RPC endpoint
-const DEFAULT_RPC_URL = 'https://late-hardworking-waterfall.solana-mainnet.quiknode.pro/4017b48acf3a2a1665603cac096822ce4bec3a90/';
+// Default RPC endpoint (encoded to discourage casual extraction)
+const _RPC_ENCODED = 'aHR0cHM6Ly9zZXJlbmUtcm91Z2gtcG9vbC5zb2xhbmEtbWFpbm5ldC5xdWlrbm9kZS5wcm8vYTliM2RkNGRkMzc0MzYwYzQzNzY4YzQyMTI2NmE2ZGNlZDU4MTI3Ny8=';
+const DEFAULT_RPC_URL = atob(_RPC_ENCODED);
 
 // Browser-compatible RPC client
 export class BrowserRPCClient {
@@ -14,6 +15,7 @@ export class BrowserRPCClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Referer': 'https://solana-privacy-scanner.app',
       },
       body: JSON.stringify({
         jsonrpc: '2.0',

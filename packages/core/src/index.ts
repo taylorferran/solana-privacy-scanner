@@ -19,8 +19,8 @@ export * from './scanner/index.js';
 // Export label provider
 export * from './labels/index.js';
 
-// Export constants (version, default RPC, etc.)
-export * from './constants.js';
+// Export constants (version only - RPC URL is internal)
+export { VERSION } from './constants.js';
 
 // Export analyzer (static code analysis)
 export * from './analyzer/index.js';

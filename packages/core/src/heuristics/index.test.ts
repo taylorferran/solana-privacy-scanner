@@ -2,10 +2,12 @@ import { describe, it, expect } from 'vitest';
 import type { ScanContext } from '../types/index.js';
 import {
   detectCounterpartyReuse,
-  detectAmountReuse,
   detectTimingPatterns,
   detectKnownEntityInteraction,
-  detectBalanceTraceability,
+  detectPriorityFeeFingerprinting,
+  detectATALinkage,
+  detectStakingDelegationPatterns,
+  detectIdentityMetadataExposure,
 } from './index.js';
 
 describe('Privacy Heuristics', () => {
@@ -59,65 +61,6 @@ describe('Privacy Heuristics', () => {
       expect(signals).toBeInstanceOf(Array);
       expect(signals.length).toBe(0);
       console.log('✓ No counterparty reuse detected (diverse interactions)');
-    });
-  });
-
-  describe('detectAmountReuse', () => {
-    it('should detect round number patterns', () => {
-      const context: ScanContext = {
-        target: 'wallet1',
-        targetType: 'wallet',
-        transfers: [
-          { from: 'wallet1', to: 'wallet2', amount: 10, signature: 'sig1', blockTime: 1000 },
-          { from: 'wallet1', to: 'wallet3', amount: 100, signature: 'sig2', blockTime: 2000 },
-          { from: 'wallet1', to: 'wallet4', amount: 1, signature: 'sig3', blockTime: 3000 },
-          { from: 'wallet1', to: 'wallet5', amount: 5, signature: 'sig4', blockTime: 4000 },
-          { from: 'wallet1', to: 'wallet6', amount: 50, signature: 'sig5', blockTime: 5000 },
-          { from: 'wallet1', to: 'wallet7', amount: 25, signature: 'sig6', blockTime: 6000 },
-        ],
-        instructions: [],
-        counterparties: new Set(['wallet2', 'wallet3', 'wallet4', 'wallet5', 'wallet6', 'wallet7']),
-        labels: new Map(),
-        tokenAccounts: [],
-        timeRange: { earliest: 1000, latest: 6000 },
-        transactionCount: 6,
-      };
-
-      const signals = detectAmountReuse(context);
-
-      expect(signals).toBeInstanceOf(Array);
-      expect(signals.length).toBeGreaterThan(0);
-      expect(signals[0].id).toBe('amount-round-numbers');
-      console.log(`✓ Detected amount reuse: ${signals[0].severity} severity`);
-    });
-
-    it('should detect repeated exact amounts', () => {
-      const context: ScanContext = {
-        target: 'wallet1',
-        targetType: 'wallet',
-        transfers: [
-          { from: 'wallet1', to: 'wallet2', amount: 1.234, signature: 'sig1', blockTime: 1000 },
-          { from: 'wallet1', to: 'wallet3', amount: 1.234, signature: 'sig2', blockTime: 2000 },
-          { from: 'wallet1', to: 'wallet4', amount: 1.234, signature: 'sig3', blockTime: 3000 },
-          { from: 'wallet1', to: 'wallet5', amount: 5.678, signature: 'sig4', blockTime: 4000 },
-          { from: 'wallet1', to: 'wallet6', amount: 5.678, signature: 'sig5', blockTime: 5000 },
-          { from: 'wallet1', to: 'wallet7', amount: 5.678, signature: 'sig6', blockTime: 6000 },
-        ],
-        instructions: [],
-        counterparties: new Set(['wallet2', 'wallet3', 'wallet4', 'wallet5', 'wallet6', 'wallet7']),
-        labels: new Map(),
-        tokenAccounts: [],
-        timeRange: { earliest: 1000, latest: 6000 },
-        transactionCount: 6,
-      };
-
-      const signals = detectAmountReuse(context);
-
-      expect(signals).toBeInstanceOf(Array);
-      expect(signals.length).toBeGreaterThan(0);
-      const exactSignal = signals.find(s => s.id === 'amount-reuse-pattern' || s.id === 'amount-reuse-counterparty' || s.id === 'amount-reuse-frequency');
-      expect(exactSignal).toBeDefined();
-      console.log(`✓ Detected repeated amounts: ${exactSignal?.evidence.length} patterns`);
     });
   });
 
@@ -225,30 +168,348 @@ describe('Privacy Heuristics', () => {
     });
   });
 
-  describe('detectBalanceTraceability', () => {
-    it('should detect matching send/receive pairs', () => {
+  describe('detectPriorityFeeFingerprinting', () => {
+    it('should detect consistent priority fee usage', () => {
       const context: ScanContext = {
         target: 'wallet1',
         targetType: 'wallet',
-        transfers: [
-          { from: 'wallet1', to: 'wallet2', amount: 5.5, signature: 'sig1', blockTime: 1000 },
-          { from: 'wallet2', to: 'wallet3', amount: 5.5, signature: 'sig2', blockTime: 2000 },
-          { from: 'wallet1', to: 'wallet4', amount: 3.3, signature: 'sig3', blockTime: 3000 },
-          { from: 'wallet5', to: 'wallet1', amount: 3.3, signature: 'sig4', blockTime: 4000 },
-        ],
+        transfers: [],
         instructions: [],
-        counterparties: new Set(['wallet2', 'wallet3', 'wallet4', 'wallet5']),
+        counterparties: new Set(),
         labels: new Map(),
         tokenAccounts: [],
-        timeRange: { earliest: 1000, latest: 4000 },
-        transactionCount: 4,
+        timeRange: { earliest: 1000, latest: 6000 },
+        transactionCount: 6,
+        transactions: [
+          { signature: 'sig1', blockTime: 1000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 5000, computeUnitsUsed: 50000 },
+          { signature: 'sig2', blockTime: 2000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 5000, computeUnitsUsed: 50000 },
+          { signature: 'sig3', blockTime: 3000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 5000, computeUnitsUsed: 50000 },
+          { signature: 'sig4', blockTime: 4000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 5000, computeUnitsUsed: 50000 },
+          { signature: 'sig5', blockTime: 5000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 5000, computeUnitsUsed: 50000 },
+          { signature: 'sig6', blockTime: 6000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 5000, computeUnitsUsed: 50000 },
+        ],
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
       };
 
-      const signals = detectBalanceTraceability(context);
-
+      const signals = detectPriorityFeeFingerprinting(context);
+      expect(signals).toBeInstanceOf(Array);
       expect(signals.length).toBeGreaterThan(0);
-      expect(signals[0]?.id).toBe('balance-matching-pairs');
-      console.log(`✓ Detected balance traceability: ${signals.length} patterns`);
+      expect(signals[0].id).toBe('priority-fee-consistent');
+      expect(signals[0].severity).toBe('MEDIUM');
+      console.log('✓ Detected consistent priority fee pattern');
+    });
+
+    it('should return empty array when fees vary widely', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 6000 },
+        transactionCount: 6,
+        transactions: [
+          { signature: 'sig1', blockTime: 1000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 1000 },
+          { signature: 'sig2', blockTime: 2000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 2000 },
+          { signature: 'sig3', blockTime: 3000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 3000 },
+          { signature: 'sig4', blockTime: 4000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 4000 },
+          { signature: 'sig5', blockTime: 5000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 5000 },
+          { signature: 'sig6', blockTime: 6000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 6000 },
+        ],
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectPriorityFeeFingerprinting(context);
+      expect(signals.length).toBe(0);
+      console.log('✓ No priority fee pattern detected (varied fees)');
+    });
+
+    it('should return empty array with too few transactions', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 2000 },
+        transactionCount: 2,
+        transactions: [
+          { signature: 'sig1', blockTime: 1000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 5000 },
+          { signature: 'sig2', blockTime: 2000, feePayer: 'wallet1', signers: ['wallet1'], priorityFee: 5000 },
+        ],
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectPriorityFeeFingerprinting(context);
+      expect(signals.length).toBe(0);
+      console.log('✓ No pattern detected (too few transactions)');
     });
   });
+
+  describe('detectATALinkage', () => {
+    it('should detect one wallet creating ATAs for multiple owners', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 3000 },
+        transactionCount: 3,
+        transactions: [
+          { signature: 'sig1', blockTime: 1000, feePayer: 'funder', signers: ['funder'] },
+          { signature: 'sig2', blockTime: 2000, feePayer: 'funder', signers: ['funder'] },
+          { signature: 'sig3', blockTime: 3000, feePayer: 'funder', signers: ['funder'] },
+        ],
+        tokenAccountEvents: [
+          { type: 'create', tokenAccount: 'ata1', owner: 'ownerA', signature: 'sig1', blockTime: 1000 },
+          { type: 'create', tokenAccount: 'ata2', owner: 'ownerB', signature: 'sig2', blockTime: 2000 },
+          { type: 'create', tokenAccount: 'ata3', owner: 'ownerC', signature: 'sig3', blockTime: 3000 },
+        ],
+        pdaInteractions: [],
+        feePayers: new Set(['funder']),
+        signers: new Set(['funder']),
+        programs: new Set(),
+      };
+
+      const signals = detectATALinkage(context);
+      expect(signals).toBeInstanceOf(Array);
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0].id).toBe('ata-creator-linkage');
+      expect(signals[0].severity).toBe('HIGH');
+      console.log('✓ Detected ATA creator linking multiple wallets');
+    });
+
+    it('should ignore self-creation of token accounts', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 3000 },
+        transactionCount: 3,
+        transactions: [
+          { signature: 'sig1', blockTime: 1000, feePayer: 'wallet1', signers: ['wallet1'] },
+          { signature: 'sig2', blockTime: 2000, feePayer: 'wallet1', signers: ['wallet1'] },
+          { signature: 'sig3', blockTime: 3000, feePayer: 'wallet1', signers: ['wallet1'] },
+        ],
+        tokenAccountEvents: [
+          { type: 'create', tokenAccount: 'ata1', owner: 'wallet1', signature: 'sig1', blockTime: 1000 },
+          { type: 'create', tokenAccount: 'ata2', owner: 'wallet1', signature: 'sig2', blockTime: 2000 },
+          { type: 'create', tokenAccount: 'ata3', owner: 'wallet1', signature: 'sig3', blockTime: 3000 },
+        ],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectATALinkage(context);
+      const linkageSignal = signals.find(s => s.id === 'ata-creator-linkage');
+      expect(linkageSignal).toBeUndefined();
+      console.log('✓ Self-creation ignored (no false positive)');
+    });
+
+    it('should detect batch token account creation', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1300 },
+        transactionCount: 4,
+        transactions: [
+          { signature: 'sig1', blockTime: 1000, feePayer: 'wallet1', signers: ['wallet1'] },
+          { signature: 'sig2', blockTime: 1100, feePayer: 'wallet1', signers: ['wallet1'] },
+          { signature: 'sig3', blockTime: 1200, feePayer: 'wallet1', signers: ['wallet1'] },
+          { signature: 'sig4', blockTime: 1300, feePayer: 'wallet1', signers: ['wallet1'] },
+        ],
+        tokenAccountEvents: [
+          { type: 'create', tokenAccount: 'ata1', owner: 'wallet1', signature: 'sig1', blockTime: 1000 },
+          { type: 'create', tokenAccount: 'ata2', owner: 'wallet1', signature: 'sig2', blockTime: 1100 },
+          { type: 'create', tokenAccount: 'ata3', owner: 'wallet1', signature: 'sig3', blockTime: 1200 },
+          { type: 'create', tokenAccount: 'ata4', owner: 'wallet1', signature: 'sig4', blockTime: 1300 },
+        ],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectATALinkage(context);
+      const batchSignal = signals.find(s => s.id === 'ata-funding-pattern');
+      expect(batchSignal).toBeDefined();
+      expect(batchSignal?.severity).toBe('MEDIUM');
+      console.log('✓ Detected batch token account creation');
+    });
+  });
+
+  describe('detectStakingDelegationPatterns', () => {
+    it('should detect concentrated delegation to one validator', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [
+          { programId: 'Stake11111111111111111111111111111111111111', category: 'stake', signature: 'sig1', blockTime: 1000, accounts: ['stakeAccount1', 'validator1'] },
+          { programId: 'Stake11111111111111111111111111111111111111', category: 'stake', signature: 'sig2', blockTime: 2000, accounts: ['stakeAccount2', 'validator1'] },
+          { programId: 'Stake11111111111111111111111111111111111111', category: 'stake', signature: 'sig3', blockTime: 3000, accounts: ['stakeAccount3', 'validator1'] },
+        ],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 3000 },
+        transactionCount: 3,
+        transactions: [],
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(['Stake11111111111111111111111111111111111111']),
+      };
+
+      const signals = detectStakingDelegationPatterns(context);
+      expect(signals).toBeInstanceOf(Array);
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0].id).toBe('stake-delegation-pattern');
+      expect(signals[0].severity).toBe('MEDIUM');
+      console.log('✓ Detected concentrated staking delegation');
+    });
+
+    it('should return empty array with no stake instructions', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [
+          { programId: '11111111111111111111111111111111', category: 'transfer', signature: 'sig1', blockTime: 1000 },
+        ],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1000 },
+        transactionCount: 1,
+        transactions: [],
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectStakingDelegationPatterns(context);
+      expect(signals.length).toBe(0);
+      console.log('✓ No staking pattern detected (no stake instructions)');
+    });
+  });
+
+  describe('detectIdentityMetadataExposure', () => {
+    it('should detect Metaplex NFT interactions', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [
+          { programId: 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s', category: 'program_interaction', signature: 'sig1', blockTime: 1000 },
+          { programId: 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s', category: 'program_interaction', signature: 'sig2', blockTime: 2000 },
+        ],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 2000 },
+        transactionCount: 2,
+        transactions: [],
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(['metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s']),
+      };
+
+      const signals = detectIdentityMetadataExposure(context);
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0].id).toBe('nft-metadata-exposure');
+      expect(signals[0].severity).toBe('MEDIUM');
+      console.log('✓ Detected NFT metadata exposure');
+    });
+
+    it('should detect Bonfida .sol domain interactions', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [
+          { programId: 'namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX', category: 'program_interaction', signature: 'sig1', blockTime: 1000 },
+        ],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1000 },
+        transactionCount: 1,
+        transactions: [],
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(['namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX']),
+      };
+
+      const signals = detectIdentityMetadataExposure(context);
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0].id).toBe('domain-name-linkage');
+      expect(signals[0].severity).toBe('HIGH');
+      console.log('✓ Detected .sol domain name linkage');
+    });
+
+    it('should return empty array with no relevant programs', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [
+          { programId: '11111111111111111111111111111111', category: 'transfer', signature: 'sig1', blockTime: 1000 },
+        ],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1000 },
+        transactionCount: 1,
+        transactions: [],
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectIdentityMetadataExposure(context);
+      expect(signals.length).toBe(0);
+      console.log('✓ No identity metadata exposure (no relevant programs)');
+    });
+  });
+
 });

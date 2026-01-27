@@ -1,6 +1,6 @@
 # solana-privacy-scanner
 
-Command-line tool for analyzing Solana wallet privacy and on-chain exposure. Scan wallets, transactions, and programs for privacy risks.
+Developer toolkit for Solana privacy analysis. Scan wallets, transactions, and programs for privacy risks. Analyze source code for privacy anti-patterns. Set up CI/CD privacy checks.
 
 ## Installation
 
@@ -15,38 +15,67 @@ npx solana-privacy-scanner scan-wallet <address>
 ## Quick Start
 
 ```bash
-# Set your RPC endpoint
-export SOLANA_RPC=https://api.mainnet-beta.solana.com
-
-# Scan a wallet
+# Scan a wallet (built-in RPC, no config needed)
 solana-privacy-scanner scan-wallet YourWalletAddressHere
 
 # Scan with custom RPC
 solana-privacy-scanner scan-wallet YourAddress --rpc https://your-rpc.com
 
-# Output to JSON file
+# Output as JSON
 solana-privacy-scanner scan-wallet YourAddress --json --output report.json
 ```
 
 ## Commands
 
-- `scan-wallet <address>` - Analyze a wallet's privacy
-- `scan-tx <signature>` - Analyze a specific transaction
-- `scan-program <programId>` - Analyze a program's usage patterns
+### On-chain scanning
+
+```bash
+# Scan a wallet for privacy risks
+solana-privacy-scanner scan-wallet <address> [--max-signatures 100]
+
+# Scan a single transaction
+solana-privacy-scanner scan-transaction <signature>
+
+# Scan a program's usage patterns
+solana-privacy-scanner scan-program <programId> [--max-accounts 100] [--max-transactions 50]
+```
+
+### Static code analysis
+
+```bash
+# Analyze source files for privacy anti-patterns
+solana-privacy-scanner analyze src/**/*.ts
+
+# JSON output, skip low-severity issues
+solana-privacy-scanner analyze src/ --json --no-low
+```
+
+### Setup
+
+```bash
+# Interactive privacy config wizard
+solana-privacy-scanner init
+```
 
 ## Options
 
-- `--rpc <url>` - Custom RPC endpoint
+All scan commands support:
+- `--rpc <url>` - Custom RPC endpoint (or set `SOLANA_RPC` env var)
 - `--json` - Output as JSON
-- `--output <file>` - Save to file
-- `--max-signatures <n>` - Limit transactions to analyze
+- `--output <file>` - Save output to file
+
+## What it detects
+
+13 privacy heuristics covering fee payer reuse, signer overlap, memo PII, ATA linkage, priority fee fingerprinting, staking patterns, identity metadata exposure, known entity interactions, and behavioral patterns.
+
+Static analyzer detects fee payer reuse and memo PII in TypeScript/JavaScript source code.
 
 ## Documentation
 
 Full documentation: https://taylorferran.github.io/solana-privacy-scanner
 
 - [CLI Guide](https://taylorferran.github.io/solana-privacy-scanner/cli/user-guide)
-- [Quick Start](https://taylorferran.github.io/solana-privacy-scanner/cli/quickstart)
+- [Heuristics Reference](https://taylorferran.github.io/solana-privacy-scanner/reports/heuristics)
 
 ## License
 

@@ -125,6 +125,9 @@ export class RPCClient {
     const connectionConfig: ConnectionConfig = {
       commitment: 'confirmed',
       confirmTransactionInitialTimeout: this.config.timeout,
+      httpHeaders: {
+        'Referer': 'https://solana-privacy-scanner.app',
+      },
     };
 
     this.connection = new Connection(this.config.rpcUrl, connectionConfig);

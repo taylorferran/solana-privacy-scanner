@@ -1,6 +1,6 @@
 import type { Issue, AnalyzerResult, AnalyzerOptions } from './types.js';
 import { readFile, findFiles, isCodeFile, sortIssues } from './utils.js';
-import { detectFeePayerReuse } from './detectors/fee-payer-reuse.js';
+import { detectFeePayerReuseInCode } from './detectors/fee-payer-reuse.js';
 import { detectMemoPII } from './detectors/memo-pii.js';
 
 /**
@@ -76,7 +76,7 @@ export class SolanaPrivacyAnalyzer {
     const issues: Issue[] = [];
 
     // Run all detectors
-    issues.push(...detectFeePayerReuse(content, filePath));
+    issues.push(...detectFeePayerReuseInCode(content, filePath));
     issues.push(...detectMemoPII(content, filePath));
 
     // Future detectors can be added here:

@@ -14,7 +14,7 @@ Copy the text below and paste it into your AI coding assistant (Claude, Cursor, 
 I want to use the Solana Privacy Scanner CLI tool.
 
 PACKAGE: solana-privacy-scanner
-VERSION: 0.4.0
+VERSION: 0.5.1
 DOCUMENTATION: https://sps.guide/toolkit/overview
 
 WHAT IT DOES:

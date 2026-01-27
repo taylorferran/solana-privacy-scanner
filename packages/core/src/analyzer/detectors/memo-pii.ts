@@ -56,6 +56,9 @@ export function detectMemoPII(
   const issues: Issue[] = [];
   const lines = content.split('\n');
 
+  // Check if file references the Memo program (used for Buffer.from detection)
+  const hasMemoProgram = /MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr/.test(content);
+
   lines.forEach((line, index) => {
     let memoValue: string | null = null;
     let columnOffset = 0;
@@ -69,6 +72,11 @@ export function detectMemoPII(
     else if (line.includes('createMemoInstruction') || line.includes('MemoInstruction')) {
       memoValue = extractMemoFromFunction(line);
       columnOffset = line.indexOf('Instruction') + 1;
+    }
+    // Check for Buffer.from('...') used as data in memo program instructions
+    else if (hasMemoProgram && line.includes('Buffer.from(')) {
+      memoValue = extractBufferFromValue(line);
+      columnOffset = line.indexOf('Buffer.from') + 1;
     }
 
     if (memoValue) {
@@ -160,6 +168,25 @@ function extractMemoFromFunction(line: string): string | null {
   const patterns = [
     /(?:create)?MemoInstruction\s*\(\s*["']([^"']+)["']/,
     /(?:create)?MemoInstruction\s*\(\s*`([^`]+)`/
+  ];
+
+  for (const pattern of patterns) {
+    const match = line.match(pattern);
+    if (match) {
+      return match[1];
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Extract string value from Buffer.from('...') or Buffer.from(`...`)
+ */
+function extractBufferFromValue(line: string): string | null {
+  const patterns = [
+    /Buffer\.from\(\s*["']([^"']+)["']/,
+    /Buffer\.from\(\s*`([^`]+)`/
   ];
 
   for (const pattern of patterns) {

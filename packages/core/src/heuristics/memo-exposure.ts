@@ -98,9 +98,9 @@ export function detectMemoExposure(context: ScanContext): PrivacySignal[] {
       severity: 'LOW',
       confidence: 0.6,
       category: 'information-leak',
-      reason: `${memoInstructions.length} transaction(s) use memo program. Memos are permanently visible on-chain.`,
-      impact: 'Memo data is public and permanent. Even non-sensitive memos can contribute to behavioral fingerprinting.',
-      mitigation: 'Avoid using memos unless necessary. Never include personal information.',
+      reason: `${memoInstructions.length} transaction(s) include memo data. Memos are visible to everyone and stored permanently on the blockchain.`,
+      impact: 'Even if the memo content seems harmless, it adds extra information to your transactions that anyone can read forever.',
+      mitigation: 'Avoid using memos unless necessary. Never include personal information in a memo field.',
       evidence: [{
         description: `${memoInstructions.length} transaction(s) with memos`,
         severity: 'LOW',
@@ -125,9 +125,9 @@ export function detectMemoExposure(context: ScanContext): PrivacySignal[] {
         severity: 'HIGH',
         confidence: 0.9,
         category: 'information-leak',
-        reason: `${highSeverity.length} memo(s) contain personal identifying information (email, phone, name).`,
-        impact: 'CRITICAL: Personal information in memos is permanently public. This can directly link your wallet to your real-world identity.',
-        mitigation: 'Never put personal information in memos. Contact addresses involved to stop this practice if possible.',
+        reason: `${highSeverity.length} memo(s) contain personal information like email addresses, phone numbers, or names. This data is permanently visible to everyone on the blockchain.`,
+        impact: 'Personal information in memos directly links your wallet to your real-world identity. Anyone can search for this data and find your wallet.',
+        mitigation: 'Never put personal information in transaction memos. If this was done by someone else, be aware that the connection to your wallet is permanent.',
         evidence,
       });
     }
@@ -145,9 +145,9 @@ export function detectMemoExposure(context: ScanContext): PrivacySignal[] {
         severity: 'MEDIUM',
         confidence: 0.7,
         category: 'information-leak',
-        reason: `${mediumSeverity.length} memo(s) contain descriptive or identifying content.`,
-        impact: 'Descriptive memos create behavioral fingerprints and can indirectly reveal identity or transaction purpose.',
-        mitigation: 'Minimize memo usage. Use generic or coded references instead of descriptive text.',
+        reason: `${mediumSeverity.length} memo(s) contain descriptive text like URLs, payment references, or long descriptions that could help identify you or the purpose of your transactions.`,
+        impact: 'Descriptive memos give observers extra context about your transactions that they could use to identify you or understand what you are doing.',
+        mitigation: 'Keep memos short and generic. Avoid including URLs, invoice numbers, or descriptions of what the payment is for.',
         evidence,
       });
     }

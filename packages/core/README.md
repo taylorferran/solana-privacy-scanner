@@ -1,14 +1,14 @@
 # solana-privacy-scanner-core
 
-Core scanning engine for Solana privacy analysis. Analyze on-chain privacy exposure using heuristic-based risk detection.
+Core scanning engine for Solana privacy analysis. Analyze on-chain privacy exposure using 13 heuristic-based detections plus static code analysis.
 
 ## Features
 
-- 🔍 **Privacy Risk Detection** - Identifies balance traceability, amount reuse, counterparty patterns, and timing correlations
-- 🏷️ **Known Entity Detection** - Flags interactions with exchanges, bridges, and KYC services
-- 📊 **Structured Reports** - Generates detailed JSON reports with risk scores, evidence, and mitigations
-- ⚡ **Fast & Efficient** - Built with esbuild, supports both ESM and CJS
-- 🔒 **Privacy-First** - All analysis happens locally, no data sent to external servers
+- **13 Privacy Heuristics** - Fee payer reuse, signer overlap, memo PII, ATA linkage, priority fee fingerprinting, staking patterns, identity metadata exposure, and more
+- **Static Code Analyzer** - AST-based detection of privacy anti-patterns in TypeScript/JavaScript source code
+- **Known Entity Detection** - Flags interactions with exchanges, bridges, and KYC services
+- **Structured Reports** - JSON reports with risk scores, evidence, and actionable mitigations
+- **Works Out of the Box** - Built-in RPC endpoint, no configuration required
 
 ## Installation
 
@@ -18,31 +18,72 @@ npm install solana-privacy-scanner-core
 
 ## Quick Start
 
+### Scan a wallet
+
 ```typescript
-import { scan, RPCClient } from 'solana-privacy-scanner-core';
+import {
+  RPCClient,
+  collectWalletData,
+  normalizeWalletData,
+  createDefaultLabelProvider,
+  generateReport,
+} from 'solana-privacy-scanner-core';
 
-// Create an RPC client
-const rpc = new RPCClient('https://api.mainnet-beta.solana.com');
+const rpc = new RPCClient(); // uses built-in RPC
+const raw = await collectWalletData(rpc, 'YourWalletAddress', { maxSignatures: 100 });
+const labels = createDefaultLabelProvider();
+const context = normalizeWalletData(raw, labels);
+const report = generateReport(context);
 
-// Scan a wallet
-const report = await scan({
-  target: 'YourWalletAddressHere',
-  targetType: 'wallet',
-  rpcClient: rpc,
-  maxSignatures: 100,
-});
-
-console.log('Risk Level:', report.overallRisk);
+console.log('Risk:', report.overallRisk);
 console.log('Signals:', report.signals.length);
 ```
 
+### Analyze source code
+
+```typescript
+import { analyze } from 'solana-privacy-scanner-core';
+
+const result = await analyze(['src/**/*.ts']);
+console.log(`Found ${result.summary.total} privacy issues`);
+result.issues.forEach(i => console.log(`  ${i.severity} ${i.type}: ${i.message}`));
+```
+
+### Use individual heuristics
+
+```typescript
+import { detectFeePayerReuse, detectMemoExposure } from 'solana-privacy-scanner-core';
+import type { ScanContext } from 'solana-privacy-scanner-core';
+
+const signals = detectFeePayerReuse(context);
+const memoSignals = detectMemoExposure(context);
+```
+
+## The 13 Heuristics
+
+| # | Heuristic | What it checks |
+|---|-----------|---------------|
+| 1 | Fee Payer Reuse | One wallet paying fees for multiple accounts |
+| 2 | Signer Overlap | Same signers appearing across transactions |
+| 3 | Memo Exposure | Personal information in memo fields |
+| 4 | Known Entity Interaction | Transfers to/from exchanges, bridges, KYC services |
+| 5 | Identity Metadata Exposure | .sol domain and NFT metadata linkage |
+| 6 | ATA Linkage | One wallet funding token accounts for multiple owners |
+| 7 | Address Reuse | Using one address across many different protocols |
+| 8 | Counterparty Reuse | Repeated transfers to the same address |
+| 9 | Instruction Fingerprinting | Repeated program call patterns |
+| 10 | Token Account Lifecycle | Frequent create/close cycles |
+| 11 | Priority Fee Fingerprinting | Consistent priority fee amounts |
+| 12 | Staking Delegation | Concentrated validator delegation |
+| 13 | Timing Patterns | Burst activity and regular intervals |
+
 ## Documentation
 
-Full documentation available at: https://taylorferran.github.io/solana-privacy-scanner
+Full documentation: https://taylorferran.github.io/solana-privacy-scanner
 
 - [Getting Started](https://taylorferran.github.io/solana-privacy-scanner/guide/getting-started)
 - [Library Usage](https://taylorferran.github.io/solana-privacy-scanner/library/usage)
-- [API Reference](https://taylorferran.github.io/solana-privacy-scanner/library/examples)
+- [Heuristics Reference](https://taylorferran.github.io/solana-privacy-scanner/reports/heuristics)
 
 ## License
 

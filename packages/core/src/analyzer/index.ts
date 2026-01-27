@@ -19,7 +19,7 @@ export type {
 } from './types.js';
 
 // Export detectors (for custom usage)
-export { detectFeePayerReuse } from './detectors/fee-payer-reuse.js';
+export { detectFeePayerReuseInCode } from './detectors/fee-payer-reuse.js';
 export { detectMemoPII, getMemoRecommendations } from './detectors/memo-pii.js';
 
 // Export utilities

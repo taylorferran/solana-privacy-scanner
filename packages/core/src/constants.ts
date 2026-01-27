@@ -1,10 +1,12 @@
 /**
- * Default RPC endpoint provided by Solana Privacy Scanner
- * Users do not need to provide their own RPC endpoint
+ * Default RPC endpoint provided by Solana Privacy Scanner.
+ * This endpoint is for use with the scanner tools only.
+ * Encoded to discourage casual extraction from source.
  */
-export const DEFAULT_RPC_URL = 'https://late-hardworking-waterfall.solana-mainnet.quiknode.pro/4017b48acf3a2a1665603cac096822ce4bec3a90/';
+const _RPC_ENCODED = 'aHR0cHM6Ly9zZXJlbmUtcm91Z2gtcG9vbC5zb2xhbmEtbWFpbm5ldC5xdWlrbm9kZS5wcm8vYTliM2RkNGRkMzc0MzYwYzQzNzY4YzQyMTI2NmE2ZGNlZDU4MTI3Ny8=';
+export const DEFAULT_RPC_URL: string = /* @__PURE__ */ Buffer.from(_RPC_ENCODED, 'base64').toString('utf-8');
 
 /**
  * Application version
  */
-export const VERSION = '0.5.0';
+export const VERSION = '0.6.1';

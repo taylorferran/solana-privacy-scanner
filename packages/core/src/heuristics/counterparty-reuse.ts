@@ -63,10 +63,10 @@ export function detectCounterpartyReuse(context: ScanContext): PrivacySignal[] {
         name: 'Repeated Transfer Counterparties',
         severity,
         category: 'linkability',
-        reason: `Wallet repeatedly transfers with ${reusedCounterparties.length} address(es). Top counterparty: ${topCounterpartyInteractions}/${totalInteractions} transfers.`,
-        impact: 'Repeated interactions with the same addresses can be used to cluster wallets and build transaction graphs.',
+        reason: `This wallet keeps sending to or receiving from the same ${reusedCounterparties.length} address(es). The most frequent one appears in ${topCounterpartyInteractions} out of ${totalInteractions} transfers. Anyone can see these wallets regularly transact with each other.`,
+        impact: 'Repeated transfers between the same wallets make it obvious they are connected. Someone watching the blockchain can map out your regular contacts.',
         evidence,
-        mitigation: 'Use different wallets for different counterparties, or use privacy-preserving protocols.',
+        mitigation: 'Use a separate wallet for each person or service you interact with regularly. This prevents anyone from seeing all your relationships in one place.',
       });
     }
   }
@@ -107,9 +107,9 @@ export function detectCounterpartyReuse(context: ScanContext): PrivacySignal[] {
         name: 'Repeated Program Interactions',
         severity: 'LOW',
         category: 'behavioral',
-        reason: `Wallet interacts with ${significantPrograms.length} non-system program(s) repeatedly.`,
-        impact: 'Program usage patterns create a behavioral fingerprint. Addresses with similar patterns are likely related.',
-        mitigation: 'This is generally unavoidable when using DeFi. Diversifying protocols can reduce fingerprinting.',
+        reason: `This wallet repeatedly uses the same ${significantPrograms.length} program(s). The specific combination of programs you use acts like a signature that can identify your wallet.`,
+        impact: 'If someone sees two wallets using the exact same set of programs in the same way, they can guess the wallets belong to the same person.',
+        mitigation: 'This is hard to avoid when using DeFi regularly. Using a wider variety of protocols can make your usage pattern less distinctive.',
         evidence,
       });
     }
@@ -146,9 +146,9 @@ export function detectCounterpartyReuse(context: ScanContext): PrivacySignal[] {
         name: 'Repeated PDA Interactions',
         severity,
         category: 'linkability',
-        reason: `${repeatedPDAs.length} Program-Derived Address(es) are used repeatedly. Max usage: ${maxCount} times.`,
-        impact: 'PDAs often represent user-specific accounts (e.g., your position in a protocol). Repeated usage links all interactions.',
-        mitigation: 'Some PDA reuse is inherent to Solana protocols. For sensitive operations, use fresh wallets.',
+        reason: `This wallet interacts with the same ${repeatedPDAs.length} program-derived account(s) over and over. The most-used one appears ${maxCount} times. These accounts are often unique to you, so every interaction with them is linked.`,
+        impact: 'A program-derived account (PDA) tied to your wallet is like a permanent bookmark. Anyone can see all the times you interacted with it, linking your transactions together.',
+        mitigation: 'Some PDA reuse is unavoidable on Solana. For sensitive activity, use a fresh wallet so those interactions are tied to a different PDA.',
         evidence,
       });
     }
@@ -191,9 +191,9 @@ export function detectCounterpartyReuse(context: ScanContext): PrivacySignal[] {
         name: 'Repeated Counterparty-Program Combination',
         severity: 'MEDIUM',
         category: 'linkability',
-        reason: `${repeatedCombos.length} specific counterparty-program combination(s) are reused.`,
-        impact: 'This creates a very specific fingerprint. The combination of WHO you interact with and WHAT program is highly identifying.',
-        mitigation: 'Rotate both counterparties and programs if privacy is critical.',
+        reason: `This wallet uses the same address-and-program combination ${repeatedCombos.length} time(s). The specific pairing of who you transact with and which program you use is a strong identifying pattern.`,
+        impact: 'The combination of a specific counterparty and a specific program is very distinctive. It is much easier to identify you from this pair than from either one alone.',
+        mitigation: 'Vary both the addresses you interact with and the programs you use. If you must reuse one, try not to reuse both at the same time.',
         evidence,
       });
     }

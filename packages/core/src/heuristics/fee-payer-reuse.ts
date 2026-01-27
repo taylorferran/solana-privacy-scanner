@@ -66,9 +66,9 @@ export function detectFeePayerReuse(context: ScanContext): PrivacySignal[] {
       name: 'External Fee Payer Detected',
       severity: knownLabel ? 'HIGH' : 'MEDIUM',
       category: 'linkability',
-      reason: `${externalFeePayers.length} external wallet(s) paid fees for transactions involving this address${knownLabel ? `, including known entity: ${knownLabel.name}` : ''}.`,
-      impact: 'This address is linked to the fee payer(s). Anyone observing the blockchain can see this relationship. If the fee payer is identified, this address is also compromised.',
-      mitigation: 'Always pay your own transaction fees. Never allow third parties to pay fees for your transactions unless absolutely necessary. If using a relayer, understand that this creates a permanent on-chain link.',
+      reason: `${externalFeePayers.length} other wallet(s) paid the transaction fees for this address${knownLabel ? `, including ${knownLabel.name}` : ''}. This creates a visible on-chain connection between your wallet and the fee payer(s) that anyone can see.`,
+      impact: 'Your wallet is publicly connected to whoever paid the fees. If anyone identifies the fee payer, they automatically identify you too.',
+      mitigation: 'Always pay your own transaction fees. If someone else pays your fees, that connection is permanent and public.',
       evidence,
     });
   }
@@ -102,9 +102,9 @@ export function detectFeePayerReuse(context: ScanContext): PrivacySignal[] {
       name: 'Never Self-Pays Transaction Fees',
       severity: repeatedFeePayer ? 'HIGH' : 'HIGH', // Always HIGH - this is critical
       category: 'linkability',
-      reason: `This address has NEVER paid its own transaction fees. All ${context.transactionCount} transaction(s) were paid by ${allFeePayers.length} external wallet(s).`,
-      impact: 'This is a CRITICAL privacy leak. This address is trivially linked to all fee payer(s). This pattern suggests a managed account, hot wallet, or program-controlled address. The controlling entity is fully exposed.',
-      mitigation: 'This account model fundamentally compromises privacy. To improve: (1) Fund this address with SOL and pay your own fees, or (2) Use a fresh address for each operation, or (3) Accept that this address is permanently linked to its fee payer(s).',
+      reason: `This wallet has never paid its own transaction fees. All ${context.transactionCount} transaction(s) were paid for by ${allFeePayers.length} other wallet(s). This makes it obvious that someone else controls or funds this wallet.`,
+      impact: 'This is the strongest privacy leak on Solana. Everyone can see that this wallet is controlled by whoever pays its fees. The connection is permanent and cannot be undone.',
+      mitigation: 'Fund this wallet with SOL and pay your own fees. If that is not possible, use a fresh wallet for each operation so no single fee payer is tied to all your activity.',
       evidence,
     });
   }
@@ -150,9 +150,9 @@ export function detectFeePayerReuse(context: ScanContext): PrivacySignal[] {
         name: 'Fee Payer Controls Multiple Signers',
         severity: 'HIGH',
         category: 'linkability',
-        reason: `${multiFeePayerOperators.length} fee payer(s) are paying fees for multiple different signers, suggesting centralized control or bot operation.`,
-        impact: 'All addresses funded by the same fee payer are linkable. This pattern exposes operational infrastructure.',
-        mitigation: 'If running bots or managing multiple accounts, use a unique fee payer for each to avoid linking them on-chain.',
+        reason: `${multiFeePayerOperators.length} fee payer(s) are paying fees for transactions signed by multiple different wallets. This reveals that one entity controls several wallets.`,
+        impact: 'All wallets funded by the same fee payer are publicly connected. Anyone can see they belong to the same operator.',
+        mitigation: 'Use a separate fee payer for each wallet. If managing multiple accounts, never share a fee payer between them.',
         evidence,
       });
     }

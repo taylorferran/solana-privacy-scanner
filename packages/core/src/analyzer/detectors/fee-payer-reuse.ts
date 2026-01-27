@@ -16,7 +16,7 @@ interface VariableUsage {
  * Pattern: A variable assigned to Keypair.generate() that is used
  * inside a loop or in multiple sequential calls.
  */
-export function detectFeePayerReuse(
+export function detectFeePayerReuseInCode(
   content: string,
   filePath: string
 ): Issue[] {

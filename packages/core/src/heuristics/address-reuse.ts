@@ -128,9 +128,9 @@ export function detectAddressReuse(context: ScanContext): PrivacySignal[] {
       severity: 'HIGH',
       confidence: 0.85,
       category: 'linkability',
-      reason: `This address is used for ${diversityCount} distinct activity types: ${Array.from(activityTypes).join(', ')}.`,
-      impact: 'Using one address for multiple unrelated activities links them all together. This creates a comprehensive behavioral profile.',
-      mitigation: 'Use separate addresses for different purposes: one for DeFi, one for NFTs, one for DAO participation, etc. This isolates activities and prevents cross-linkage.',
+      reason: `This wallet is used for ${diversityCount} different types of activity: ${Array.from(activityTypes).join(', ')}. Anyone looking at this wallet can see everything you do across all these categories.`,
+      impact: 'Using one wallet for many different activities lets anyone build a complete picture of your on-chain behavior.',
+      mitigation: 'Use separate wallets for different purposes — one for DeFi, one for NFTs, one for DAO voting, etc. This way, no single wallet reveals everything you do.',
       evidence,
     });
   } else if (diversityCount === 3) {
@@ -146,9 +146,9 @@ export function detectAddressReuse(context: ScanContext): PrivacySignal[] {
       severity: 'MEDIUM',
       confidence: 0.7,
       category: 'linkability',
-      reason: `This address is used for ${diversityCount} activity types: ${Array.from(activityTypes).join(', ')}.`,
-      impact: 'Multiple activity types on one address create linkage between otherwise separate behaviors.',
-      mitigation: 'Consider using separate addresses for different activities to improve privacy compartmentalization.',
+      reason: `This wallet is used for ${diversityCount} activity types: ${Array.from(activityTypes).join(', ')}. This connects activities that could otherwise be kept separate.`,
+      impact: 'Anyone watching this wallet can see multiple types of activity linked to the same address.',
+      mitigation: 'Consider using separate wallets for different types of activity to keep them from being connected.',
       evidence,
     });
   }
@@ -164,9 +164,9 @@ export function detectAddressReuse(context: ScanContext): PrivacySignal[] {
         severity: 'MEDIUM',
         confidence: 0.75,
         category: 'behavioral',
-        reason: `This address has been actively used for ${Math.round(timeSpanDays)} days with ${context.transactionCount} transactions.`,
-        impact: 'Long-term address usage accumulates a rich behavioral history. All activities over time are permanently linked.',
-        mitigation: 'Periodically rotate to new addresses to compartmentalize different time periods of activity.',
+        reason: `This wallet has been used for ${Math.round(timeSpanDays)} days with ${context.transactionCount} transactions. The longer you use one wallet, the more information about you it reveals.`,
+        impact: 'Months of transaction history on one wallet gives anyone a detailed picture of your activity over time.',
+        mitigation: 'Periodically move to a new wallet to limit how much history is visible in one place.',
         evidence: [{
           description: `${context.transactionCount} transactions over ${Math.round(timeSpanDays)} days`,
           severity: 'MEDIUM',

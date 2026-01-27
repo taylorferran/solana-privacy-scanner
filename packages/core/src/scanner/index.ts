@@ -1,16 +1,18 @@
 import type { ScanContext, RiskSignal, RiskLevel, PrivacyReport } from '../types/index.js';
 import {
   detectCounterpartyReuse,
-  detectAmountReuse,
   detectTimingPatterns,
   detectKnownEntityInteraction,
-  detectBalanceTraceability,
   detectFeePayerReuse,
   detectSignerOverlap,
   detectInstructionFingerprinting,
   detectTokenAccountLifecycle,
   detectMemoExposure,
   detectAddressReuse,
+  detectPriorityFeeFingerprinting,
+  detectATALinkage,
+  detectStakingDelegationPatterns,
+  detectIdentityMetadataExposure,
 } from '../heuristics/index.js';
 
 /**
@@ -26,15 +28,17 @@ const HEURISTICS = [
   detectFeePayerReuse,
   detectSignerOverlap,
   detectMemoExposure,
+  detectIdentityMetadataExposure,
+  detectATALinkage,
   detectAddressReuse,
   detectKnownEntityInteraction,
   detectCounterpartyReuse,
   detectInstructionFingerprinting,
   detectTokenAccountLifecycle,
-  // Traditional heuristics
+  detectPriorityFeeFingerprinting,
+  detectStakingDelegationPatterns,
+  // Timing analysis
   detectTimingPatterns,
-  detectAmountReuse,
-  detectBalanceTraceability,
 ];
 
 /**
@@ -109,7 +113,7 @@ function generateMitigations(signals: RiskSignal[]): string[] {
     mitigations.add('Avoid direct interactions between privacy-sensitive wallets and KYC services.');
   }
 
-  if (signalIds.has('counterparty-reuse') || signalIds.has('pda-reuse')) {
+  if (signalIds.has('counterparty-reuse') || signalIds.has('pda-reuse') || signalIds.has('instruction-pda-reuse')) {
     mitigations.add('Use different addresses for different counterparties or contexts.');
   }
 
@@ -117,12 +121,20 @@ function generateMitigations(signals: RiskSignal[]): string[] {
     mitigations.add('Introduce timing delays and vary transaction patterns to reduce correlation.');
   }
 
-  if (signalIds.has('balance-matching-pairs') || signalIds.has('balance-sequential-similar') || signalIds.has('balance-full-movement') || signalIds.has('balance-traceability')) {
-    mitigations.add('Vary transfer amounts and add delays to reduce balance traceability.');
+  if (signalIds.has('priority-fee-consistent') || signalIds.has('compute-budget-fingerprint')) {
+    mitigations.add('Vary your priority fees and compute budget between transactions to avoid creating a recognizable pattern.');
   }
 
-  if (signalIds.has('amount-reuse')) {
-    mitigations.add('Vary transaction amounts to avoid creating fingerprints.');
+  if (signalIds.has('ata-creator-linkage') || signalIds.has('ata-funding-pattern')) {
+    mitigations.add('Have each wallet create and fund its own token accounts rather than using a central wallet to set them up.');
+  }
+
+  if (signalIds.has('stake-delegation-pattern') || signalIds.has('stake-timing-correlation')) {
+    mitigations.add('Spread staking across multiple validators and vary the timing of staking operations.');
+  }
+
+  if (signalIds.has('nft-metadata-exposure') || signalIds.has('domain-name-linkage')) {
+    mitigations.add('Use a dedicated wallet for NFT creation and domain registration that is separate from your other activities.');
   }
 
   // Always add this general advice

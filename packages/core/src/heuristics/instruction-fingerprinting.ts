@@ -72,9 +72,9 @@ export function detectInstructionFingerprinting(context: ScanContext): PrivacySi
       name: 'Repeated Instruction Sequence Pattern',
       severity,
       category: 'behavioral',
-      reason: `${repeatedSequences.length} distinct instruction sequence(s) are repeated multiple times. The most common pattern appears in ${topSequenceCount}/${context.transactionCount} transactions.`,
-      impact: 'Repeated instruction patterns create a behavioral fingerprint. Even with different addresses, these patterns can link related activity.',
-      mitigation: 'Vary the order or combination of operations. Add dummy instructions or randomize transaction structure where possible.',
+      reason: `${repeatedSequences.length} instruction sequence(s) show up over and over. The most common one appears in ${topSequenceCount} out of ${context.transactionCount} transactions. This repeated pattern makes your transactions easy to identify.`,
+      impact: 'Even if you use different wallets, doing the same sequence of operations every time makes it possible to link those wallets together by their shared pattern.',
+      mitigation: 'Change up the order of your operations when you can. Varying the structure of your transactions makes them harder to match.',
       evidence,
     });
   }
@@ -116,9 +116,9 @@ export function detectInstructionFingerprinting(context: ScanContext): PrivacySi
       name: 'Distinctive Program Usage Profile',
       severity: 'LOW',
       category: 'behavioral',
-      reason: `This address uses ${uniquePrograms.length} less-common programs repeatedly. This creates a unique usage profile.`,
-      impact: 'Program usage patterns can fingerprint wallet behavior. Addresses with similar program usage profiles are likely related.',
-      mitigation: 'Using niche protocols creates a fingerprint. This is difficult to mitigate without changing your DeFi strategy.',
+      reason: `This wallet regularly uses ${uniquePrograms.length} less-common programs. The specific set of programs you use acts like a fingerprint that can identify your wallet.`,
+      impact: 'If two wallets use the same unusual combination of programs, it suggests they belong to the same person. The rarer the programs, the stronger the link.',
+      mitigation: 'This is hard to avoid without changing how you use DeFi. Be aware that using niche protocols makes your wallet more identifiable.',
       evidence,
     });
   }
@@ -151,13 +151,13 @@ export function detectInstructionFingerprinting(context: ScanContext): PrivacySi
       const severity = maxPDAUsage > 3 ? 'MEDIUM' : 'LOW';
 
       signals.push({
-        id: 'pda-reuse-pattern',
-        name: 'Repeated PDA Interaction',
+        id: 'instruction-pda-reuse',
+        name: 'Instruction-Level PDA Reuse',
         severity,
         category: 'behavioral',
-        reason: `${repeatedPDAs.length} Program-Derived Address(es) are used repeatedly. The most common PDA appears in ${maxPDAUsage} transactions.`,
-        impact: 'Repeated PDA usage links transactions. If the PDA is specific to you (e.g., a user account), all interactions with it are linked.',
-        mitigation: 'Some PDA reuse is unavoidable (e.g., your DEX pool position). For sensitive operations, consider using fresh accounts or different protocols.',
+        reason: `This wallet keeps interacting with the same ${repeatedPDAs.length} program-derived account(s). The most-used one shows up in ${maxPDAUsage} transactions. Each visit to the same account ties those transactions together.`,
+        impact: 'A program-derived account linked to your wallet connects every transaction that touches it. Anyone can follow these interactions to see your full activity with that protocol.',
+        mitigation: 'Some PDA reuse is unavoidable (like your DEX positions). For sensitive operations, use a fresh wallet so interactions go through a different account.',
         evidence,
       });
     }
@@ -202,9 +202,9 @@ export function detectInstructionFingerprinting(context: ScanContext): PrivacySi
         name: 'Repeated Instruction Type',
         severity: 'LOW',
         category: 'behavioral',
-        reason: `The instruction type "${instructionType}" on program ${programId.slice(0, 8)}...${label ? ` (${label.name})` : ''} is used ${count} times.`,
-        impact: 'Repeated instruction types on the same program suggest automated behavior or specific strategy execution.',
-        mitigation: 'This is generally low-risk but contributes to behavioral fingerprinting. Diversify your transaction types if possible.',
+        reason: `The "${instructionType}" operation on program ${programId.slice(0, 8)}...${label ? ` (${label.name})` : ''} is used ${count} times. Repeating the same operation suggests a bot or a specific strategy.`,
+        impact: 'Doing the same thing over and over on the same program creates a pattern that makes this wallet stand out from normal users.',
+        mitigation: 'This is low-risk on its own, but combined with other patterns it helps identify your wallet. Varying your operations can reduce this.',
         evidence: [{
           description: `"${instructionType}" instruction used ${count} times`,
           severity: 'LOW',

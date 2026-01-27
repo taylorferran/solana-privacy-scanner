@@ -1,377 +1,290 @@
 # Privacy Heuristics Explained
 
-Deep dive into each detection method. The scanner uses **11 heuristics** ranked by deanonymization power.
+The scanner uses **13 heuristics** to detect privacy risks. Each one looks for a specific pattern that could reveal your identity or link your wallets together.
+
+For implementation details, see [How Each Heuristic Works](./heuristic-internals).
 
 ---
 
-## Critical Solana-Specific Heuristics
+## Critical
 
-### 1. Fee Payer Reuse ⚠️ CRITICAL
+### 1. Fee Payer Reuse
 
-**The #1 deanonymization vector on Solana.**
+**What it checks:** Who pays the transaction fees for this wallet.
 
-**What It Detects:** The wallet(s) paying transaction fees.
-
-**Why Critical:**
-- Creates permanent on-chain linkage
-- Reveals control structures (who funds whom)
-- Exposes bot infrastructure
-- Fee payer is explicitly tracked in Solana's transaction structure
+If someone else pays your fees, that wallet is permanently and publicly linked to yours. If one wallet pays fees for multiple other wallets, it's obvious they all belong to the same person.
 
 **Example:**
 ```
 Wallet A pays fees for Wallets B, C, D
-→ All four wallets are trivially linked
+→ Anyone can see A controls B, C, and D
 ```
 
-**Mitigation:**
-- Always pay your own transaction fees
-- Never use relayers unless absolutely necessary
-- Bot operators: Use unique fee payers per bot
+**How to fix:** Always pay your own fees. If you run multiple wallets, give each one its own SOL to pay fees.
 
-**Severity:**
-- CRITICAL: Never pays own fees
-- HIGH: External wallets pay fees multiple times
-- MEDIUM: Mixed fee payers
+**Severity:** HIGH when another wallet pays your fees. Always HIGH when you never pay your own fees.
 
 ---
 
-### 2. Signer Overlap 🔴 HIGH
+### 2. Signer Overlap
 
-**Cryptographic proof of control relationships.**
+**What it checks:** Whether the same signing keys appear across multiple transactions.
 
-**What It Detects:** Repeated signers and multi-sig patterns.
-
-**Why Important:**
-- Signatures prove control
-- Multi-sig reveals organizational structure
-- Authority keys exposed
-- Stronger than behavioral patterns
+When the same address signs transactions for different wallets, it proves those wallets are connected. This is cryptographic proof — not just a guess.
 
 **Example:**
 ```
-Txs 1-5: Signed by [A, B]
-Txs 6-10: Signed by [A, C]
-→ A is authority controlling B and C
+Transactions 1-5: Signed by [A, B]
+Transactions 6-10: Signed by [A, C]
+→ A controls both B and C
 ```
 
-**Mitigation:**
-- Rotate signing keys for unrelated activities
-- Use separate authorities for different purposes
-- Vary multi-sig participants
+**How to fix:** Use separate signing keys for unrelated wallets. Never have one key sign for everything.
 
-**Severity:**
-- HIGH: Signer in >70% of transactions
-- HIGH: Authority hub (co-signs with many wallets)
-- MEDIUM: Repeated multi-sig patterns
+**Severity:** HIGH when a signer appears in >70% of transactions or co-signs with many different wallets.
 
 ---
 
-### 3. Memo Exposure 🔴 HIGH
+### 3. Memo Exposure
 
-**Public on-chain data leaks.**
+**What it checks:** Whether transaction memos contain personal information.
 
-**What It Detects:** Personal information or identifying details in transaction memos.
-
-**Why Important:**
-- Memos are permanently public on the blockchain
-- PII (personal identifiable information) exposure
-- Business logic leaks
-- User identifiers and references
-- Cannot be deleted or modified
+Memos are permanently public. If you put your name, email, or any identifying text in a memo, it's linked to your wallet forever.
 
 **Example:**
 ```
 Memo: "Payment to John Smith for invoice #1234"
-→ Links transaction to real identity
-→ Reveals business relationship
-→ Permanent public record
+→ Wallet permanently linked to "John Smith"
 ```
 
-**Mitigation:**
-- Never include PII in memos (names, emails, IDs)
-- Avoid descriptive content that identifies you
-- Use opaque references if memos are necessary
-- Consider off-chain communication instead
+**How to fix:** Never put personal information in memos. If you need to include a reference, use an opaque ID.
 
-**Severity:**
-- HIGH: PII detected (emails, names, phone numbers)
-- MEDIUM: Descriptive content (invoice numbers, purposes)
-- LOW: Memo field used but no obvious PII
+**Severity:** HIGH for names/emails/phone numbers. MEDIUM for descriptive text. LOW for any memo usage.
 
 ---
 
-### 4. Address Reuse 🟡 MEDIUM
+### 4. Known Entity Interaction
 
-**Wallet compartmentalization analysis.**
+**What it checks:** Whether you've sent or received funds from known services (exchanges, bridges, protocols).
 
-**What It Detects:**
-- Lack of wallet diversity
-- Long-term address usage
-- Activity concentration patterns
-
-**Why Important:**
-- Single wallet links all activity together
-- No compartmentalization of sensitive operations
-- Easier behavioral fingerprinting
-- All transactions permanently tied to one identity
+Exchanges know your real identity through KYC. If your wallet transacts directly with an exchange, your wallet is linked to your name.
 
 **Example:**
 ```
-Single wallet used for:
-→ CEX deposits/withdrawals
-→ DeFi trading
-→ NFT purchases
-→ DAO voting
-All activities now linked
+Direct transfer to Binance
+→ Binance knows this wallet is yours
+→ All activity on this wallet is now tied to your identity
 ```
 
-**Mitigation:**
-- Use multiple wallets for different purposes
-- Separate CEX interactions from privacy-sensitive activity
-- Rotate addresses for different contexts
-- Consider activity types when planning wallet structure
+**How to fix:** Use an intermediate wallet between your main wallet and any exchange. Use a separate wallet for bridging across chains.
 
-**Severity:**
-- HIGH: Very limited diversity (1-2 main addresses for everything)
-- MEDIUM: Moderate diversity but still concentrated
-- LOW: Long-term usage without rotation
+**Severity:** HIGH for exchanges. MEDIUM for bridges. LOW for other known services.
 
 ---
 
-### 5. Known Entity Interaction 🔴 HIGH
+### 5. Identity Metadata Exposure
 
-**Direct linkage to real-world identity.**
+**What it checks:** Interactions with programs that attach identity to your wallet — NFT metadata (Metaplex) and `.sol` domain names (Bonfida).
 
-**What It Detects:** Interactions with CEXs, bridges, protocols.
-
-**Why Important:**
-- CEXs have your KYC data
-- Memos reveal deposit information
-- Permanent public record
+A `.sol` domain maps a human-readable name directly to your wallet. NFT collections can also identify you if they're unique to you.
 
 **Example:**
 ```
-Transfer to Binance with memo
-→ Binance knows this address is yours
-→ All activity linked to your identity
+Wallet registered "alice.sol"
+→ Anyone searching "alice.sol" finds this wallet
+→ All activity linked to "alice"
 ```
 
-**Mitigation:**
-- Never send directly to CEXs from private wallets
-- Use intermediate bridge wallets with delays
-- Be careful with memos (permanent and public)
+**How to fix:** Don't register a domain on a wallet you want private. Use a separate wallet for NFTs.
 
-**Severity:**
-- HIGH: CEX interaction (KYC linkage)
-- MEDIUM: Bridge/DeFi protocol
-- LOW: Common system programs
+**Severity:** HIGH for domain names. MEDIUM for NFT metadata.
 
 ---
 
-## Behavioral Fingerprinting
+### 6. ATA Linkage
 
-### 6. Counterparty & PDA Reuse 🟡 MEDIUM
+**What it checks:** Whether one wallet creates token accounts for multiple different owners.
 
-**Solana-aware interaction tracking.**
-
-**What It Detects:**
-- Traditional address reuse
-- PDA (Program-Derived Address) interactions
-- Program usage patterns
-- Counterparty-program combinations
-
-**Why Important:**
-- Most Solana interactions are via programs
-- PDAs are user-specific (your DEX position)
-- Program combinations create fingerprints
+When wallet A creates a token account for wallet B, the fee payer (A) is publicly recorded. If A sets up accounts for B, C, and D, they're all linked through A.
 
 **Example:**
 ```
-15 interactions with PDA abc123... (Jupiter position)
-→ All 15 transactions linked
-→ Reveals your DeFi strategy
+Wallet A creates token accounts for B, C, D
+→ A paid the fees, linking all four wallets
 ```
 
-**Mitigation:**
-- Some PDA reuse is unavoidable
-- Use fresh wallets for sensitive operations
-- Diversify protocols
+**How to fix:** Have each wallet create its own token accounts. Never use a shared wallet to set up accounts for others.
 
-**Severity:**
-- MEDIUM: Repeated PDA (5+ times)
-- MEDIUM: Same counterparty + same program
-- LOW: Program usage patterns
+**Severity:** HIGH when one wallet creates accounts for multiple owners. MEDIUM for batch creation.
 
 ---
 
-### 7. Instruction Fingerprinting 🟡 MEDIUM
+## Medium
 
-**Behavioral signatures through program interactions.**
+### 7. Address Reuse
 
-**What It Detects:**
-- Instruction sequence patterns
-- Program usage profiles
-- PDA interaction patterns
-- Instruction data similarity
+**What it checks:** Whether you use one wallet for many different types of activity (DeFi, NFTs, gaming, DAOs, exchanges).
 
-**Why Important:**
-- Instruction structure is like a strategy fingerprint
-- Links activity even with different addresses
-- Reveals automation and bot strategies
+The more you do with one wallet, the more anyone can learn about you just by looking at it.
+
+**Example:**
+```
+One wallet used for: CEX, DeFi, NFTs, DAO voting
+→ Anyone can see everything you do
+```
+
+**How to fix:** Use separate wallets for different purposes — one for DeFi, one for NFTs, etc.
+
+**Severity:** HIGH for 4+ activity types. MEDIUM for 3 types or long-term single address usage.
+
+---
+
+### 8. Counterparty & PDA Reuse
+
+**What it checks:** Whether you repeatedly transact with the same addresses, programs, or program-derived accounts.
+
+Sending to the same address over and over makes it obvious you have a relationship. Repeatedly interacting with the same program-derived account links all those transactions together.
+
+**Example:**
+```
+15 interactions with the same Jupiter position (PDA)
+→ All 15 transactions linked to you
+```
+
+**How to fix:** Use different wallets for different counterparties. For sensitive operations, use a fresh wallet.
+
+**Severity:** MEDIUM for repeated PDAs or counterparty-program combinations. LOW for program usage patterns.
+
+---
+
+### 9. Instruction Fingerprinting
+
+**What it checks:** Whether your transactions follow the same sequence of operations, use the same niche programs, or repeat the same instruction patterns.
+
+If you always do the same operations in the same order, that pattern acts like a fingerprint — even across different wallets.
 
 **Example:**
 ```
 Pattern: System → SPL Token → Jupiter → SPL Token
-→ Unique DeFi strategy fingerprint
-→ All matching patterns likely same user
+→ Same sequence in 80% of transactions
+→ Easy to link wallets with this pattern
 ```
 
-**Mitigation:**
-- Vary instruction order when possible
-- Diversify strategies across wallets
-- Accept that complex operations are fingerprinted
+**How to fix:** Vary the order of your operations. Using niche protocols makes you more identifiable.
 
-**Severity:**
-- MEDIUM: Repeated sequence (50%+ of txs)
-- LOW: Distinctive program profile
-- LOW: Repeated instruction types
+**Severity:** MEDIUM for repeated sequences in 50%+ of transactions. LOW for distinctive program profiles.
 
 ---
 
-### 8. Token Account Lifecycle 🟡 MEDIUM
+### 10. Token Account Lifecycle
 
-**Rent refunds link burner accounts to owners.**
+**What it checks:** Whether you create and close token accounts, sending rent refunds back to a main wallet.
 
-**What It Detects:**
-- Token account creation/closure cycles
-- Rent refund patterns
-- Short-lived accounts
-- Burner account usage
-
-**Why Important:**
-- Rent refunds (~0.002 SOL) link back to owner
-- Defeats purpose of burner accounts
-- Create-close cycles reveal privacy attempts
+When you close a token account, the rent refund (~0.002 SOL) goes back to the owner. This publicly links the "throwaway" account to whoever receives the refund.
 
 **Example:**
 ```
 Create token account → Use once → Close
-→ Rent refund to main wallet
-→ Burner no longer anonymous
+→ Rent refund goes to main wallet
+→ "Throwaway" account is now linked to you
 ```
 
-**Mitigation:**
-- Don't close token accounts if privacy matters
-- Accept small rent cost instead of refunding
-- Use fresh wallets without refunds
+**How to fix:** Don't close token accounts if privacy matters. The small rent cost is worth it.
 
-**Severity:**
-- MEDIUM: Frequent create/close cycles
-- MEDIUM: Multiple refunds to same address
-- LOW: Short-lived accounts
+**Severity:** MEDIUM for frequent create/close cycles or clustered rent refunds. LOW for short-lived accounts.
 
 ---
 
-## Traditional Heuristics (Solana-Adapted)
+### 11. Priority Fee Fingerprinting
 
-### 9. Timing Patterns 🟢 LOW-MEDIUM
+**What it checks:** Whether your transactions always use the same priority fee or compute budget.
 
-**Time-based behavioral patterns.**
+Most wallets and bots have a fixed fee setting. If every transaction uses the exact same fee, it becomes a distinguishing mark.
 
-**What It Detects:**
-- Transaction bursts
-- Periodic patterns (automation)
-- Regular intervals
-
-**Solana Context:**
-- Bots are common (high TPS)
-- MEV causes natural clustering
-- Periodic timing stronger signal than bursts
-
-**Mitigation:**
-- Add random delays
-- Spread transactions over time
-- Batch operations
-
-**Severity:**
-- MEDIUM: Periodic timing (automation)
-- LOW: Transaction bursts
-
----
-
-### 10. Amount Reuse 🟢 LOW
-
-**Repeated amounts (DOWNGRADED for Solana).**
-
-**What It Detects:**
-- Repeated transaction amounts
-- Round numbers
-
-**Why Downgraded:**
-- Round numbers are common on Solana
-- SPL tokens have fixed decimals
-- Programs emit deterministic amounts
-- Only strong when combined with other patterns
-
-**Mitigation:**
-- Vary amounts when sending to same address
-- Accept that this is weak signal alone
-
-**Severity:**
-- MEDIUM: Same amount + same counterparty (3+)
-- LOW: Repeated amounts alone
-- LOW: Round numbers (benign)
-
----
-
-### 11. Balance Traceability 🟢 LOW
-
-**Fund flow analysis (adapted for Solana).**
-
-**What It Detects:**
-- Balance changes and flow patterns
-
-**Solana Account Model:**
-- Focus on signer reuse
-- Fee payer reuse more important
-- Token account ownership
-
-**Severity:**
-- LOW: Supporting evidence only
-
----
-
-## Heuristic Power Ranking
-
-| Rank | Heuristic | Severity | Power |
-|------|-----------|----------|-------|
-| 1 | Fee Payer Reuse | CRITICAL | ⚠️⚠️⚠️ |
-| 2 | Signer Overlap | HIGH | 🔴🔴 |
-| 3 | Memo Exposure | HIGH | 🔴🔴 |
-| 4 | Address Reuse | MEDIUM | 🟡 |
-| 5 | Known Entity | HIGH | 🔴🔴 |
-| 6 | Counterparty/PDA | MEDIUM | 🟡 |
-| 7 | Instruction Fingerprinting | MEDIUM | 🟡 |
-| 8 | Token Lifecycle | MEDIUM | 🟡 |
-| 9 | Timing Patterns | LOW-MED | 🟢 |
-| 10 | Amount Reuse | LOW | 🟢 |
-| 11 | Balance Traceability | LOW | 🟢 |
-
----
-
-## Combining Signals
-
-**Example: CRITICAL Risk**
+**Example:**
 ```
-⚠️ Fee Payer Reuse (CRITICAL)
+50 transactions all with 10,000 lamport priority fee
+→ Same config across all transactions
+→ Easy to identify as one user
+```
+
+**How to fix:** Randomize your priority fee within a range instead of using a fixed value.
+
+**Severity:** MEDIUM for consistent priority fees. LOW for repeated compute budget ranges.
+
+---
+
+### 12. Staking Delegation Patterns
+
+**What it checks:** Whether all your staking goes to the same one or two validators.
+
+If multiple wallets all delegate to the same small validator, they're probably controlled by the same person.
+
+**Example:**
+```
+Wallets A, B, C all delegate to the same small validator
+→ Likely the same person
+```
+
+**How to fix:** Spread your stake across multiple validators. Use different validators for different wallets.
+
+**Severity:** MEDIUM for concentrated delegation. LOW for regular staking intervals.
+
+---
+
+### 13. Timing Patterns
+
+**What it checks:** Whether your transactions happen in bursts, at regular intervals, or at the same time every day.
+
+Clock-like timing reveals automation. Consistent active hours reveal your timezone and routine.
+
+**Example:**
+```
+Transactions every 60 minutes, 24/7
+→ Clearly a bot
+→ Bot config becomes a fingerprint
+```
+
+**How to fix:** Spread transactions out. Add random delays. Vary the time of day.
+
+**Severity:** HIGH for hourly/daily regular intervals. MEDIUM for bursts or time-of-day clustering.
+
+---
+
+## Power Ranking
+
+| Rank | Heuristic | Max Severity |
+|------|-----------|-------------|
+| 1 | Fee Payer Reuse | CRITICAL |
+| 2 | Signer Overlap | HIGH |
+| 3 | Memo Exposure | HIGH |
+| 4 | Known Entity Interaction | HIGH |
+| 5 | Identity Metadata | HIGH |
+| 6 | ATA Linkage | HIGH |
+| 7 | Address Reuse | HIGH |
+| 8 | Counterparty/PDA Reuse | MEDIUM |
+| 9 | Instruction Fingerprinting | MEDIUM |
+| 10 | Token Account Lifecycle | MEDIUM |
+| 11 | Priority Fee Fingerprinting | MEDIUM |
+| 12 | Staking Delegation | MEDIUM |
+| 13 | Timing Patterns | HIGH |
+
+---
+
+## How Signals Combine
+
+The scanner runs all 13 heuristics and combines their results into an overall risk score.
+
+**Example: HIGH Risk Report**
+```
+Fee Payer Reuse (HIGH)
   → Never pays own fees
 
-🔴 Signer Overlap (HIGH)
-  → Same authority in 80% of txs
+Signer Overlap (HIGH)
+  → Same authority in 80% of transactions
 
-🔴 Known Entity (HIGH)
-  → 3 Binance deposits
+Known Entity (HIGH)
+  → 3 direct Binance deposits
 
 → OVERALL: HIGH RISK
 ```

@@ -55,9 +55,9 @@ export function detectTokenAccountLifecycle(context: ScanContext): PrivacySignal
         name: 'Frequent Token Account Creation/Closure',
         severity: 'MEDIUM',
         category: 'behavioral',
-        reason: `${createEvents.length} token account(s) created and ${closeEvents.length} closed. Rent refunds totaling ${totalRefunded.toFixed(4)} SOL expose ownership.`,
-        impact: 'Rent refunds link temporary token accounts back to the owner wallet. This pattern defeats the purpose of using "burner" accounts.',
-        mitigation: 'If using temporary token accounts for privacy, leave them open (accept the small rent cost) rather than closing and refunding to your main wallet.',
+        reason: `${createEvents.length} token account(s) were created and ${closeEvents.length} were closed, sending ${totalRefunded.toFixed(4)} SOL in rent refunds back to the owner. These refunds publicly link the temporary accounts to the wallet that receives the SOL.`,
+        impact: 'When you close a token account, the rent refund goes back to the owner. Anyone watching can follow this refund to see who owned the "throwaway" account.',
+        mitigation: 'If you want a token account to stay private, do not close it. The small rent cost (~0.002 SOL) is worth it to avoid linking the account back to you.',
         evidence,
       });
     }
@@ -101,9 +101,9 @@ export function detectTokenAccountLifecycle(context: ScanContext): PrivacySignal
       name: 'Short-Lived Token Accounts',
       severity: 'LOW',
       category: 'behavioral',
-      reason: `${shortLived.length} token account(s) were created and closed within an hour, suggesting burner account usage.`,
-      impact: 'Short-lived accounts suggest privacy-conscious behavior, but rent refunds still create linkage.',
-      mitigation: 'For true privacy, do not close accounts immediately. The rent refund links the burner back to you.',
+      reason: `${shortLived.length} token account(s) were opened and shut down within an hour. This looks like throwaway accounts, but closing them quickly still sends a rent refund that reveals the owner.`,
+      impact: 'Creating and quickly closing accounts draws attention and still leaves a trail through the rent refund. Someone watching can see the pattern and trace the refund.',
+      mitigation: 'If you need temporary accounts, do not close them right away. Leaving them open avoids the rent refund that links back to you.',
       evidence,
     });
   }
@@ -143,9 +143,9 @@ export function detectTokenAccountLifecycle(context: ScanContext): PrivacySignal
         name: 'Common Owner Across Token Accounts',
         severity: 'LOW',
         category: 'linkability',
-        reason: `${multiAccountOwners.length} wallet(s) control multiple token accounts. The top owner controls ${accounts.size} accounts.`,
-        impact: 'All token accounts with the same owner are trivially linked.',
-        mitigation: 'This is inherent to Solana\'s token account model and cannot be avoided.',
+        reason: `${multiAccountOwners.length} wallet(s) own more than one token account. The top owner controls ${accounts.size} accounts. All of these accounts are publicly tied to the same owner.`,
+        impact: 'On Solana, every token account has a visible owner. Anyone can see which wallet controls which token accounts, linking them all together.',
+        mitigation: 'This is how Solana token accounts work and cannot be avoided. If you need separation, use different wallets to own different token accounts.',
         evidence,
       });
     }
@@ -181,9 +181,9 @@ export function detectTokenAccountLifecycle(context: ScanContext): PrivacySignal
       name: 'Rent Refund Clustering',
       severity: 'MEDIUM',
       category: 'linkability',
-      reason: `${significantRefunds.length} address(es) receive multiple rent refunds. ${topOwner.slice(0, 8)}... received ${topData.count} refunds.`,
-      impact: 'Rent refunds link closed token accounts back to a central wallet. This exposes the control structure.',
-      mitigation: 'Do not close token accounts if privacy is important. The small rent cost (~0.002 SOL) is cheaper than the privacy loss.',
+      reason: `${significantRefunds.length} address(es) received multiple rent refunds from closing token accounts. The top recipient (${topOwner.slice(0, 8)}...) got ${topData.count} refunds. This reveals which wallet controls all those accounts.`,
+      impact: 'When many closed accounts send their rent refund to the same wallet, it is obvious that wallet controls all of them. This exposes the full scope of your token holdings.',
+      mitigation: 'Keep token accounts open instead of closing them. The rent cost (~0.002 SOL per account) is a small price to avoid revealing which accounts you control.',
       evidence,
     });
   }

@@ -62,9 +62,9 @@ export function detectSignerOverlap(context: ScanContext): PrivacySignal[] {
       name: 'Repeated Signer Across Transactions',
       severity,
       category: 'linkability',
-      reason: `${frequentSigners.length} address(es) repeatedly sign transactions involving the target. The most frequent signer appears in ${topSignerCount}/${context.transactionCount} transactions.`,
-      impact: 'Repeated signers create hard links between transactions. All transactions signed by the same address are trivially linkable.',
-      mitigation: 'If you control multiple addresses that sign together, they are permanently linked. Use separate signing keys for unrelated activities.',
+      reason: `${frequentSigners.length} address(es) keep showing up as signers on this wallet's transactions. The most frequent one signed ${topSignerCount} out of ${context.transactionCount} transactions. This proves these wallets are connected.`,
+      impact: 'When the same address signs multiple transactions, anyone can see those transactions are related. This is cryptographic proof of a connection.',
+      mitigation: 'Use separate signing keys for unrelated activities. If two wallets should not be linked, never have them sign each other\'s transactions.',
       evidence,
     });
   }
@@ -106,9 +106,9 @@ export function detectSignerOverlap(context: ScanContext): PrivacySignal[] {
       name: 'Repeated Multi-Signature Pattern',
       severity: 'MEDIUM',
       category: 'linkability',
-      reason: `${repeatedSets.length} distinct signer set(s) are reused multiple times. This creates a unique fingerprint.`,
-      impact: 'Reused multi-sig patterns are highly unique and easily linkable. Even if addresses differ, the signer set pattern can identify related activity.',
-      mitigation: 'If using multi-sig for multiple transactions, rotate signing keys or use threshold signatures to vary the signer set.',
+      reason: `The same group of signers is used together in ${repeatedSets.length} different pattern(s). This combination acts like a unique signature that identifies your transactions.`,
+      impact: 'A repeated group of signers is easy to spot on-chain. Anyone looking can tell these transactions came from the same group of people or wallets.',
+      mitigation: 'Rotate which keys sign together. Avoid using the exact same set of signers every time if you want transactions to be unlinkable.',
       evidence,
     });
   }
@@ -153,9 +153,9 @@ export function detectSignerOverlap(context: ScanContext): PrivacySignal[] {
         name: 'Authority Signer Detected',
         severity: 'HIGH',
         category: 'linkability',
-        reason: `${authorityCandidates.length} address(es) act as an authority, co-signing with multiple different wallets. This exposes a control hub.`,
-        impact: 'An authority signer links all accounts it co-signs with. This reveals organizational structure or bot infrastructure.',
-        mitigation: 'Use unique authority keys for each logical group of accounts. Avoid having a single "master" signer.',
+        reason: `${authorityCandidates.length} address(es) co-sign transactions with many different wallets, acting as a central authority. This reveals that one entity controls multiple wallets.`,
+        impact: 'A central signer connects all the wallets it signs for. Anyone can follow this trail to discover the full set of wallets under one operator.',
+        mitigation: 'Use different authority keys for different groups of wallets. Avoid having one master key that signs for everything.',
         evidence,
       });
     }

@@ -712,7 +712,7 @@ import {
 } from 'solana-privacy-scanner-core';
 ```
 
-### Solana-Specific Heuristics
+### Critical Heuristics
 
 #### `detectFeePayerReuse()`
 
@@ -912,7 +912,7 @@ interface ScanContext {
   };
   transactionCount: number;
 
-  // Solana-specific fields
+  // Additional context fields
   transactions: TransactionMetadata[]; // Fee payers, signers, memos
   tokenAccountEvents: TokenAccountEvent[]; // Create/close events
   pdaInteractions: PDAInteraction[];   // Program-derived address usage

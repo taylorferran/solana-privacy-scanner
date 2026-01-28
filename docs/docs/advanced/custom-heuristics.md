@@ -82,7 +82,7 @@ The `ScanContext` object contains all normalized blockchain data for analysis:
 | `tokenAccounts` | `Array<{mint, address, balance}>` | Token accounts owned |
 | `timeRange` | `{earliest, latest}` | Time bounds of activity |
 | `transactionCount` | `number` | Total transactions analyzed |
-| **Solana-Specific:** | | |
+| **Core Fields:** | | |
 | `transactions` | `TransactionMetadata[]` | Transaction metadata (fee payers, signers, memos) |
 | `tokenAccountEvents` | `TokenAccountEvent[]` | Token account create/close events |
 | `pdaInteractions` | `PDAInteraction[]` | Program-Derived Address interactions |

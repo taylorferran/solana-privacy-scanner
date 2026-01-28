@@ -9,4 +9,4 @@ export const DEFAULT_RPC_URL: string = /* @__PURE__ */ Buffer.from(_RPC_ENCODED,
 /**
  * Application version
  */
-export const VERSION = '0.6.1';
+export const VERSION = '0.6.2';

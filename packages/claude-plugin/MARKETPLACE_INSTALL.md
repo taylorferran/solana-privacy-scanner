@@ -4,15 +4,15 @@ This is the **recommended** way to install the Solana Privacy Scanner plugin for
 
 ## Quick Install
 
-```shell
-# Add the marketplace
-/plugin marketplace add taylorferran/solana-privacy-scanner
+**Step 1:** Run this in your terminal to add the marketplace:
 
-# Install the plugin
-/plugin install solana-privacy-scanner@solana-privacy-scanner-marketplace
+```bash
+node -e "const fs=require('fs'),p=require('os').homedir()+'/.claude/settings.json';let s={};try{s=JSON.parse(fs.readFileSync(p,'utf8'))}catch{}s.extraKnownMarketplaces={...s.extraKnownMarketplaces,'solana-privacy-scanner-marketplace':{source:{source:'github',repo:'taylorferran/solana-privacy-scanner'}}};fs.mkdirSync(require('os').homedir()+'/.claude',{recursive:true});fs.writeFileSync(p,JSON.stringify(s,null,2))"
 ```
 
-That's it! The plugin is now available.
+**Step 2:** Restart Claude Code (fully close and reopen)
+
+**Step 3:** Inside Claude Code, run `/plugins`, go to the **Discover** tab, and install `solana-privacy-scanner`
 
 ## What You Get
 
@@ -112,34 +112,29 @@ Here's how to do a full privacy audit:
 
 ### Step 1: Add the Marketplace
 
-```shell
-/plugin marketplace add taylorferran/solana-privacy-scanner
+Run this in your terminal (not inside Claude Code):
+
+```bash
+node -e "const fs=require('fs'),p=require('os').homedir()+'/.claude/settings.json';let s={};try{s=JSON.parse(fs.readFileSync(p,'utf8'))}catch{}s.extraKnownMarketplaces={...s.extraKnownMarketplaces,'solana-privacy-scanner-marketplace':{source:{source:'github',repo:'taylorferran/solana-privacy-scanner'}}};fs.mkdirSync(require('os').homedir()+'/.claude',{recursive:true});fs.writeFileSync(p,JSON.stringify(s,null,2))"
 ```
 
-This tells Claude Code where to find the plugin. The marketplace is hosted on GitHub at:
+This adds the marketplace to your `~/.claude/settings.json` without overwriting any existing settings. The marketplace is hosted on GitHub at:
 https://github.com/taylorferran/solana-privacy-scanner
 
-### Step 2: Install the Plugin
+### Step 2: Restart Claude Code
 
-```shell
-/plugin install solana-privacy-scanner@solana-privacy-scanner-marketplace
+Fully close and reopen Claude Code so it picks up the new marketplace.
+
+### Step 3: Install the Plugin
+
+Inside Claude Code, run `/plugins`, go to the **Discover** tab, and install `solana-privacy-scanner`.
+
+### Step 4: Verify Installation
+
+Run `/plugins` and check the **Installed** tab. You should see:
+
 ```
-
-Format: `/plugin install <plugin-name>@<marketplace-name>`
-
-Claude Code will:
-1. Download the plugin from GitHub
-2. Install it to your local cache
-3. Make all 4 skills available
-
-### Step 3: Verify Installation
-
-```shell
-# List installed plugins
-/plugin list
-
-# Should show:
-# solana-privacy-scanner@solana-privacy-scanner-marketplace (enabled)
+solana-privacy-scanner@solana-privacy-scanner-marketplace (enabled)
 ```
 
 ## Update the Plugin

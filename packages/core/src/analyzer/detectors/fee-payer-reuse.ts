@@ -50,6 +50,7 @@ export function detectFeePayerReuseInCode(
 
     // Second pass: find fee payer variables NOT inside loop bodies
     traverse(ast, (node) => {
+      // Check variable declarations (e.g., const feePayer = Keypair.generate())
       if (
         node.type === 'VariableDeclarator' &&
         node.id.type === 'Identifier' &&
@@ -57,15 +58,11 @@ export function detectFeePayerReuseInCode(
         isKeypairGenerate(node.init)
       ) {
         const varName = node.id.name;
-        if (varName.toLowerCase().includes('fee') ||
-            varName.toLowerCase().includes('payer')) {
-
-          // Check if this declaration is inside a loop body
+        if (isFeePayerName(varName)) {
           const isInsideLoop = loops.some(loop => {
             return isNodeInsideNode(node, loop.body);
           });
 
-          // Only track if NOT inside loop (those declared outside loops)
           if (!isInsideLoop) {
             feePayerVars.set(varName, {
               name: varName,
@@ -79,15 +76,84 @@ export function detectFeePayerReuseInCode(
           }
         }
       }
+
+      // Check function parameters (e.g., function foo(feePayer: Keypair))
+      if (
+        (node.type === 'FunctionDeclaration' ||
+         node.type === 'FunctionExpression' ||
+         node.type === 'ArrowFunctionExpression') &&
+        node.params
+      ) {
+        for (const param of node.params) {
+          const paramName = param.type === 'Identifier' ? param.name
+            : (param.type === 'AssignmentPattern' && param.left.type === 'Identifier') ? param.left.name
+            : null;
+
+          if (paramName && isFeePayerName(paramName)) {
+            feePayerVars.set(paramName, {
+              name: paramName,
+              declaration: {
+                line: param.loc!.start.line,
+                column: param.loc!.start.column,
+                file: filePath
+              },
+              usages: []
+            });
+          }
+        }
+      }
     });
 
     // Third pass: check if these fee payers (declared outside) are used inside loops
     for (const [varName, varInfo] of feePayerVars) {
       for (const loop of loops) {
         traverse(loop.body, (node) => {
+          // Check transaction call arguments (e.g., sendAndConfirmTransaction(conn, tx, [feePayer, sender]))
           if (node.type === 'CallExpression' && isTransactionCall(node)) {
             const feePayerArg = findFeePayerArgument(node);
             if (feePayerArg && feePayerArg.type === 'Identifier' && feePayerArg.name === varName) {
+              varInfo.usages.push({
+                line: node.loc!.start.line,
+                column: node.loc!.start.column,
+                file: filePath
+              });
+            }
+          }
+
+          // Check any function call that passes the fee payer as a direct argument
+          // (e.g., sendSolWithSharedFeePayer(connection, feePayer, ...))
+          if (node.type === 'CallExpression' && !isTransactionCall(node)) {
+            for (const arg of node.arguments) {
+              if (arg.type === 'Identifier' && arg.name === varName) {
+                const alreadyTracked = varInfo.usages.some(
+                  u => u.line === node.loc!.start.line && u.column === node.loc!.start.column
+                );
+                if (!alreadyTracked) {
+                  varInfo.usages.push({
+                    line: node.loc!.start.line,
+                    column: node.loc!.start.column,
+                    file: filePath
+                  });
+                }
+                break;
+              }
+            }
+          }
+
+          // Check direct feePayer assignment (e.g., tx.feePayer = feePayer.publicKey)
+          if (
+            node.type === 'AssignmentExpression' &&
+            node.left.type === 'MemberExpression' &&
+            node.left.property.type === 'Identifier' &&
+            node.left.property.name === 'feePayer'
+          ) {
+            const right = node.right;
+            // feePayer.publicKey or just feePayer
+            const assignedName = right.type === 'MemberExpression' && right.object.type === 'Identifier'
+              ? right.object.name
+              : right.type === 'Identifier' ? right.name : null;
+
+            if (assignedName === varName) {
               varInfo.usages.push({
                 line: node.loc!.start.line,
                 column: node.loc!.start.column,
@@ -188,6 +254,14 @@ function traverse(
 }
 
 /**
+ * Check if a variable name suggests a fee payer
+ */
+function isFeePayerName(name: string): boolean {
+  const lower = name.toLowerCase();
+  return lower.includes('fee') || lower.includes('payer');
+}
+
+/**
  * Check if expression is Keypair.generate()
  */
 function isKeypairGenerate(node: TSESTree.Expression): boolean {
@@ -260,12 +334,18 @@ function findFeePayerArgument(
   // Check if arguments include an array of signers
   for (const arg of node.arguments) {
     if (arg.type === 'ArrayExpression') {
-      // Fee payer is typically the last signer in the array
       const elements = arg.elements.filter(e => e !== null);
+      // Check all elements for fee payer names (first element is convention)
+      for (const el of elements) {
+        if (el && el.type === 'Identifier' && isFeePayerName(el.name)) {
+          return el;
+        }
+      }
+      // Fallback: return first element (fee payer is conventionally first)
       if (elements.length > 0) {
-        const lastElement = elements[elements.length - 1];
-        if (lastElement && lastElement.type !== 'SpreadElement') {
-          return lastElement;
+        const first = elements[0];
+        if (first && first.type !== 'SpreadElement') {
+          return first;
         }
       }
     }

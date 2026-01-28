@@ -47,6 +47,7 @@ const sidebars: SidebarsConfig = {
   toolkitSidebar: [
     'toolkit/overview',
     'toolkit/commands',
+    'toolkit/init',
     'toolkit/for-llms',
   ],
 

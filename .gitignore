@@ -34,3 +34,4 @@ docs/.vitepress/dist
 # Example repo (separate git repo)
 solana-privacy-scanner-example/
 solana-privacy-scanner-devtools-example/
+sps-ci-example/

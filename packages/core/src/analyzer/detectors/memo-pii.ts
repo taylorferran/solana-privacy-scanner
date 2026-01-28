@@ -101,6 +101,23 @@ export function detectMemoPII(
         }
       }
 
+      // Check for PII variable interpolation in template literals
+      // e.g., `Payment from ${userEmail}` or `${userName} sent`
+      const piiVarMatches = memoValue.matchAll(/\$\{(\w*(?:email|name|user|phone|ssn|address|identity|account)\w*)\}/gi);
+      for (const match of piiVarMatches) {
+        issues.push({
+          type: 'memo-pii',
+          severity: 'HIGH',
+          file: filePath,
+          line: index + 1,
+          column: columnOffset,
+          message: `Variable '${match[1]}' interpolated into memo likely contains PII`,
+          suggestion: 'Do not interpolate user-identifying variables into memo fields. Memos are permanently public on-chain.',
+          codeSnippet: extractSnippet(content, index + 1),
+          identifier: `pii-variable: ${match[1]}`
+        });
+      }
+
       // Additional check for descriptive content (might contain identifying info)
       if (isDescriptiveContent(memoValue)) {
         issues.push({

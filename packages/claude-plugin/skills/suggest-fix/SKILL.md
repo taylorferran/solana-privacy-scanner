@@ -36,7 +36,7 @@ When the scanner detects privacy issues, this skill provides:
 
 ## Available Fix Templates
 
-### Solana-Specific Critical Fixes
+### Critical Fixes
 
 **`fee-payer-reuse`** (CRITICAL)
 - Move fee payer generation inside loops

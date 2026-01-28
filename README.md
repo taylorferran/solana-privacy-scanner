@@ -5,9 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Powered by QuickNode](https://img.shields.io/badge/Powered%20by-QuickNode-0d9488?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMiA3TDEyIDEyTDIyIDdMMTIgMloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yIDEwTDEyIDE1TDIyIDEwVjE0TDEyIDE5TDIgMTRWMTBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=)](https://www.quicknode.com/)
 
-> **Powered by [QuickNode](https://www.quicknode.com/)** - Enterprise-grade Solana RPC infrastructure provided as a public good. Zero configuration required.
+An open source public good built with [QuickNode](https://www.quicknode.com/) to help developers maintain privacy on Solana.
 
-A developer tool that analyzes Solana wallets, transactions, and programs using public on-chain data and produces deterministic privacy risk reports.
+Analyzes wallets, transactions, and programs using public on-chain data and produces deterministic privacy risk reports. Zero configuration required.
 
 **Current Version:** `0.6.1` - [Changelog](./docs/changelog.md)
 

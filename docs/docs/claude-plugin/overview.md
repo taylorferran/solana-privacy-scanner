@@ -8,17 +8,15 @@ AI-powered privacy analysis integrated directly into Claude Code.
 
 ## Installation
 
-Open Claude Code and run:
+**Step 1:** Run this in your terminal to add the marketplace:
 
-```
-/plugins add-marketplace taylorferran/solana-privacy-scanner
+```bash
+node -e "const fs=require('fs'),p=require('os').homedir()+'/.claude/settings.json';let s={};try{s=JSON.parse(fs.readFileSync(p,'utf8'))}catch{}s.extraKnownMarketplaces={...s.extraKnownMarketplaces,'solana-privacy-scanner-marketplace':{source:{source:'github',repo:'taylorferran/solana-privacy-scanner'}}};fs.mkdirSync(require('os').homedir()+'/.claude',{recursive:true});fs.writeFileSync(p,JSON.stringify(s,null,2))"
 ```
 
-Then install the plugin:
+**Step 2:** Restart Claude Code (fully close and reopen)
 
-```
-/plugins install solana-privacy-scanner@solana-privacy-scanner-marketplace
-```
+**Step 3:** Inside Claude Code, run `/plugins`, go to the **Discover** tab, and install `solana-privacy-scanner`
 
 ## Available Skills
 

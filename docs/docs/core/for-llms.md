@@ -24,7 +24,7 @@ Solana-native heuristics. Returns deterministic privacy reports with risk levels
 
 Key Features:
 - No configuration required (default QuickNode RPC included)
-- 11 privacy heuristics (6 Solana-specific, 5 behavioral/traditional)
+- 11 privacy heuristics (6 critical, 5 behavioral)
 - Deterministic analysis (same input = same output)
 - Built-in rate limiting and retry logic
 - Known entity detection (78+ CEXs, bridges, protocols)
@@ -237,7 +237,7 @@ KEY TYPES & INTERFACES
   timeRange: { earliest: number | null; latest: number | null };
   transactionCount: number;
 
-  // Solana-specific fields
+  // Additional context fields
   transactions: TransactionMetadata[];    // Fee payers, signers, memos
   tokenAccountEvents: TokenAccountEvent[]; // Create/close events
   pdaInteractions: PDAInteraction[];      // Program-derived address usage

@@ -70,7 +70,7 @@ Get concise explanations of specific privacy risks.
 
 **Available Risk IDs:**
 
-**Solana-Specific:**
+**Critical:**
 - `fee-payer-reuse` - External fee payer used across accounts (CRITICAL)
 - `fee-payer-never-self` - Account never pays own fees (HIGH)
 - `signer-overlap` - Repeated signer combinations (HIGH)

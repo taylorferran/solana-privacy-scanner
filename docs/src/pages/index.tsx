@@ -14,7 +14,7 @@ function HeroSection() {
           Solana Privacy Scanner
         </h1>
         <p className={styles.heroSubtitle}>
-          Deterministic privacy analysis for Solana. 11 heuristics detect leaks across wallets, transactions, and programs. Open source. Zero config.
+          An open source public good built with QuickNode to help developers maintain privacy on Solana. 13 heuristics detect leaks across wallets, transactions, and programs. Zero config.
         </p>
         <div className={styles.heroActions}>
           <Link className={styles.primaryButton} to="/docs/sps/what-is-this">

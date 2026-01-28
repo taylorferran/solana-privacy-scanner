@@ -3,6 +3,8 @@ import * as path from 'path';
 import { glob } from 'glob';
 import type { Issue } from './types.js';
 
+const CODE_EXTENSIONS = ['ts', 'tsx', 'js', 'jsx'];
+
 /**
  * Read file content as string
  */
@@ -15,6 +17,24 @@ export async function readFile(filePath: string): Promise<string> {
 }
 
 /**
+ * Expand a path into glob patterns.
+ * If the path is a directory, append code file globs.
+ * If it's already a glob or file path, return as-is.
+ */
+async function expandPattern(pattern: string): Promise<string[]> {
+  try {
+    const cleaned = pattern.replace(/\/+$/, '');
+    const stat = await fs.stat(cleaned);
+    if (stat.isDirectory()) {
+      return CODE_EXTENSIONS.map(ext => path.join(cleaned, '**', `*.${ext}`));
+    }
+  } catch {
+    // Not a real path — treat as a glob pattern
+  }
+  return [pattern];
+}
+
+/**
  * Find files matching patterns
  */
 export async function findFiles(
@@ -24,12 +44,15 @@ export async function findFiles(
   const files: string[] = [];
 
   for (const pattern of patterns) {
-    const matches = await glob(pattern, {
-      ignore: options?.exclude || [],
-      nodir: true,
-      absolute: true
-    });
-    files.push(...matches);
+    const expanded = await expandPattern(pattern);
+    for (const p of expanded) {
+      const matches = await glob(p, {
+        ignore: options?.exclude || [],
+        nodir: true,
+        absolute: true
+      });
+      files.push(...matches);
+    }
   }
 
   return [...new Set(files)]; // Remove duplicates

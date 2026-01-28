@@ -28,7 +28,7 @@ For code examples, use `/suggest-fix <risk-id>` instead.
 
 ## Available Risk IDs
 
-### Solana-Specific (Critical)
+### Critical
 
 **`fee-payer-reuse`** (CRITICAL)
 - External fee payer used across multiple accounts

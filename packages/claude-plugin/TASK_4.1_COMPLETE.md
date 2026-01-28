@@ -18,7 +18,7 @@ Comprehensive documentation covering:
   - Traditional Adapted (2 risks)
 - **Output Format**: 10-section detailed explanations
 - **Integration**: Designed to work after scan-wallet/scan-code
-- **Knowledge Base**: Complete coverage of all 11 heuristics
+- **Knowledge Base**: Complete coverage of all 13 heuristics
 
 ### 2. Skill Handler (`skills/explain-risk/handler.ts`)
 
@@ -264,25 +264,29 @@ src/
 
 ## What Gets Explained
 
-The skill provides education for **all 11 scanner heuristics** plus additional risk variations:
+The skill provides education for **all 13 scanner heuristics** plus additional risk variations:
 
-**Core Heuristics (11):**
+**Core Heuristics (13):**
 1. Fee Payer Reuse
 2. Signer Overlap
-3. Known Entity Interaction (CEX/Bridge/Protocol - 3 variations)
-4. Counterparty Reuse
-5. Timing Patterns (Burst/Regular/Timezone - 3 variations)
-6. Amount Reuse
-7. Token Account Lifecycle
-8. Instruction Fingerprinting
-9. Memo Exposure
-10. Address Reuse
-11. Balance Traceability
+3. Memo Exposure
+4. Identity Metadata Exposure
+5. ATA Linkage
+6. Address Reuse
+7. Known Entity Interaction (CEX/Bridge/Protocol - 3 variations)
+8. Counterparty Reuse
+9. Instruction Fingerprinting
+10. Token Account Lifecycle
+11. Priority Fee Fingerprinting
+12. Staking Delegation
+13. Timing Patterns (Burst/Regular/Timezone - 3 variations)
 
-**Additional Risks:**
+**Additional Risk Variations:**
 - Fee Payer Never Self (variation of #1)
+- Known Entity variations (CEX, Bridge, Protocol)
+- Timing variations (Burst, Regular, Timezone)
 
-**Total: 16 documented risks**
+**Total: 18+ documented risks**
 
 ## Knowledge Base Statistics
 

@@ -18,13 +18,13 @@ DOCUMENTATION: https://sps.guide/library/api-reference
 OVERVIEW
 ═══════════════════════════════════════════════════════════════════════════════
 
-Analyzes Solana wallets, transactions, and programs for privacy risks using 11
+Analyzes Solana wallets, transactions, and programs for privacy risks using 13
 Solana-native heuristics. Returns deterministic privacy reports with risk levels
 (LOW/MEDIUM/HIGH), detected privacy signals, and actionable mitigation advice.
 
 Key Features:
 - No configuration required (default QuickNode RPC included)
-- 11 privacy heuristics (6 critical, 5 behavioral)
+- 13 privacy heuristics (Solana-native detection)
 - Deterministic analysis (same input = same output)
 - Built-in rate limiting and retry logic
 - Known entity detection (78+ CEXs, bridges, protocols)
@@ -51,7 +51,7 @@ The library follows a 4-step pipeline:
    - Functions: normalizeWalletData, normalizeTransactionData, normalizeProgramData
 
 3. HEURISTIC EVALUATION (heuristics/)
-   - Run 11 privacy heuristics on ScanContext
+   - Run 13 privacy heuristics on ScanContext
    - Each heuristic returns PrivacySignal[] (array of detected risks)
 
 4. REPORT GENERATION (scanner/)
@@ -256,7 +256,7 @@ KEY TYPES & INTERFACES
 }
 
 ═══════════════════════════════════════════════════════════════════════════════
-11 PRIVACY HEURISTICS
+13 PRIVACY HEURISTICS
 ═══════════════════════════════════════════════════════════════════════════════
 
 SOLANA-SPECIFIC (CRITICAL):
@@ -269,31 +269,36 @@ SOLANA-SPECIFIC (CRITICAL):
 3. detectMemoExposure() - PII in transaction memos
    Signals: memo-pii-exposure (HIGH), memo-descriptive-content (MEDIUM), memo-usage (LOW)
 
-4. detectAddressReuse() - Lack of address rotation
+4. detectIdentityMetadataExposure() - .sol domain and NFT metadata linkage
+   Signals: identity-sol-domain (HIGH), identity-nft-metadata (MEDIUM)
+
+5. detectATALinkage() - One wallet funding token accounts for multiple owners
+   Signals: ata-funder-linkage (HIGH), ata-pattern (MEDIUM)
+
+6. detectAddressReuse() - Lack of address rotation
    Signals: address-high-diversity (LOW), address-moderate-diversity (MEDIUM), address-long-term-usage (LOW)
 
 BEHAVIORAL ANALYSIS:
-5. detectKnownEntityInteraction() - CEX/bridge/KYC interactions
+7. detectKnownEntityInteraction() - CEX/bridge/KYC interactions
    Signals: known-entity-exchange (HIGH), known-entity-bridge (MEDIUM), known-entity-other (varies)
 
-6. detectCounterpartyReuse() - Repeated counterparty patterns
+8. detectCounterpartyReuse() - Repeated counterparty patterns
    Signals: counterparty-reuse (varies), pda-reuse (varies)
 
-7. detectInstructionFingerprinting() - Unique program usage patterns
+9. detectInstructionFingerprinting() - Unique program usage patterns
    Signals: instruction-sequence-pattern (MEDIUM), program-usage-profile (MEDIUM)
 
-8. detectTokenAccountLifecycle() - Token account create/close patterns
-   Signals: token-account-churn (MEDIUM), rent-refund-clustering (MEDIUM)
+10. detectTokenAccountLifecycle() - Token account create/close patterns
+    Signals: token-account-churn (MEDIUM), rent-refund-clustering (MEDIUM)
 
-9. detectTimingPatterns() - Transaction timing analysis
-   Signals: timing-burst (MEDIUM), timing-regular-interval (MEDIUM), timing-timezone-pattern (LOW)
+11. detectPriorityFeeFingerprinting() - Consistent priority fee amounts
+    Signals: priority-fee-pattern (MEDIUM), priority-fee-consistent (LOW)
 
-TRADITIONAL (ADAPTED FOR SOLANA):
-10. detectAmountReuse() - Repeated transfer amounts
-    Signals: amount-reuse (LOW - downgraded for Solana)
+12. detectStakingDelegationPatterns() - Concentrated validator delegation
+    Signals: staking-single-validator (MEDIUM), staking-delegation-pattern (LOW)
 
-11. detectBalanceTraceability() - Balance flow analysis
-    Signals: balance-matching-pairs (MEDIUM), balance-sequential-similar (MEDIUM), balance-full-movement (MEDIUM)
+13. detectTimingPatterns() - Transaction timing analysis
+    Signals: timing-burst (MEDIUM), timing-regular-interval (MEDIUM), timing-timezone-pattern (LOW)
 
 All heuristics are PURE FUNCTIONS: heuristic(ScanContext) => PrivacySignal[]
 
@@ -344,14 +349,16 @@ new StaticLabelProvider(labelsPath?)
 detectFeePayerReuse(context) => PrivacySignal[]
 detectSignerOverlap(context) => PrivacySignal[]
 detectMemoExposure(context) => PrivacySignal[]
+detectIdentityMetadataExposure(context) => PrivacySignal[]
+detectATALinkage(context) => PrivacySignal[]
 detectAddressReuse(context) => PrivacySignal[]
 detectKnownEntityInteraction(context) => PrivacySignal[]
 detectCounterpartyReuse(context) => PrivacySignal[]
 detectInstructionFingerprinting(context) => PrivacySignal[]
 detectTokenAccountLifecycle(context) => PrivacySignal[]
+detectPriorityFeeFingerprinting(context) => PrivacySignal[]
+detectStakingDelegationPatterns(context) => PrivacySignal[]
 detectTimingPatterns(context) => PrivacySignal[]
-detectAmountReuse(context) => PrivacySignal[]
-detectBalanceTraceability(context) => PrivacySignal[]
 
 ═══════════════════════════════════════════════════════════════════════════════
 COMMON USE CASES

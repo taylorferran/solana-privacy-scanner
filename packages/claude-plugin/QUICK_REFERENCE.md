@@ -137,19 +137,21 @@ solana-privacy-scanner/
 /suggest-fix memo-pii
 ```
 
-## Privacy Risks Detected
+## Privacy Risks Detected (13 Heuristics)
 
 1. **Fee Payer Reuse** (CRITICAL) - Same wallet pays fees for multiple accounts
 2. **Signer Overlap** (HIGH) - Repeated signer combinations
-3. **Memo PII** (HIGH/MEDIUM/LOW) - Personal info in memos
-4. **Address Reuse** (MEDIUM/LOW) - Lack of address rotation
-5. **Known Entity Interaction** (VARIES) - CEX/bridge/KYC interactions
-6. **Counterparty Reuse** (VARIES) - Repeated counterparty patterns
-7. **Instruction Fingerprinting** (MEDIUM) - Unique program usage patterns
-8. **Token Account Lifecycle** (MEDIUM) - Rent refunds linking accounts
-9. **Timing Patterns** (MEDIUM) - Transaction bursts and regularity
-10. **Amount Reuse** (LOW) - Repeated amounts
-11. **Balance Traceability** (MEDIUM) - Balance flow patterns
+3. **Memo Exposure** (HIGH/MEDIUM/LOW) - PII or identifying info in memos
+4. **Identity Metadata Exposure** (HIGH/MEDIUM) - .sol domain and NFT metadata linkage
+5. **ATA Linkage** (HIGH/MEDIUM) - One wallet funding token accounts for multiple owners
+6. **Address Reuse** (MEDIUM/LOW) - Lack of address rotation
+7. **Known Entity Interaction** (VARIES) - CEX/bridge/KYC interactions
+8. **Counterparty Reuse** (VARIES) - Repeated counterparty patterns
+9. **Instruction Fingerprinting** (MEDIUM) - Unique program usage patterns
+10. **Token Account Lifecycle** (MEDIUM) - Rent refunds linking accounts
+11. **Priority Fee Fingerprinting** (MEDIUM/LOW) - Consistent priority fee amounts
+12. **Staking Delegation** (MEDIUM/LOW) - Concentrated validator delegation patterns
+13. **Timing Patterns** (MEDIUM) - Transaction bursts and regularity
 
 ## Troubleshooting
 

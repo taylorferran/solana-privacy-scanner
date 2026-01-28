@@ -10,7 +10,7 @@ Successfully implemented the scan-wallet skill for on-chain privacy analysis.
 
 Comprehensive documentation covering:
 - **Usage**: `/scan-wallet <address>` with options
-- **What It Detects**: 11 different privacy heuristics
+- **What It Detects**: 13 different privacy heuristics
   - Fee Payer Reuse (HIGH)
   - Signer Overlap (HIGH)
   - Known Entity Interaction (VARIES)
@@ -34,7 +34,7 @@ Production-ready on-chain analysis:
 - **RPC health check** - Validates endpoint before scanning
 - **Label provider integration** - Loads 78 known addresses
 - **Data collection** - Fetches transactions and token accounts
-- **Report generation** - Runs all 11 heuristics
+- **Report generation** - Runs all 13 heuristics
 - **Intelligent formatting** - Groups by severity, shows evidence
 - **Error handling** - Graceful degradation on failures
 - **Verbose mode** - Progress tracking for debugging
@@ -198,19 +198,21 @@ src/
 
 ## What Gets Detected
 
-The skill runs **11 privacy heuristics**:
+The skill runs **13 privacy heuristics**:
 
 1. **Fee Payer Reuse** - External fee payers linking accounts
 2. **Signer Overlap** - Repeated signer combinations
-3. **Known Entity Interaction** - CEX/bridge/protocol detection
-4. **Counterparty Reuse** - Repeated transaction partners
-5. **Timing Patterns** - Bursts, regular intervals, timezone
-6. **Amount Reuse** - Repeated transaction amounts
-7. **Token Account Lifecycle** - Rent refund linking
-8. **Instruction Fingerprinting** - Unique program patterns
-9. **Memo Exposure** - PII in transaction memos
-10. **Address Reuse** - Lack of address rotation
-11. **Balance Traceability** - Fund flow patterns
+3. **Memo Exposure** - PII in transaction memos
+4. **Identity Metadata Exposure** - .sol domain and NFT metadata linkage
+5. **ATA Linkage** - One wallet funding token accounts for multiple owners
+6. **Address Reuse** - Lack of address rotation
+7. **Known Entity Interaction** - CEX/bridge/protocol detection
+8. **Counterparty Reuse** - Repeated transaction partners
+9. **Instruction Fingerprinting** - Unique program patterns
+10. **Token Account Lifecycle** - Rent refund linking
+11. **Priority Fee Fingerprinting** - Consistent priority fee amounts
+12. **Staking Delegation** - Concentrated validator delegation patterns
+13. **Timing Patterns** - Bursts, regular intervals, timezone
 
 ## Error Handling
 

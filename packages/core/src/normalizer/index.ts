@@ -29,40 +29,91 @@ const PROGRAM_IDS = {
 };
 
 /**
+ * Helper to get account keys from both legacy and versioned transactions
+ */
+function getAccountKeys(tx: any): string[] {
+  const message = tx?.transaction?.message;
+  if (!message) return [];
+
+  // Legacy format: accountKeys array
+  if (message.accountKeys && Array.isArray(message.accountKeys)) {
+    return message.accountKeys.map((key: any) =>
+      typeof key === 'string' ? key : key.pubkey?.toString() || key.toString()
+    );
+  }
+
+  // Versioned format: staticAccountKeys + addressTableLookups
+  if (message.staticAccountKeys && Array.isArray(message.staticAccountKeys)) {
+    const staticKeys = message.staticAccountKeys.map((key: any) =>
+      typeof key === 'string' ? key : key.toString()
+    );
+
+    // Note: Address table lookups would need additional RPC calls to resolve
+    // For now, we just use static keys which covers most use cases
+    return staticKeys;
+  }
+
+  return [];
+}
+
+/**
+ * Helper to get instructions from both legacy and versioned transactions
+ */
+function getInstructions(tx: any): Array<{ programIdIndex: number; accounts: number[]; data?: string }> {
+  const message = tx?.transaction?.message;
+  if (!message) return [];
+
+  // Legacy format: instructions array with programIdIndex
+  if (message.instructions && Array.isArray(message.instructions)) {
+    return message.instructions;
+  }
+
+  // Versioned format: compiledInstructions
+  if (message.compiledInstructions && Array.isArray(message.compiledInstructions)) {
+    return message.compiledInstructions.map((instr: any) => ({
+      programIdIndex: instr.programIdIndex,
+      accounts: instr.accountKeyIndexes || [],
+      data: instr.data,
+    }));
+  }
+
+  return [];
+}
+
+/**
  * Extract transaction metadata (fee payer, signers, memos)
  */
 function extractTransactionMetadata(
   tx: ParsedTransactionWithMeta,
   signature: string
 ): TransactionMetadata {
+  // Use helper to get account keys (handles both legacy and versioned)
+  const accountKeys = getAccountKeys(tx);
+
   // Defensive checks
-  if (!tx || !tx.transaction || !tx.transaction.message || !tx.transaction.message.accountKeys) {
+  if (!tx || !tx.transaction || !tx.transaction.message || accountKeys.length === 0) {
     // Return minimal metadata if transaction is malformed
     return {
       signature,
-      blockTime: tx?.blockTime || null,
+      blockTime: tx?.blockTime ?? null,
       feePayer: 'unknown',
       signers: [],
     };
   }
 
-  const feePayer = tx.transaction.message.accountKeys[0];
-  const feePayerAddress = typeof feePayer === 'string' ? feePayer : feePayer.pubkey.toString();
+  // First account is always the fee payer
+  const feePayerAddress = accountKeys[0];
 
-  // Extract signers (accounts with signatures)
-  const signers: string[] = [];
-  const accountKeys = tx.transaction.message.accountKeys;
-  
-  // First account is always fee payer/signer
-  signers.push(feePayerAddress);
-  
-  // Check for additional signers (those marked as signers in message)
-  if (accountKeys && Array.isArray(accountKeys)) {
-    for (let i = 1; i < accountKeys.length; i++) {
-      const key = accountKeys[i];
+  // Extract signers
+  const signers: string[] = [feePayerAddress];
+
+  // For legacy transactions, check signer property
+  const legacyKeys = tx.transaction.message.accountKeys;
+  if (legacyKeys && Array.isArray(legacyKeys)) {
+    for (let i = 1; i < legacyKeys.length; i++) {
+      const key = legacyKeys[i];
       const address = typeof key === 'string' ? key : key.pubkey?.toString();
-      
-      // If key has signer property set to true, it's a signer
+
       if (typeof key !== 'string' && key.signer) {
         if (address && !signers.includes(address)) {
           signers.push(address);
@@ -71,31 +122,86 @@ function extractTransactionMetadata(
     }
   }
 
+  // For versioned transactions, use message header to determine signers
+  const header = (tx.transaction.message as any).header;
+  if (header && header.numRequiredSignatures > 1) {
+    for (let i = 1; i < header.numRequiredSignatures && i < accountKeys.length; i++) {
+      if (!signers.includes(accountKeys[i])) {
+        signers.push(accountKeys[i]);
+      }
+    }
+  }
+
   // Extract memo if present
   let memo: string | undefined;
-  const instructions = tx.transaction.message.instructions;
-  if (instructions && Array.isArray(instructions)) {
-    for (const instruction of instructions) {
-      if (!instruction || !instruction.programId) continue;
-      
-      const programId = instruction.programId.toString();
-      if (programId === PROGRAM_IDS.MEMO || programId === PROGRAM_IDS.MEMO_V1) {
-        // Try to extract memo data
-        if ('parsed' in instruction && instruction.parsed) {
-          const parsed = instruction.parsed as any;
-          if (parsed.type === 'memo' && typeof parsed.info === 'string') {
-            memo = parsed.info;
+
+  // Try legacy instructions first
+  const legacyInstructions = tx.transaction.message.instructions;
+  if (legacyInstructions && Array.isArray(legacyInstructions)) {
+    for (const instruction of legacyInstructions) {
+      if (!instruction) continue;
+
+      // Handle parsed instructions
+      if (instruction.programId) {
+        const programId = instruction.programId.toString();
+        if (programId === PROGRAM_IDS.MEMO || programId === PROGRAM_IDS.MEMO_V1) {
+          if ('parsed' in instruction && instruction.parsed) {
+            const parsed = instruction.parsed as any;
+            if (parsed.type === 'memo' && typeof parsed.info === 'string') {
+              memo = parsed.info;
+            }
+          } else if ('data' in instruction && typeof instruction.data === 'string') {
+            try {
+              memo = Buffer.from(instruction.data, 'base64').toString('utf8');
+            } catch {
+              memo = instruction.data;
+            }
           }
-        } else if ('data' in instruction && typeof instruction.data === 'string') {
-          // Base58/base64 encoded memo
-          try {
-            memo = Buffer.from(instruction.data, 'base64').toString('utf8');
-          } catch {
-            // Keep raw data if decoding fails
-            memo = instruction.data;
+          break;
+        }
+      }
+      // Handle compiled instructions (versioned format within legacy array)
+      else if ('programIdIndex' in instruction && accountKeys.length > 0) {
+        const programIdIndex = (instruction as any).programIdIndex;
+        if (programIdIndex >= 0 && programIdIndex < accountKeys.length) {
+          const programId = accountKeys[programIdIndex];
+          if (programId === PROGRAM_IDS.MEMO || programId === PROGRAM_IDS.MEMO_V1) {
+            const data = (instruction as any).data;
+            if (data) {
+              try {
+                memo = Buffer.from(data, 'base64').toString('utf8');
+              } catch {
+                memo = data;
+              }
+            }
+            break;
           }
         }
-        break;
+      }
+    }
+  }
+
+  // Try versioned compiledInstructions for memo
+  if (!memo) {
+    const compiledInstructions = (tx.transaction.message as any).compiledInstructions;
+    if (compiledInstructions && Array.isArray(compiledInstructions) && accountKeys.length > 0) {
+      for (const instruction of compiledInstructions) {
+        if (!instruction) continue;
+        const programIdIndex = instruction.programIdIndex;
+        if (programIdIndex >= 0 && programIdIndex < accountKeys.length) {
+          const programId = accountKeys[programIdIndex];
+          if (programId === PROGRAM_IDS.MEMO || programId === PROGRAM_IDS.MEMO_V1) {
+            const data = instruction.data;
+            if (data) {
+              try {
+                memo = Buffer.from(data, 'base64').toString('utf8');
+              } catch {
+                memo = data;
+              }
+            }
+            break;
+          }
+        }
       }
     }
   }
@@ -115,7 +221,7 @@ function extractTransactionMetadata(
 
   return {
     signature,
-    blockTime: tx.blockTime,
+    blockTime: tx.blockTime ?? null,
     feePayer: feePayerAddress,
     signers,
     computeUnitsUsed,
@@ -495,44 +601,96 @@ function extractInstructions(
   }
 
   const message = tx.transaction.message;
-  const allInstructions = message.instructions;
 
-  // Defensive check
-  if (!allInstructions || !Array.isArray(allInstructions)) {
-    return instructions;
-  }
+  // Get account keys for resolving indices (handles both legacy and versioned)
+  const accountKeys = getAccountKeys(tx);
 
-  for (const instruction of allInstructions) {
-    // Defensive check for programId
-    if (!instruction || !instruction.programId) {
-      continue;
-    }
-    
-    const programId = instruction.programId.toString();
-    const category = categorizeInstruction(instruction);
+  // Try legacy format first: parsed instructions with programId
+  const legacyInstructions = message.instructions;
+  if (legacyInstructions && Array.isArray(legacyInstructions)) {
+    for (const instruction of legacyInstructions) {
+      if (!instruction) continue;
 
-    let data: Record<string, unknown> | undefined;
-    if ('parsed' in instruction) {
-      data = instruction.parsed as Record<string, unknown>;
-    }
+      // Handle parsed instructions (have programId directly)
+      if (instruction.programId) {
+        const programId = instruction.programId.toString();
+        const category = categorizeInstruction(instruction);
 
-    // Extract accounts involved in instruction
-    const accounts: string[] = [];
-    if ('accounts' in instruction && Array.isArray(instruction.accounts)) {
-      for (const acc of instruction.accounts) {
-        const address = typeof acc === 'string' ? acc : acc.toString();
-        accounts.push(address);
+        let data: Record<string, unknown> | undefined;
+        if ('parsed' in instruction) {
+          data = instruction.parsed as Record<string, unknown>;
+        }
+
+        const accounts: string[] = [];
+        if ('accounts' in instruction && Array.isArray(instruction.accounts)) {
+          for (const acc of instruction.accounts) {
+            const address = typeof acc === 'string' ? acc : acc.toString();
+            accounts.push(address);
+          }
+        }
+
+        instructions.push({
+          programId,
+          category,
+          signature,
+          blockTime: tx.blockTime,
+          data,
+          accounts: accounts.length > 0 ? accounts : undefined,
+        });
+      }
+      // Handle compiled instructions (have programIdIndex)
+      else if ('programIdIndex' in instruction && accountKeys.length > 0) {
+        const programIdIndex = (instruction as any).programIdIndex;
+        if (programIdIndex >= 0 && programIdIndex < accountKeys.length) {
+          const programId = accountKeys[programIdIndex];
+
+          const accounts: string[] = [];
+          const accountIndices = (instruction as any).accounts || (instruction as any).accountKeyIndexes || [];
+          for (const idx of accountIndices) {
+            if (idx >= 0 && idx < accountKeys.length) {
+              accounts.push(accountKeys[idx]);
+            }
+          }
+
+          instructions.push({
+            programId,
+            category: 'program_interaction',
+            signature,
+            blockTime: tx.blockTime,
+            accounts: accounts.length > 0 ? accounts : undefined,
+          });
+        }
       }
     }
+  }
 
-    instructions.push({
-      programId,
-      category,
-      signature,
-      blockTime: tx.blockTime,
-      data,
-      accounts: accounts.length > 0 ? accounts : undefined,
-    });
+  // Try versioned format: compiledInstructions
+  const compiledInstructions = (message as any).compiledInstructions;
+  if (compiledInstructions && Array.isArray(compiledInstructions) && accountKeys.length > 0) {
+    for (const instruction of compiledInstructions) {
+      if (!instruction) continue;
+
+      const programIdIndex = instruction.programIdIndex;
+      if (programIdIndex >= 0 && programIdIndex < accountKeys.length) {
+        const programId = accountKeys[programIdIndex];
+
+        const accounts: string[] = [];
+        const accountIndices = instruction.accountKeyIndexes || [];
+        for (const idx of accountIndices) {
+          if (idx >= 0 && idx < accountKeys.length) {
+            accounts.push(accountKeys[idx]);
+          }
+        }
+
+        instructions.push({
+          programId,
+          category: 'program_interaction',
+          signature,
+          blockTime: tx.blockTime,
+          accounts: accounts.length > 0 ? accounts : undefined,
+        });
+      }
+    }
   }
 
   return instructions;
@@ -631,11 +789,6 @@ export function normalizeWalletData(
   // Extract counterparties
   const counterparties = extractCounterparties(allTransfers, rawData.address);
 
-  // Look up labels for counterparties if provider is available
-  const labels = labelProvider 
-    ? labelProvider.lookupMany(Array.from(counterparties))
-    : new Map();
-
   // Calculate time range
   const timeRange = calculateTimeRange(transactions);
 
@@ -668,6 +821,12 @@ export function normalizeWalletData(
   for (const instruction of allInstructions) {
     programs.add(instruction.programId);
   }
+
+  // Look up labels for counterparties AND programs
+  const allAddressesToLookup = [...counterparties, ...programs];
+  const labels = labelProvider
+    ? labelProvider.lookupMany(allAddressesToLookup)
+    : new Map();
 
   return {
     target: rawData.address,
@@ -751,8 +910,10 @@ export function normalizeTransactionData(
     }
   }
 
+  // Lookup labels for both counterparties AND programs
+  const allAddressesToLookup = [...counterparties, ...programs];
   const labels = labelProvider
-    ? labelProvider.lookupMany(Array.from(counterparties))
+    ? labelProvider.lookupMany(allAddressesToLookup)
     : new Map();
 
   return {

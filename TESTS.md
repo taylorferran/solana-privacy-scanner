@@ -29,7 +29,7 @@ This document provides a human-readable overview of all 95 tests in the Solana P
 ### Report Generation - evaluateHeuristics
 
 1. **Should evaluate all heuristics and return signals**
-   - Tests that the scanner runs all 11 heuristics on a wallet with issues
+   - Tests that the scanner runs all 13 heuristics on a wallet with issues
    - Verifies multiple signals are detected (CEX interaction, counterparty reuse, timing patterns, amount patterns)
    - Expected: 4+ privacy signals detected
 
@@ -543,7 +543,7 @@ This document provides a human-readable overview of all 95 tests in the Solana P
 - **Edge Cases**: 15 tests (16.1%)
 
 ### Critical Features Tested
-✅ All 11 privacy heuristics
+✅ All 13 privacy heuristics
 ✅ All 78 known addresses (v0.4.0)
 ✅ All 6 label types (exchange, bridge, protocol, token, mev, program)
 ✅ Custom heuristics integration

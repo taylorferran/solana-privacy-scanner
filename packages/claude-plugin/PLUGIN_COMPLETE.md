@@ -74,7 +74,7 @@ The Solana Privacy Scanner Claude Code Plugin is **100% feature-complete** with 
 
 **Capabilities:**
 - Analyzes Solana wallet transaction history
-- Runs 11 privacy heuristics
+- Runs 13 privacy heuristics
 - Detects known entity interactions (78+ addresses)
 - Generates comprehensive privacy reports
 - Provides risk-specific mitigations
@@ -102,18 +102,20 @@ The Solana Privacy Scanner Claude Code Plugin is **100% feature-complete** with 
 - ✅ Generated comprehensive markdown report
 - ✅ Provided actionable mitigations
 
-**Heuristics (11):**
+**Heuristics (13):**
 1. Fee Payer Reuse (CRITICAL)
 2. Signer Overlap (HIGH)
-3. Known Entity Interaction (VARIES)
-4. Counterparty Reuse (VARIES)
-5. Timing Patterns (MEDIUM)
-6. Amount Reuse (LOW)
-7. Token Account Lifecycle (MEDIUM)
-8. Instruction Fingerprinting (MEDIUM)
-9. Memo Exposure (HIGH/MEDIUM/LOW)
-10. Address Reuse (MEDIUM/LOW)
-11. Balance Traceability (MEDIUM)
+3. Memo Exposure (HIGH/MEDIUM/LOW)
+4. Identity Metadata Exposure (HIGH/MEDIUM)
+5. ATA Linkage (HIGH/MEDIUM)
+6. Address Reuse (MEDIUM/LOW)
+7. Known Entity Interaction (VARIES)
+8. Counterparty Reuse (VARIES)
+9. Instruction Fingerprinting (MEDIUM)
+10. Token Account Lifecycle (MEDIUM)
+11. Priority Fee Fingerprinting (MEDIUM/LOW)
+12. Staking Delegation (MEDIUM/LOW)
+13. Timing Patterns (MEDIUM)
 
 ---
 
@@ -360,7 +362,7 @@ packages/claude-plugin/
 - **2 detection methods** (static + on-chain)
 - **16 risk explanations** (educational)
 - **10 fix templates** (actionable)
-- **11 on-chain heuristics** (thorough)
+- **13 on-chain heuristics** (thorough)
 
 ### 2. Real-World Focus
 - Working code examples (not pseudocode)

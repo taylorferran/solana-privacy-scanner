@@ -176,14 +176,14 @@ Evidence:
 This skill uses the `solana-privacy-scanner-core` library to:
 1. Fetch on-chain transaction data via RPC
 2. Normalize data into a scan context
-3. Run 11 privacy heuristics
+3. Run 13 privacy heuristics
 4. Generate a comprehensive privacy report
 
 The analysis is:
 - **Deterministic**: Same wallet always produces same results
 - **Read-only**: Never modifies blockchain state
 - **Privacy-preserving**: Uses public RPC, no tracking
-- **Comprehensive**: 11 different heuristic checks
+- **Comprehensive**: 13 different heuristic checks
 
 ## RPC Configuration
 

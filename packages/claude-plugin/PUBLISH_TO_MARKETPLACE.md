@@ -248,7 +248,7 @@ Receive AI-generated code fixes for detected issues.
 ## 📦 What's Included
 
 - 4 Claude Code skills (scan-code, scan-wallet, explain-risk, suggest-fix)
-- 11 Solana-specific privacy heuristics
+- 13 Solana-specific privacy heuristics
 - Support for on-chain analysis
 - AI-powered explanations and fixes
 
@@ -259,7 +259,7 @@ Receive AI-generated code fixes for detected issues.
 - Signer overlap patterns
 - Address reuse
 - Known entity interactions
-- And 6 more...
+- And 8 more...
 
 ## 📝 License
 

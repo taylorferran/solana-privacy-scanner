@@ -19,6 +19,7 @@ export function detectKnownEntityInteraction(context: ScanContext): PrivacySigna
     let interactionCount = 0;
     const relatedTxs: string[] = [];
 
+    // Check transfers (from/to addresses)
     for (const transfer of context.transfers) {
       if (transfer.from === address || transfer.to === address) {
         interactionCount++;
@@ -26,6 +27,16 @@ export function detectKnownEntityInteraction(context: ScanContext): PrivacySigna
           relatedTxs.push(transfer.signature);
         }
       }
+    }
+
+    // Check program invocations (for protocols like Jupiter, Raydium, etc.)
+    if (context.programs.has(address)) {
+      // Count instructions that used this program
+      const programUsageCount = context.instructions.filter(
+        instr => instr.programId === address
+      ).length;
+
+      interactionCount += programUsageCount || 1;
     }
 
     if (interactionCount > 0) {

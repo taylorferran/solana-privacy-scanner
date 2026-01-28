@@ -1,8 +1,8 @@
 # What is SPS?
 
-Solana Privacy Scanner is a developer toolkit for analyzing Solana privacy risks using public on-chain data, transaction simulations, and static code analysis. 
+Solana Privacy Scanner is a developer toolkit for analyzing Solana privacy risks using public on-chain data, transaction simulations, and static code analysis.
 
-It is a completely open-source, free to use public good tool, that can be taken and extended where necessary. 
+It is a completely open-source, free to use public good tool, that can be taken and extended where necessary.
 
 ## Tools Available
 
@@ -13,7 +13,7 @@ It is a completely open-source, free to use public good tool, that can be taken 
 ## What it does
 
 - Scans wallets, transactions, or programs
-- Detects 11 privacy risk patterns
+- Detects 13 privacy risk patterns
 - Returns deterministic risk reports (LOW/MEDIUM/HIGH)
 - Provides mitigation guidance
 

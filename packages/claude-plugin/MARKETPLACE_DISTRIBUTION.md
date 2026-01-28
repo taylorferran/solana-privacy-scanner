@@ -261,7 +261,7 @@ See [MARKETPLACE_INSTALL.md](./packages/claude-plugin/MARKETPLACE_INSTALL.md) fo
 ## What's Included
 
 - 4 Claude Code skills (scan-code, scan-wallet, explain-risk, suggest-fix)
-- 11 Solana-specific privacy heuristics
+- 13 Solana-specific privacy heuristics
 - Support for on-chain analysis
 - AI-powered explanations and fixes
 

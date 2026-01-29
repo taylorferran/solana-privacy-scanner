@@ -1,40 +1,72 @@
 # Known Entities
 
-## Database (15 Addresses)
+The scanner includes a database of 78+ known Solana addresses for detecting privacy-relevant interactions.
 
-### Exchanges (HIGH risk)
-- Binance Hot Wallet - `5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9`
-- FTX Hot Wallet - `2ojv9BAiHUrvsm9gxDe7fJSzbNZSJcxZvf8dqmWGHG8S`
-- Bybit Hot Wallet - `H8sMJSCQxfKiFTCfDR3DUMLPwcRbM61LGFJ8N4dK3WjS`
-- Coinbase Custody - `9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM`
+## Database Summary
 
-### Bridges (MEDIUM risk)
-- Wormhole Token - `wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb`
-- Wormhole NFT - `WnFt12ZrnzZrFZkt2xsNsaNWoQribnuQ5B5FrDbwDhD`
-- Allbridge - `BBnraYq3M9GqTWDH5ZZ4H8hW8q3wMnRqmqo9AJZLfrdx`
+| Type | Count | Privacy Risk |
+|------|-------|--------------|
+| Exchanges | 9 | HIGH - KYC linkage |
+| Bridges | 8 | MEDIUM - Cross-chain correlation |
+| Protocols | 29 | LOW - Behavioral fingerprinting |
+| MEV | 10 | LOW - Bot detection |
+| Tokens | 8 | Informational |
+| Programs | 14 | Informational |
 
-### DeFi (Informational)
-- Jupiter v6 - `JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4`
-- Orca Whirlpools - `whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc`
-- Raydium AMM v4 - `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`
+## Exchanges (HIGH risk)
 
-### Core Programs
-- Metaplex - `metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s`
-- Magic Eden v2 - `M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K`
-- SPL Token - `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`
-- ATA - `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`
-- System - `11111111111111111111111111111111`
+Direct CEX interactions link on-chain addresses to real identities via KYC.
+
+- Binance (2 wallets)
+- Coinbase (2 wallets)
+- Bybit (2 wallets)
+- OKX (2 wallets)
+- FTX (defunct)
+
+## Bridges (MEDIUM risk)
+
+Bridge usage enables cross-chain correlation.
+
+- Wormhole (Token, NFT, Core)
+- deBridge (Source, Destination, Router)
+- Allbridge Classic
+- Mayan Finance
+
+## DeFi Protocols
+
+Usage patterns can create behavioral fingerprints.
+
+- **DEX**: Jupiter v4/v6, Raydium (AMM, Stable, CLMM, CPMM), Orca (Whirlpools, Swap), Meteora (DLMM, AMM), Phoenix
+- **Lending**: Kamino, MarginFi, Solend
+- **Staking**: Marinade, Jito, Blaze, Sanctum
+- **NFT**: Magic Eden v2/v3, Tensor (Swap, AMM, cNFT)
+- **Launchpads**: Pump.fun, PumpSwap
+
+## MEV Infrastructure
+
+Indicates automated trading or MEV extraction.
+
+- Jito Tip Payment + 8 tip accounts
+- BloXroute Memo
+
+## Core Programs
+
+Standard Solana infrastructure (informational only).
+
+- System, Token, Token 2022, ATA
+- Stake, Vote, Memo v1/v2
+- Metaplex (Metadata, Auction House, Bubblegum)
+- Compute Budget, Address Lookup Table
 
 ## Why Track These
 
-**CEX** - Link on-chain addresses to real identities via KYC  
-**Bridges** - Cross-chain activity correlation  
-**Protocols** - Usage pattern fingerprinting
+| Entity Type | Privacy Impact |
+|-------------|----------------|
+| **CEX** | Links wallet to verified identity |
+| **Bridges** | Enables cross-chain tracking |
+| **Protocols** | Creates usage fingerprint |
+| **MEV** | Indicates bot/automated trading |
 
-## Limitations
+## Contributing
 
-:::warning[Important Limitations]
-- **Not exhaustive**: Only tracks curated subset
-- **Static**: No real-time updates
-- **Focused**: Privacy-relevant entities only
-:::
+Add addresses via PR to `known-addresses.json` at repository root. See [Contributing Addresses](/contributing/addresses).

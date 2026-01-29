@@ -9,17 +9,40 @@ function HeroSection() {
   return (
     <section className={styles.hero}>
       <div className={styles.heroContent}>
-        <div className={styles.heroLabel}>PRIVACY ANALYSIS SUITE</div>
-        <h1 className={styles.heroTitle}>
-          Solana Privacy Scanner
-        </h1>
-        <p className={styles.heroSubtitle}>
-          An open source public good built with QuickNode to help developers maintain privacy on Solana. 13 heuristics detect leaks across wallets, transactions, and programs. Zero config.
-        </p>
-        <div className={styles.heroActions}>
-          <Link className={styles.primaryButton} to="/docs/sps/what-is-this">
-            Get Started →
-          </Link>
+        <div className={styles.heroMain}>
+          <div className={styles.heroBadges}>
+            <span className={styles.badge}>Open Source</span>
+            <span className={styles.badge}>Zero Config</span>
+            <span className={styles.badgeHighlight}>Powered by QuickNode</span>
+          </div>
+          <h1 className={styles.heroTitle}>
+            Solana Privacy Scanner
+          </h1>
+          <p className={styles.heroSubtitle}>
+            Detect privacy leaks in wallets, transactions, and programs with 13 Solana-native heuristics.
+          </p>
+          <div className={styles.heroActions}>
+            <Link className={styles.primaryButton} to="/docs/sps/what-is-this">
+              Get Started
+            </Link>
+            <Link className={styles.secondaryButton} to="https://github.com/taylorferran/solana-privacy-scanner">
+              GitHub
+            </Link>
+          </div>
+        </div>
+        <div className={styles.heroStats}>
+          <div className={styles.stat}>
+            <span className={styles.statNumber}>13</span>
+            <span className={styles.statLabel}>Heuristics</span>
+          </div>
+          <div className={styles.stat}>
+            <span className={styles.statNumber}>78+</span>
+            <span className={styles.statLabel}>Known Entities</span>
+          </div>
+          <div className={styles.stat}>
+            <span className={styles.statNumber}>3</span>
+            <span className={styles.statLabel}>Scan Modes</span>
+          </div>
         </div>
       </div>
     </section>

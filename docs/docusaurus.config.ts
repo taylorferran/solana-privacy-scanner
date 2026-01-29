@@ -107,8 +107,9 @@ const config: Config = {
       {name: 'twitter:creator', content: '@solana'},
     ],
     colorMode: {
-      defaultMode: 'light',
-      respectPrefersColorScheme: true,
+      defaultMode: 'dark',
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
     },
     navbar: {
       title: 'Solana Privacy Scanner',
@@ -143,8 +144,9 @@ const config: Config = {
         },
         {
           href: 'https://github.com/taylorferran/solana-privacy-scanner',
-          label: 'GitHub',
           position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
         },
       ],
     },

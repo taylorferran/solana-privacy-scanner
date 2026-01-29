@@ -5,26 +5,24 @@ import { BrowserRPCClient } from '../../utils/browser-rpc';
 // Use default RPC endpoint
 const DEFAULT_RPC = 'https://late-hardworking-waterfall.solana-mainnet.quiknode.pro/4017b48acf3a2a1665603cac096822ce4bec3a90/';
 
-// Import known addresses - we'll need to handle this differently
-// For now, we'll use a placeholder
-const knownAddresses = { labels: [] };
-
-// Create a browser-compatible label provider
-const labelProvider = {
-  lookup(address: string) {
-    return knownAddresses.labels.find((label: any) => label.address === address) || null;
-  },
-  lookupMany(addresses: string[]) {
-    const results = new Map();
-    for (const address of addresses) {
-      const label = this.lookup(address);
-      if (label) {
-        results.set(address, label);
+// Create a browser-compatible label provider from loaded labels
+function createLabelProvider(labels: any[]) {
+  return {
+    lookup(address: string) {
+      return labels.find((label: any) => label.address === address) || null;
+    },
+    lookupMany(addresses: string[]) {
+      const results = new Map();
+      for (const address of addresses) {
+        const label = this.lookup(address);
+        if (label) {
+          results.set(address, label);
+        }
       }
+      return results;
     }
-    return results;
-  }
-};
+  };
+}
 
 interface Report {
   overallRisk: 'LOW' | 'MEDIUM' | 'HIGH';
@@ -64,16 +62,26 @@ export default function PrivacyScanner() {
   const [error, setError] = useState<string | null>(null);
   const [normalizeWalletData, setNormalizeWalletData] = useState<any>(null);
   const [generateReport, setGenerateReport] = useState<any>(null);
+  const [knownLabels, setKnownLabels] = useState<any[]>([]);
 
   useEffect(() => {
     // Dynamically import the scanner modules
     import('solana-privacy-scanner-core/normalizer')
       .then(module => setNormalizeWalletData(() => module.normalizeWalletData))
       .catch(err => console.error('Failed to load normalizer:', err));
-    
+
     import('solana-privacy-scanner-core/scanner')
       .then(module => setGenerateReport(() => module.generateReport))
       .catch(err => console.error('Failed to load scanner:', err));
+
+    // Load known addresses database (78+ addresses)
+    fetch('/known-addresses.json')
+      .then(res => res.json())
+      .then(data => {
+        setKnownLabels(data.labels || []);
+        console.log(`Loaded ${data.labels?.length || 0} known addresses`);
+      })
+      .catch(err => console.error('Failed to load known addresses:', err));
   }, []);
 
   const isValidAddress = address.length >= 32 && address.length <= 44;
@@ -127,6 +135,9 @@ export default function PrivacyScanner() {
         tokenAccounts: [],
       }));
       
+      // Create label provider with loaded known addresses
+      const labelProvider = createLabelProvider(knownLabels);
+
       // Normalize data
       const context = normalizeWalletData(rawData, labelProvider);
       

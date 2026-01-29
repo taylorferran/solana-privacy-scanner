@@ -1,6 +1,6 @@
 # Core Library
 
-Programmatic API for on-chain scanning, static analysis, transaction simulation, and testing.
+Programmatic API for privacy analysis.
 
 ## Install
 
@@ -9,8 +9,6 @@ npm install solana-privacy-scanner-core
 ```
 
 ## On-Chain Scanning
-
-Scan wallets, transactions, and programs using on-chain data.
 
 ```typescript
 import {
@@ -21,31 +19,18 @@ import {
   createDefaultLabelProvider
 } from 'solana-privacy-scanner-core';
 
-const rpc = new RPCClient();
-const labels = createDefaultLabelProvider();
+// Initialize
+const rpc = new RPCClient(); // Uses default QuickNode endpoint
+const labels = createDefaultLabelProvider(); // 78+ known entities
 
-const rawData = await collectWalletData(rpc, address);
+// Scan wallet
+const rawData = await collectWalletData(rpc, 'WALLET_ADDRESS');
 const context = normalizeWalletData(rawData, labels);
 const report = generateReport(context);
 
 console.log(report.overallRisk); // 'LOW' | 'MEDIUM' | 'HIGH'
-```
-
-**API:**
-
-```typescript
-// Data Collection
-await collectWalletData(rpc, address, options?)
-await collectTransactionData(rpc, signature)
-await collectProgramData(rpc, programId, options?)
-
-// Normalization
-normalizeWalletData(rawData, labelProvider)
-normalizeTransactionData(rawData, labelProvider)
-normalizeProgramData(rawData, labelProvider)
-
-// Report
-generateReport(context) // Returns PrivacyReport
+console.log(report.signals);     // Privacy risk signals
+console.log(report.mitigations); // Recommended fixes
 ```
 
 **Custom RPC:**
@@ -54,38 +39,44 @@ generateReport(context) // Returns PrivacyReport
 const rpc = new RPCClient('https://your-endpoint.com');
 ```
 
+**Scan transactions or programs:**
+
+```typescript
+import { collectTransactionData, normalizeTransactionData } from 'solana-privacy-scanner-core';
+import { collectProgramData, normalizeProgramData } from 'solana-privacy-scanner-core';
+
+// Transaction
+const txData = await collectTransactionData(rpc, 'SIGNATURE');
+const txContext = normalizeTransactionData(txData, labels);
+
+// Program
+const programData = await collectProgramData(rpc, 'PROGRAM_ID');
+const programContext = normalizeProgramData(programData, labels);
+```
+
 ## Static Code Analysis
 
-Analyze TypeScript/JavaScript source code for privacy anti-patterns.
+Analyze source code for privacy anti-patterns before deployment.
 
 ```typescript
 import { analyze } from 'solana-privacy-scanner-core';
 
-const result = await analyze(['src/**/*.ts'], {
-  includeLow: false // exclude low severity issues
-});
+const result = await analyze(['src/**/*.ts']);
 
 console.log(`Found ${result.summary.total} issues`);
-console.log(`Critical: ${result.summary.critical}`);
-```
-
-**API:**
-
-```typescript
-await analyze(paths: string[], options?: {
-  includeLow?: boolean
-}) // Returns AnalyzerResult
+result.issues.forEach(issue => {
+  console.log(`${issue.severity}: ${issue.message} at ${issue.file}:${issue.line}`);
+});
 ```
 
 **Detects:**
 - Fee payer reuse in loops (CRITICAL)
 - PII in transaction memos (HIGH)
-- Hardcoded addresses (MEDIUM)
-- Descriptive memo patterns (LOW)
+- Descriptive memo patterns (MEDIUM)
 
 ## Transaction Simulation
 
-Test privacy before sending transactions to the network.
+Test privacy before sending transactions.
 
 ```typescript
 import { Connection } from '@solana/web3.js';
@@ -94,38 +85,14 @@ import { simulateTransactionPrivacy } from 'solana-privacy-scanner-core';
 const connection = new Connection('https://api.mainnet-beta.solana.com');
 const report = await simulateTransactionPrivacy(tx, connection);
 
-console.log(`Risk: ${report.overallRisk}`);
-```
-
-**API:**
-
-```typescript
-// Single transaction
-await simulateTransactionPrivacy(
-  transaction: Transaction | VersionedTransaction,
-  connection: Connection,
-  options?: SimulatorOptions
-) // Returns PrivacyReport
-
-// Transaction flow
-await simulateTransactionFlow(
-  transactions: Transaction[],
-  connection: Connection,
-  options?: SimulatorOptions
-) // Returns PrivacyFlowReport
-
-// Compare implementations
-await compareImplementations(
-  implA: Transaction,
-  implB: Transaction,
-  connection: Connection,
-  options?: SimulatorOptions
-) // Returns PrivacyComparison
+if (report.overallRisk === 'HIGH') {
+  console.warn('Transaction has privacy risks');
+}
 ```
 
 ## Test Matchers
 
-Custom assertions for Vitest/Jest test suites.
+Custom assertions for Vitest/Jest.
 
 ```typescript
 import { expect } from 'vitest';
@@ -137,7 +104,6 @@ test('transaction maintains privacy', async () => {
   expect(report).toHavePrivacyRisk('LOW');
   expect(report).toHaveNoHighRiskSignals();
   expect(report).toNotLeakUserRelationships();
-  expect(report).toHaveAtMostSignals(2);
 });
 ```
 
@@ -145,43 +111,28 @@ test('transaction maintains privacy', async () => {
 - `toHavePrivacyRisk(level)` - Assert specific risk level
 - `toHaveNoHighRiskSignals()` - No HIGH severity signals
 - `toNotLeakUserRelationships()` - No relationship-linking signals
-- `toHaveSignal(type)` - Contains specific signal type
-- `toNotHaveSignal(type)` - Does not contain signal type
-- `toHavePrivacyScore(minScore)` - Minimum privacy score
+- `toHaveSignal(type)` / `toNotHaveSignal(type)` - Check for specific signals
 - `toHaveAtMostSignals(max)` - Maximum signal count
 - `toHaveNoKnownEntities()` - No CEX/bridge interactions
-- `toNotInteractWith(entityType)` - Avoid entity type
 
-## Configuration Management
+## Configuration
 
-Load and validate privacy policy configuration.
+Load privacy policy from `.privacyrc` or `package.json`.
 
 ```typescript
-import { loadConfig, validateConfig } from 'solana-privacy-scanner-core';
+import { loadConfig } from 'solana-privacy-scanner-core';
 
-const config = await loadConfig('.privacyrc');
-
-if (config) {
-  console.log(`Max risk level: ${config.maxRiskLevel}`);
-  console.log(`Enforce in CI: ${config.enforceInCI}`);
-}
+const config = loadConfig();
+console.log(`Max risk: ${config.maxRiskLevel}`);
+console.log(`Enforce in CI: ${config.enforceInCI}`);
 ```
 
-**Config structure:**
+**Config file (`.privacyrc`):**
 
-```typescript
-interface PrivacyConfig {
-  maxRiskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
-  enforceInCI: boolean;
-  blockOnFailure: boolean;
-  thresholds?: {
-    maxHighSeverity?: number;
-    maxMediumSeverity?: number;
-    minPrivacyScore?: number;
-  };
-  testWallets?: {
-    devnet?: string;
-    testnet?: string;
-  };
+```json
+{
+  "maxRiskLevel": "MEDIUM",
+  "enforceInCI": true,
+  "blockOnFailure": true
 }
 ```

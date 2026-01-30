@@ -35,11 +35,20 @@ Edit `known-addresses.json` at the repository root:
 | Type | Description | Privacy Impact |
 |------|-------------|----------------|
 | `exchange` | Centralized exchanges (Binance, Coinbase, etc.) | **HIGH** - KYC linkage |
+| `fee-payer` | Fee payer / relay services (Tuktuk, Clockwork, Octane) | **HIGH** - Transaction visibility |
 | `bridge` | Cross-chain bridges (Wormhole, deBridge, etc.) | **MEDIUM** - Cross-chain correlation |
-| `protocol` | DeFi protocols (Jupiter, Raydium, etc.) | **INFO** - Usage fingerprinting |
+| `marketplace` | NFT marketplaces (Magic Eden, Tensor, etc.) | **MEDIUM** - Social profile linkage |
+| `protocol` | DeFi protocols (Jupiter, Raydium, etc.) | **LOW** - Usage fingerprinting |
+| `privacy` | Privacy-enhancing protocols (Arcium, Light Protocol) | **LOW** - Privacy tool usage visible |
+| `mixer` | Transaction mixing / tumbling services | **LOW** - Privacy tool usage visible |
+| `oracle` | Oracle providers (Pyth, Switchboard) | **LOW** - Protocol dependencies |
+| `validator` | Notable validators (Jito, Helius, etc.) | **LOW** - Staking preferences |
+| `gaming` | Gaming / entertainment protocols (Star Atlas, Aurory) | **LOW** - Behavioral patterns |
+| `wallet` | Wallet provider addresses (Phantom, Solflare) | **LOW** - Wallet usage |
 | `token` | Token mints (USDC, stablecoins, LSTs) | **INFO** - Asset tracking |
 | `mev` | MEV infrastructure (Jito tips, etc.) | **INFO** - MEV participation |
 | `program` | Core Solana programs | **INFO** - Standard operations |
+| `other` | Uncategorized known entities | **INFO** - General tracking |
 
 ## Submission Steps
 
@@ -104,12 +113,19 @@ For adding multiple related addresses (e.g., all Jito tip accounts), group them 
 - Widely-used DeFi protocols
 - MEV infrastructure
 - Major stablecoin mints
+- Fee payer / relay services (Tuktuk, Clockwork, Octane)
+- NFT marketplaces (Magic Eden, Tensor)
+- Privacy protocols (Arcium, Light Protocol)
+- Oracle providers (Pyth, Switchboard)
+- Notable validators
+- Gaming protocols with significant usage
 
 ❌ **Low-value additions:**
 - Individual user wallets (not entities)
 - Inactive/defunct protocols (unless historically significant)
 - Obscure tokens
 - Unverified addresses
+- Small validators with minimal delegation
 
 ## After Your PR
 

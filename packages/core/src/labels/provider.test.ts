@@ -3,10 +3,10 @@ import { StaticLabelProvider, createDefaultLabelProvider } from './provider.js';
 
 describe('Label Provider - Extended Database (v0.4.0)', () => {
   describe('Database Loading', () => {
-    it('should load all 78 addresses from the database', () => {
+    it('should load all addresses from the database', () => {
       const provider = createDefaultLabelProvider();
 
-      expect(provider.getCount()).toBe(78);
+      expect(provider.getCount()).toBe(104);
       console.log(`✓ Loaded ${provider.getCount()} addresses`);
     });
 

@@ -13,6 +13,7 @@ import {
   detectATALinkage,
   detectStakingDelegationPatterns,
   detectIdentityMetadataExposure,
+  detectLocationInference,
 } from '../heuristics/index.js';
 
 /**
@@ -39,6 +40,8 @@ const HEURISTICS = [
   detectStakingDelegationPatterns,
   // Timing analysis
   detectTimingPatterns,
+  // Location inference (requires more data)
+  detectLocationInference,
 ];
 
 /**

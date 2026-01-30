@@ -143,7 +143,7 @@ describe('Scanner - Report Generation', () => {
 
     it('should generate HIGH risk report for problematic wallet', () => {
       const now = Math.floor(Date.now() / 1000);
-      
+
       const context: ScanContext = {
         target: 'problematic-wallet',
         targetType: 'wallet',
@@ -162,6 +162,7 @@ describe('Scanner - Report Generation', () => {
         tokenAccounts: [],
         timeRange: { earliest: now, latest: now + 270 },
         transactionCount: 10,
+        programs: new Set(),
       };
 
       const report = generateReport(context);

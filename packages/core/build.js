@@ -52,6 +52,51 @@ async function build() {
       outfile: 'dist/matchers.cjs',
     });
 
+    // Narrative builds (separate entry point for browser import)
+    await esbuild.build({
+      ...baseConfig,
+      entryPoints: ['src/narrative.ts'],
+      format: 'esm',
+      outfile: 'dist/narrative.js',
+    });
+
+    await esbuild.build({
+      ...baseConfig,
+      entryPoints: ['src/narrative.ts'],
+      format: 'cjs',
+      outfile: 'dist/narrative.cjs',
+    });
+
+    // Normalizer builds (separate entry point for browser import)
+    await esbuild.build({
+      ...baseConfig,
+      entryPoints: ['src/normalizer.ts'],
+      format: 'esm',
+      outfile: 'dist/normalizer.js',
+    });
+
+    await esbuild.build({
+      ...baseConfig,
+      entryPoints: ['src/normalizer.ts'],
+      format: 'cjs',
+      outfile: 'dist/normalizer.cjs',
+    });
+
+    // Scanner builds (separate entry point for browser import)
+    await esbuild.build({
+      ...baseConfig,
+      entryPoints: ['src/scanner.ts'],
+      format: 'esm',
+      outfile: 'dist/scanner.js',
+    });
+
+    await esbuild.build({
+      ...baseConfig,
+      entryPoints: ['src/scanner.ts'],
+      format: 'cjs',
+      outfile: 'dist/scanner.cjs',
+    });
+
     // Copy static assets (JSON label file from repository root)
     // This allows the database to be updated via PRs without package releases
     copyFileSync('../../known-addresses.json', 'dist/known-addresses.json');

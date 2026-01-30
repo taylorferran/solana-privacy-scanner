@@ -14,8 +14,8 @@ This guide covers **publishing** the plugin so others can install it.
 - [x] Dependencies use published npm packages (not `file:` references)
   ```json
   "dependencies": {
-    "solana-privacy-scanner": "^0.5.1",
-    "solana-privacy-scanner-core": "^0.6.1"
+    "solana-privacy-scanner": "^0.6.0",
+    "solana-privacy-scanner-core": "^0.7.0"
   }
   ```
 

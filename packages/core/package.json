@@ -1,6 +1,6 @@
 {
   "name": "solana-privacy-scanner-core",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "type": "module",
   "description": "Core scanning engine for Solana privacy analysis - analyze on-chain privacy exposure using heuristic-based risk detection",
   "main": "./dist/index.cjs",
@@ -16,6 +16,21 @@
       "types": "./dist/matchers.d.ts",
       "import": "./dist/matchers.js",
       "require": "./dist/matchers.cjs"
+    },
+    "./narrative": {
+      "types": "./dist/narrative.d.ts",
+      "import": "./dist/narrative.js",
+      "require": "./dist/narrative.cjs"
+    },
+    "./normalizer": {
+      "types": "./dist/normalizer.d.ts",
+      "import": "./dist/normalizer.js",
+      "require": "./dist/normalizer.cjs"
+    },
+    "./scanner": {
+      "types": "./dist/scanner.d.ts",
+      "import": "./dist/scanner.js",
+      "require": "./dist/scanner.cjs"
     }
   },
   "files": [

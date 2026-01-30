@@ -19,6 +19,12 @@ export * from './scanner/index.js';
 // Export label provider
 export * from './labels/index.js';
 
+// Export nickname provider
+export * from './nicknames/index.js';
+
+// Export utilities
+export * from './utils/index.js';
+
 // Export constants (version only - RPC URL is internal)
 export { VERSION } from './constants.js';
 
@@ -30,3 +36,6 @@ export * from './simulator/index.js';
 
 // Export config (privacy policy management)
 export * from './config/index.js';
+
+// Export narrative generator
+export * from './narrative/index.js';

@@ -14,3 +14,4 @@ export { detectPriorityFeeFingerprinting } from './priority-fee-fingerprinting.j
 export { detectATALinkage } from './ata-linkage.js';
 export { detectStakingDelegationPatterns } from './staking-delegation.js';
 export { detectIdentityMetadataExposure } from './identity-metadata.js';
+export { detectLocationInference } from './location-inference.js';

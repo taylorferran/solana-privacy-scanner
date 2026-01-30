@@ -1,13 +1,22 @@
 /**
  * Types of known entities
  */
-export type LabelType = 
-  | 'exchange'
-  | 'bridge'
-  | 'protocol'
-  | 'program'
-  | 'mixer'
-  | 'other';
+export type LabelType =
+  | 'exchange'      // Centralized exchanges (CEX)
+  | 'bridge'        // Cross-chain bridges
+  | 'protocol'      // DeFi protocols (DEX, lending, staking)
+  | 'program'       // System/infrastructure programs
+  | 'token'         // Token mints
+  | 'mev'           // MEV infrastructure (Jito, etc.)
+  | 'mixer'         // Privacy/mixing protocols
+  | 'marketplace'   // NFT marketplaces
+  | 'fee-payer'     // Known fee payer/relay services
+  | 'validator'     // Notable validators
+  | 'privacy'       // Privacy-focused protocols
+  | 'gaming'        // Gaming/entertainment protocols
+  | 'oracle'        // Oracle providers
+  | 'wallet'        // Wallet provider addresses
+  | 'other';        // Uncategorized
 
 /**
  * A label for a known entity on Solana

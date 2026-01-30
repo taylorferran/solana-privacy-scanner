@@ -1,11 +1,13 @@
-import { writeFileSync } from 'fs';
+import { writeFileSync, existsSync } from 'fs';
 import {
   RPCClient,
   collectWalletData,
   normalizeWalletData,
   generateReport,
   createDefaultLabelProvider,
+  createFileNicknameProvider,
   type PrivacyReport,
+  type NicknameProvider,
 } from 'solana-privacy-scanner-core';
 import { formatReport } from '../formatter.js';
 
@@ -14,12 +16,46 @@ interface WalletOptions {
   json?: boolean;
   maxSignatures?: string;
   output?: string;
+  nicknames?: string;
+}
+
+/**
+ * Load nickname provider from file if specified
+ */
+function loadNicknames(path?: string): NicknameProvider | undefined {
+  if (!path) {
+    // Check environment variable
+    const envPath = process.env.PRIVACY_SCANNER_NICKNAMES;
+    if (envPath && existsSync(envPath)) {
+      console.error(`Loading nicknames from: ${envPath}`);
+      return createFileNicknameProvider(envPath);
+    }
+    return undefined;
+  }
+
+  if (!existsSync(path)) {
+    console.error(`Warning: Nicknames file not found: ${path}`);
+    console.error('Creating empty file for future use...');
+    // Create the file with empty store
+    const provider = createFileNicknameProvider(path);
+    return provider;
+  }
+
+  console.error(`Loading nicknames from: ${path}`);
+  return createFileNicknameProvider(path);
 }
 
 export async function scanWallet(address: string, options: WalletOptions) {
   try {
     console.error(`Scanning wallet: ${address}`);
     console.error('');
+
+    // Load nicknames if provided
+    const nicknames = loadNicknames(options.nicknames);
+    if (nicknames && nicknames.count() > 0) {
+      console.error(`Loaded ${nicknames.count()} address nicknames`);
+      console.error('');
+    }
 
     // Create RPC client (uses default RPC if not provided)
     const client = new RPCClient(
@@ -63,7 +99,7 @@ export async function scanWallet(address: string, options: WalletOptions) {
       }
     } else {
       // Disable colors when writing to file
-      const formatted = formatReport(report, !!options.output);
+      const formatted = formatReport(report, !!options.output, nicknames);
       if (options.output) {
         writeFileSync(options.output, formatted);
         console.error(`Report written to: ${options.output}`);

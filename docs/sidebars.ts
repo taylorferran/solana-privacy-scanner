@@ -19,6 +19,7 @@ const sidebars: SidebarsConfig = {
         'reports/heuristics',
         'reports/heuristic-internals',
         'reports/known-entities',
+        'reports/narrative',
       ],
     },
     {

@@ -13,6 +13,7 @@ export type {
   PDAInteraction,
 } from './context.js';
 export type { Label, LabelType, LabelProvider } from './label.js';
+export type { NicknameStore, NicknameProvider, DisplayAddressOptions } from './nickname.js';
 
 // Type aliases for convenience
 export type PrivacySignal = RiskSignal;

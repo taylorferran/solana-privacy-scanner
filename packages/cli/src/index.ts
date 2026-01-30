@@ -26,6 +26,7 @@ program
   .option('--json', 'Output as JSON', false)
   .option('--max-signatures <number>', 'Maximum number of signatures to fetch', '100')
   .option('--output <file>', 'Write output to file')
+  .option('--nicknames <file>', 'JSON file with address nicknames for readable output', process.env.PRIVACY_SCANNER_NICKNAMES)
   .action(scanWallet);
 
 // Transaction scan command

@@ -1,9 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './PrivacyScanner.module.css';
 import { BrowserRPCClient } from '../../utils/browser-rpc';
+import { createBrowserNicknameProvider, NicknameProvider, truncateAddress } from '../../utils/nickname-store';
+import NicknameManager from '../NicknameManager';
+import AddressDisplay from '../AddressDisplay';
 
 // Use default RPC endpoint
 const DEFAULT_RPC = 'https://late-hardworking-waterfall.solana-mainnet.quiknode.pro/4017b48acf3a2a1665603cac096822ce4bec3a90/';
+
+// Narrative types
+interface AdversaryNarrative {
+  introduction: string;
+  paragraphs: {
+    category: string;
+    title: string;
+    opening: string;
+    statements: {
+      signalId: string;
+      severity: 'LOW' | 'MEDIUM' | 'HIGH';
+      statement: string;
+      details: string[];
+    }[];
+    closing: string;
+  }[];
+  conclusion: string;
+  identifiabilityLevel: 'anonymous' | 'pseudonymous' | 'identifiable' | 'fully-identified';
+}
 
 // Create a browser-compatible label provider from loaded labels
 function createLabelProvider(labels: any[]) {
@@ -26,6 +48,7 @@ function createLabelProvider(labels: any[]) {
 
 interface Report {
   overallRisk: 'LOW' | 'MEDIUM' | 'HIGH';
+  target: string;
   summary: {
     transactionsAnalyzed: number;
   };
@@ -46,6 +69,8 @@ interface Signal {
 
 interface Evidence {
   description: string;
+  type?: string;
+  value?: string;
 }
 
 interface KnownEntity {
@@ -59,12 +84,25 @@ export default function PrivacyScanner() {
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<Report | null>(null);
+  const [narrative, setNarrative] = useState<AdversaryNarrative | null>(null);
+  const [narrativeExpanded, setNarrativeExpanded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [normalizeWalletData, setNormalizeWalletData] = useState<any>(null);
   const [generateReport, setGenerateReport] = useState<any>(null);
+  const [generateNarrative, setGenerateNarrative] = useState<any>(null);
   const [knownLabels, setKnownLabels] = useState<any[]>([]);
 
+  // Nickname management
+  const [nicknames, setNicknames] = useState<NicknameProvider | null>(null);
+  const [nicknameManagerOpen, setNicknameManagerOpen] = useState(false);
+  const [, forceUpdate] = useState(0); // Used to trigger re-render when nicknames change
+
   useEffect(() => {
+    // Initialize nickname provider (browser localStorage)
+    if (typeof window !== 'undefined') {
+      setNicknames(createBrowserNicknameProvider());
+    }
+
     // Dynamically import the scanner modules
     import('solana-privacy-scanner-core/normalizer')
       .then(module => setNormalizeWalletData(() => module.normalizeWalletData))
@@ -73,6 +111,11 @@ export default function PrivacyScanner() {
     import('solana-privacy-scanner-core/scanner')
       .then(module => setGenerateReport(() => module.generateReport))
       .catch(err => console.error('Failed to load scanner:', err));
+
+    // Import narrative generator
+    import('solana-privacy-scanner-core/narrative')
+      .then(module => setGenerateNarrative(() => module.generateNarrative))
+      .catch(err => console.error('Failed to load narrative:', err));
 
     // Load known addresses database (78+ addresses)
     fetch('/known-addresses.json')
@@ -84,24 +127,53 @@ export default function PrivacyScanner() {
       .catch(err => console.error('Failed to load known addresses:', err));
   }, []);
 
+  const labelProvider = createLabelProvider(knownLabels);
+
+  const handleNicknameChange = useCallback((addr: string, nickname: string | null) => {
+    if (!nicknames) return;
+    if (nickname) {
+      nicknames.set(addr, nickname);
+    } else {
+      nicknames.remove(addr);
+    }
+    forceUpdate(n => n + 1); // Trigger re-render
+  }, [nicknames]);
+
+  const handleNicknameUpdate = useCallback(() => {
+    forceUpdate(n => n + 1); // Trigger re-render when nicknames change
+  }, []);
+
+  // Helper to display an address with nickname/label priority
+  const displayAddr = useCallback((addr: string): string => {
+    const nickname = nicknames?.get(addr);
+    if (nickname) return `${nickname} (${truncateAddress(addr, 4)})`;
+
+    const label = labelProvider.lookup(addr);
+    if (label) return label.name;
+
+    return truncateAddress(addr, 4);
+  }, [nicknames, labelProvider]);
+
   const isValidAddress = address.length >= 32 && address.length <= 44;
   const canScan = isValidAddress && !loading && normalizeWalletData && generateReport;
 
   async function scanAddress() {
     if (!canScan) return;
-    
+
     setLoading(true);
     setError(null);
     setReport(null);
-    
+    setNarrative(null);
+    setNarrativeExpanded(false);
+
     try {
       const rpc = new BrowserRPCClient(DEFAULT_RPC);
       const addr = address.trim();
-      
+
       // Collect signatures (limit to 20 to avoid rate limits)
       const signaturesData = await rpc.getSignaturesForAddress(addr, { limit: 20 });
       const signatures = Array.isArray(signaturesData) ? signaturesData : [];
-      
+
       // Collect transactions with rate limiting (one at a time)
       const transactions = [];
       for (let i = 0; i < Math.min(signatures.length, 20); i++) {
@@ -124,9 +196,9 @@ export default function PrivacyScanner() {
           console.warn(`Failed to fetch transaction ${sig.signature}:`, err);
         }
       }
-      
+
       console.log('Successfully collected:', transactions.length, 'transactions');
-      
+
       // Create the RawWalletData structure
       const rawData = JSON.parse(JSON.stringify({
         address: addr,
@@ -134,17 +206,27 @@ export default function PrivacyScanner() {
         transactions: transactions,
         tokenAccounts: [],
       }));
-      
+
       // Create label provider with loaded known addresses
-      const labelProvider = createLabelProvider(knownLabels);
+      const scanLabelProvider = createLabelProvider(knownLabels);
 
       // Normalize data
-      const context = normalizeWalletData(rawData, labelProvider);
-      
+      const context = normalizeWalletData(rawData, scanLabelProvider);
+
       // Generate report
       const result = generateReport(context);
-      
+
       setReport(result);
+
+      // Generate narrative if available
+      if (generateNarrative && result) {
+        try {
+          const narrativeResult = generateNarrative(result, { includeLowSeverity: false });
+          setNarrative(narrativeResult);
+        } catch (err) {
+          console.warn('Failed to generate narrative:', err);
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to scan address');
       console.error('Scan error:', err);
@@ -154,7 +236,7 @@ export default function PrivacyScanner() {
   }
 
   const getRiskColor = (risk: string) => {
-    return risk === 'HIGH' ? '#ff3b30' 
+    return risk === 'HIGH' ? '#ff3b30'
       : risk === 'MEDIUM' ? '#ff9500'
       : '#34c759';
   };
@@ -171,7 +253,7 @@ export default function PrivacyScanner() {
         <h1>Solana Privacy Scanner</h1>
         <p className={styles.tagline}>Measure your on-chain privacy exposure</p>
         <p className={styles.poweredBy}>
-          ⚡ Powered by <a href="https://www.quicknode.com/" target="_blank" rel="noopener">QuickNode</a> as a public good
+          Powered by <a href="https://www.quicknode.com/" target="_blank" rel="noopener">QuickNode</a> as a public good
         </p>
         <p className={styles.description}>
           Enter a Solana wallet address to analyze privacy risks.
@@ -181,7 +263,16 @@ export default function PrivacyScanner() {
 
       <div className={styles.scannerInputs}>
         <div className={styles.inputGroup}>
-          <label>Wallet Address</label>
+          <div className={styles.inputLabelRow}>
+            <label>Wallet Address</label>
+            <button
+              onClick={() => setNicknameManagerOpen(true)}
+              className={styles.manageNicknamesButton}
+              type="button"
+            >
+              Manage Nicknames {nicknames && nicknames.count() > 0 && `(${nicknames.count()})`}
+            </button>
+          </div>
           <input
             value={address}
             onChange={(e) => setAddress(e.target.value)}
@@ -193,8 +284,8 @@ export default function PrivacyScanner() {
           <span className={styles.inputHint}>Enter any Solana wallet address to scan</span>
         </div>
 
-        <button 
-          onClick={scanAddress} 
+        <button
+          onClick={scanAddress}
           disabled={!canScan}
           className={loading ? styles.loading : ''}
         >
@@ -215,10 +306,71 @@ export default function PrivacyScanner() {
               {report.overallRisk} RISK
             </div>
             <p className={styles.riskSummary}>
-              {report.summary.transactionsAnalyzed} transactions analyzed •
+              {report.summary.transactionsAnalyzed} transactions analyzed
               {' '}{report.signals.length} {report.signals.length === 1 ? 'risk' : 'risks'} detected
             </p>
+            {report.target && (
+              <div className={styles.targetAddress}>
+                <AddressDisplay
+                  address={report.target}
+                  nicknames={nicknames}
+                  labels={labelProvider}
+                  onNicknameChange={handleNicknameChange}
+                  showExplorerLink={true}
+                />
+              </div>
+            )}
           </div>
+
+          {/* Adversary Narrative Section */}
+          {narrative && narrative.paragraphs.length > 0 && (
+            <div className={styles.narrativeSection}>
+              <div
+                className={styles.narrativeHeader}
+                onClick={() => setNarrativeExpanded(!narrativeExpanded)}
+              >
+                <h3>What Does the Observer Know?</h3>
+                <span className={styles.narrativeToggle}>
+                  {narrativeExpanded ? 'Hide' : 'Show'} Adversary Perspective
+                </span>
+              </div>
+
+              {narrativeExpanded && (
+                <div className={styles.narrativeContent}>
+                  <p className={styles.narrativeIntro}>{narrative.introduction}</p>
+
+                  {narrative.paragraphs.map((para, i) => (
+                    <div key={i} className={styles.narrativeParagraph}>
+                      <h4>{para.title}</h4>
+                      <p className={styles.narrativeOpening}>{para.opening}</p>
+
+                      {para.statements.map((stmt, j) => (
+                        <div key={j} className={styles.narrativeStatement}>
+                          <span
+                            className={styles.severityIcon}
+                            style={{ color: getSeverityColor(stmt.severity) }}
+                          >
+                            {stmt.severity === 'HIGH' ? '[!]' : stmt.severity === 'MEDIUM' ? '[~]' : '[.]'}
+                          </span>
+                          <span className={styles.statementText}>{stmt.statement}</span>
+                        </div>
+                      ))}
+
+                      <p className={styles.narrativeClosing}>{para.closing}</p>
+                    </div>
+                  ))}
+
+                  <div className={styles.narrativeConclusion}>
+                    <h4>Conclusion</h4>
+                    <p>{narrative.conclusion}</p>
+                    <div className={styles.identifiabilityBadge}>
+                      Identifiability Level: <strong>{narrative.identifiabilityLevel.toUpperCase()}</strong>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {report.knownEntities.length > 0 && (
             <div className={styles.knownEntities}>
@@ -229,6 +381,17 @@ export default function PrivacyScanner() {
                     <div className={styles.entityType}>{entity.type}</div>
                     <div className={styles.entityName}>{entity.name}</div>
                     <div className={styles.entityDesc}>{entity.description}</div>
+                    <div className={styles.entityAddress}>
+                      <AddressDisplay
+                        address={entity.address}
+                        nicknames={nicknames}
+                        labels={labelProvider}
+                        onNicknameChange={handleNicknameChange}
+                        showCopy={true}
+                        showEdit={true}
+                        showExplorerLink={true}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -247,7 +410,7 @@ export default function PrivacyScanner() {
                     </span>
                   </div>
                   <p className={styles.signalReason}>{signal.reason}</p>
-                  
+
                   <div className={styles.signalSection}>
                     <h5>Why This Matters</h5>
                     <p>{signal.impact}</p>
@@ -258,7 +421,18 @@ export default function PrivacyScanner() {
                       <h5>Evidence</h5>
                       <ul>
                         {signal.evidence.map((ev, j) => (
-                          <li key={j}>{ev.description}</li>
+                          <li key={j}>
+                            {ev.type === 'address' && ev.value ? (
+                              <AddressDisplay
+                                address={ev.value}
+                                nicknames={nicknames}
+                                labels={labelProvider}
+                                onNicknameChange={handleNicknameChange}
+                              />
+                            ) : (
+                              ev.description
+                            )}
+                          </li>
                         ))}
                       </ul>
                     </div>
@@ -277,7 +451,7 @@ export default function PrivacyScanner() {
             </div>
           ) : (
             <div className={styles.noRisks}>
-              <div className={styles.checkmark}>✓</div>
+              <div className={styles.checkmark}>+</div>
               <h3>No significant privacy risks detected</h3>
               <p>This wallet shows good privacy hygiene based on the analyzed transactions.</p>
             </div>
@@ -313,9 +487,19 @@ export default function PrivacyScanner() {
       )}
 
       <div className={styles.privacyNote}>
-        <p><strong>Privacy:</strong> All scanning happens in your browser. Your addresses are never sent to our servers.</p>
+        <p><strong>Privacy:</strong> All scanning happens in your browser. Your addresses and nicknames are never sent to our servers.</p>
         <p><strong>Infrastructure:</strong> Powered by <a href="https://www.quicknode.com/" target="_blank" rel="noopener">QuickNode</a> - Enterprise-grade Solana RPC infrastructure provided as a public good. Learn more about <a href="/docs/guide/quicknode">why QuickNode makes this tool better</a>.</p>
       </div>
+
+      {/* Nickname Manager Modal */}
+      {nicknames && (
+        <NicknameManager
+          nicknames={nicknames}
+          isOpen={nicknameManagerOpen}
+          onClose={() => setNicknameManagerOpen(false)}
+          onUpdate={handleNicknameUpdate}
+        />
+      )}
     </div>
   );
 }

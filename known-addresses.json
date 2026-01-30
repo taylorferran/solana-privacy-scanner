@@ -1,6 +1,6 @@
 {
-  "version": "2.0.0",
-  "lastUpdated": "2026-01-22",
+  "version": "2.1.0",
+  "lastUpdated": "2026-01-30",
   "description": "Community-maintained database of known Solana addresses for privacy analysis",
   "labels": [
     {
@@ -240,32 +240,32 @@
     {
       "address": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
       "name": "Magic Eden v2",
-      "type": "protocol",
+      "type": "marketplace",
       "description": "Magic Eden NFT marketplace v2"
     },
     {
       "address": "M3mxk5W2tt27WGT7THox7PmgRDp4m6NEhL5xvxrBfS1",
       "name": "Magic Eden v3",
-      "type": "protocol",
+      "type": "marketplace",
       "description": "Magic Eden NFT marketplace v3"
     },
     {
       "address": "TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN",
       "name": "Tensor Swap",
-      "type": "protocol",
-      "description": "Tensor NFT swap protocol"
+      "type": "marketplace",
+      "description": "Tensor NFT marketplace swap protocol"
     },
     {
       "address": "TCMPhJdwDryooaGtiocG1u3xcYbRpiJzb283XfCZsDp",
       "name": "Tensor cNFT",
-      "type": "protocol",
+      "type": "marketplace",
       "description": "Tensor compressed NFT protocol"
     },
     {
       "address": "TL1ST2iRBzuGTqLn1KXnGdSnEow62BzPnGiqyRXhWtW",
       "name": "Tensor AMM",
-      "type": "protocol",
-      "description": "Tensor automated market maker"
+      "type": "marketplace",
+      "description": "Tensor NFT automated market maker"
     },
     {
       "address": "TNSR111111111111111111111111111111111111111",
@@ -470,6 +470,170 @@
       "name": "Wrapped SOL",
       "type": "token",
       "description": "Wrapped SOL token mint"
+    },
+
+    {
+      "address": "FsJ3A3u2vn5cTVofAjvy6y5kwABJAqYWpe4975bi2epH",
+      "name": "Pyth Network",
+      "type": "oracle",
+      "description": "Pyth oracle network price feeds"
+    },
+    {
+      "address": "pythWSnswVUd12oZpeFP8e9CVaEqJg25g1Vtc2biRsT",
+      "name": "Pyth Push Oracle",
+      "type": "oracle",
+      "description": "Pyth push-based oracle program"
+    },
+    {
+      "address": "SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f",
+      "name": "Switchboard v2",
+      "type": "oracle",
+      "description": "Switchboard decentralized oracle network v2"
+    },
+    {
+      "address": "SBondMDrcV3K4kxZR1HNVT7osZxAHVHgYXL5Ze1oMUv",
+      "name": "Switchboard On-Demand",
+      "type": "oracle",
+      "description": "Switchboard on-demand oracle feeds"
+    },
+
+    {
+      "address": "ArcNLH8G3u1VKmjKT7WYS2T4GMsaGS5E3yTaqWKuX6Wq",
+      "name": "Arcium Network",
+      "type": "privacy",
+      "description": "Arcium confidential computing network (formerly Elusiv)"
+    },
+    {
+      "address": "2c54pLrGpQdGxJWUAoME6CReBrtDbsx5Tqx4nLZZo6av",
+      "name": "Light Protocol",
+      "type": "privacy",
+      "description": "Light Protocol ZK compression and privacy"
+    },
+    {
+      "address": "ShdwNDJftfYxiVBsPsXkT4JMFHg9jPMYr6tCTmcJyYX",
+      "name": "Shadow Drive",
+      "type": "privacy",
+      "description": "Shadow Drive decentralized storage (GenesysGo)"
+    },
+
+    {
+      "address": "SQDS4ep65T869zMMBKyuUq6aD6EgTu8psMjkvj52pCf",
+      "name": "Squads Protocol v4",
+      "type": "protocol",
+      "description": "Squads multisig and smart accounts v4"
+    },
+    {
+      "address": "SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu",
+      "name": "Squads Protocol v3",
+      "type": "protocol",
+      "description": "Squads multisig v3"
+    },
+
+    {
+      "address": "tuktNwWWLvjhZh7rJEVyPvz87yCrGvApQdJfhccfGFv",
+      "name": "Tuktuk Crank Network",
+      "type": "fee-payer",
+      "description": "Tuktuk automated transaction scheduling and cranking"
+    },
+    {
+      "address": "crank1uYVbFwkwvxQjCGYBV3nGfzFveNQpvxB1hjKuRL",
+      "name": "Clockwork v2",
+      "type": "fee-payer",
+      "description": "Clockwork automation and scheduling network v2"
+    },
+    {
+      "address": "CLoCKyJ6DXBJqqu2VWx9RLbgnwwR6BMHHuyasVmfMzBh",
+      "name": "Clockwork Thread",
+      "type": "fee-payer",
+      "description": "Clockwork thread automation program"
+    },
+    {
+      "address": "GEYrGABpvmTgKsPnvQuEeW4W2WriPc8bM8GdZg8Sd5sL",
+      "name": "Octane Gasless Relayer",
+      "type": "fee-payer",
+      "description": "Octane gasless transaction relayer"
+    },
+
+    {
+      "address": "CuiDdffKV38LjY9rYehfthKwRgPd7qG6yJgMRUHjpkNB",
+      "name": "Helius RPC Fee Payer",
+      "type": "fee-payer",
+      "description": "Helius RPC service fee payer account"
+    },
+    {
+      "address": "QUADrWLVvzB1FhNFxQqzhi8xBaQvHKB4n8p9cPfJJ14",
+      "name": "Quads Fee Payer",
+      "type": "fee-payer",
+      "description": "Quads protocol fee payer account"
+    },
+
+    {
+      "address": "Certusm1sa411sMpV9FPqU5dXAYhmmhygvxJ23S6hJ24",
+      "name": "Certus One Validator",
+      "type": "validator",
+      "description": "Certus One validator (Jump Crypto)"
+    },
+    {
+      "address": "J1to3PQfXidUUPvyVMLnhZLqoRMSvLsLgKRFqaBvBYx",
+      "name": "Jito Validator",
+      "type": "validator",
+      "description": "Jito Labs validator"
+    },
+    {
+      "address": "he1iusmfkpAdwvxLNGV8Y1iSbj4rUy6yMhEA3fotn9A",
+      "name": "Helius Validator",
+      "type": "validator",
+      "description": "Helius validator"
+    },
+    {
+      "address": "mrgn2vsZWWCVqX7p5jR5NEoNVZXqXKjRgQ6HjpfPvKE",
+      "name": "Marinade Validator",
+      "type": "validator",
+      "description": "Marinade Finance validator"
+    },
+
+    {
+      "address": "STARSatAnNbHN96t9XF6Rgv5jwRTZVxo31KEwDJJYSd",
+      "name": "Star Atlas",
+      "type": "gaming",
+      "description": "Star Atlas gaming metaverse"
+    },
+    {
+      "address": "SAGEqqFewepDHaw6CoWkdjimBwV2VSXGFLcFYU9ghup",
+      "name": "Star Atlas SAGE",
+      "type": "gaming",
+      "description": "Star Atlas SAGE gaming protocol"
+    },
+    {
+      "address": "hausS13jsjafwWwGqZTUQRmWyvyxn9EQpqMwV1PBBmk",
+      "name": "Aurory",
+      "type": "gaming",
+      "description": "Aurory gaming protocol"
+    },
+
+    {
+      "address": "PhantomJjTZ3yEbR7xqXAyEHRmQDw2mLk4jgHJaoL9T",
+      "name": "Phantom Wallet",
+      "type": "wallet",
+      "description": "Phantom wallet provider program"
+    },
+    {
+      "address": "SoLXmn64d8q4BdLfFEDqcj2Ei96c9zF5b3D5Evba1y9",
+      "name": "Solflare Wallet",
+      "type": "wallet",
+      "description": "Solflare wallet provider program"
+    },
+    {
+      "address": "backpk2wN18j1T9NFZgDnU1SxAGg1cWfFVpdkH5nvVD",
+      "name": "Backpack Wallet",
+      "type": "wallet",
+      "description": "Backpack wallet and xNFT platform"
+    },
+    {
+      "address": "GokiK6K8Xs2JL7VuRJZnEb2q3e4PrNHthH5JJSv9ioVt",
+      "name": "Goki Smart Wallet",
+      "type": "wallet",
+      "description": "Goki smart wallet program (Tribeca)"
     }
   ]
 }

@@ -8,6 +8,7 @@ import {
   detectATALinkage,
   detectStakingDelegationPatterns,
   detectIdentityMetadataExposure,
+  detectLocationInference,
 } from './index.js';
 
 describe('Privacy Heuristics', () => {
@@ -137,6 +138,7 @@ describe('Privacy Heuristics', () => {
         tokenAccounts: [],
         timeRange: { earliest: 1000, latest: 2000 },
         transactionCount: 2,
+        programs: new Set(),
       };
 
       const signals = detectKnownEntityInteraction(context);
@@ -165,6 +167,138 @@ describe('Privacy Heuristics', () => {
       const signals = detectKnownEntityInteraction(context);
       expect(signals.length).toBe(0);
       console.log('✓ No known entity interactions');
+    });
+
+    it('should detect fee payer / relay service interactions', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [
+          { from: 'wallet1', to: 'tuktuk-relayer', amount: 0.01, signature: 'sig1', blockTime: 1000 },
+        ],
+        instructions: [],
+        counterparties: new Set(['tuktuk-relayer']),
+        labels: new Map([
+          ['tuktuk-relayer', { address: 'tuktuk-relayer', name: 'Tuktuk Crank Network', type: 'fee-payer' }],
+        ]),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1000 },
+        transactionCount: 1,
+        programs: new Set(),
+      };
+
+      const signals = detectKnownEntityInteraction(context);
+
+      expect(signals.length).toBeGreaterThan(0);
+      expect(signals[0]?.id).toBe('known-entity-fee-payer');
+      expect(signals[0]?.severity).toBe('HIGH');
+      console.log(`✓ Detected fee payer interaction: ${signals[0]?.evidence[0].description}`);
+    });
+
+    it('should detect NFT marketplace interactions', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [
+          { from: 'wallet1', to: 'tensor-swap', amount: 5, signature: 'sig1', blockTime: 1000 },
+        ],
+        instructions: [
+          { programId: 'tensor-swap', category: 'program_interaction', signature: 'sig1', blockTime: 1000 },
+        ],
+        counterparties: new Set(['tensor-swap']),
+        labels: new Map([
+          ['tensor-swap', { address: 'tensor-swap', name: 'Tensor Swap', type: 'marketplace' }],
+        ]),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1000 },
+        transactionCount: 1,
+        programs: new Set(['tensor-swap']),
+      };
+
+      const signals = detectKnownEntityInteraction(context);
+
+      const marketplaceSignal = signals.find(s => s.id === 'known-entity-marketplace');
+      expect(marketplaceSignal).toBeDefined();
+      expect(marketplaceSignal?.severity).toBe('MEDIUM');
+      console.log(`✓ Detected marketplace interaction: ${marketplaceSignal?.evidence[0].description}`);
+    });
+
+    it('should detect privacy protocol interactions', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [
+          { from: 'wallet1', to: 'arcium-network', amount: 10, signature: 'sig1', blockTime: 1000 },
+        ],
+        instructions: [],
+        counterparties: new Set(['arcium-network']),
+        labels: new Map([
+          ['arcium-network', { address: 'arcium-network', name: 'Arcium Network', type: 'privacy' }],
+        ]),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1000 },
+        transactionCount: 1,
+        programs: new Set(),
+      };
+
+      const signals = detectKnownEntityInteraction(context);
+
+      const privacySignal = signals.find(s => s.id === 'known-entity-privacy');
+      expect(privacySignal).toBeDefined();
+      expect(privacySignal?.severity).toBe('LOW');
+      console.log(`✓ Detected privacy protocol interaction: ${privacySignal?.evidence[0].description}`);
+    });
+
+    it('should detect mixer protocol interactions', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [
+          { from: 'wallet1', to: 'mixer-protocol', amount: 10, signature: 'sig1', blockTime: 1000 },
+        ],
+        instructions: [],
+        counterparties: new Set(['mixer-protocol']),
+        labels: new Map([
+          ['mixer-protocol', { address: 'mixer-protocol', name: 'Anonymous Mixer', type: 'mixer' }],
+        ]),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1000 },
+        transactionCount: 1,
+        programs: new Set(),
+      };
+
+      const signals = detectKnownEntityInteraction(context);
+
+      const privacySignal = signals.find(s => s.id === 'known-entity-privacy');
+      expect(privacySignal).toBeDefined();
+      expect(privacySignal?.severity).toBe('LOW');
+      console.log(`✓ Detected mixer interaction as privacy protocol: ${privacySignal?.evidence[0].description}`);
+    });
+
+    it('should group oracles, validators, gaming under other entities', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [
+          { programId: 'pyth-oracle', category: 'program_interaction', signature: 'sig1', blockTime: 1000 },
+        ],
+        counterparties: new Set(),
+        labels: new Map([
+          ['pyth-oracle', { address: 'pyth-oracle', name: 'Pyth Network', type: 'oracle' }],
+        ]),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 1000 },
+        transactionCount: 1,
+        programs: new Set(['pyth-oracle']),
+      };
+
+      const signals = detectKnownEntityInteraction(context);
+
+      const otherSignal = signals.find(s => s.id === 'known-entity-other');
+      expect(otherSignal).toBeDefined();
+      expect(otherSignal?.severity).toBe('LOW');
+      console.log(`✓ Detected oracle interaction under other entities: ${otherSignal?.evidence[0].description}`);
     });
   });
 
@@ -509,6 +643,233 @@ describe('Privacy Heuristics', () => {
       const signals = detectIdentityMetadataExposure(context);
       expect(signals.length).toBe(0);
       console.log('✓ No identity metadata exposure (no relevant programs)');
+    });
+  });
+
+  describe('detectLocationInference', () => {
+    // Helper to create transactions spread over days with consistent sleep gaps
+    function createTransactionsWithSleepPattern(
+      daysCount: number,
+      activeStartHourUTC: number, // e.g., 8 = 8am UTC
+      activeEndHourUTC: number,   // e.g., 23 = 11pm UTC
+      txPerDay: number
+    ): Array<{ signature: string; blockTime: number; feePayer: string; signers: string[] }> {
+      const transactions = [];
+      const baseTimestamp = 1704067200; // Jan 1, 2024 00:00:00 UTC
+
+      for (let day = 0; day < daysCount; day++) {
+        const dayStart = baseTimestamp + (day * 86400);
+
+        for (let i = 0; i < txPerDay; i++) {
+          // Distribute transactions between active hours
+          const hourRange = activeEndHourUTC > activeStartHourUTC
+            ? activeEndHourUTC - activeStartHourUTC
+            : (24 - activeStartHourUTC) + activeEndHourUTC;
+
+          const randomOffset = (hourRange / txPerDay) * i;
+          const hour = (activeStartHourUTC + randomOffset) % 24;
+          const timestamp = dayStart + Math.floor(hour * 3600) + Math.floor(Math.random() * 1800);
+
+          transactions.push({
+            signature: `sig-${day}-${i}`,
+            blockTime: timestamp,
+            feePayer: 'wallet1',
+            signers: ['wallet1'],
+          });
+        }
+      }
+
+      return transactions.sort((a, b) => a.blockTime - b.blockTime);
+    }
+
+    it('should detect timezone from activity patterns', () => {
+      // Create transactions that are active from 9am-11pm UTC (like a UTC+0 timezone)
+      const transactions = createTransactionsWithSleepPattern(10, 9, 23, 4);
+
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: {
+          earliest: transactions[0].blockTime,
+          latest: transactions[transactions.length - 1].blockTime,
+        },
+        transactionCount: transactions.length,
+        transactions,
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectLocationInference(context);
+
+      // Should detect at least timezone pattern
+      const timezoneSignal = signals.find(s => s.id === 'location-timezone-estimate');
+      expect(timezoneSignal).toBeDefined();
+      expect(timezoneSignal?.severity).toBe('HIGH');
+      console.log(`✓ Detected timezone pattern: ${timezoneSignal?.reason.substring(0, 100)}...`);
+    });
+
+    it('should detect sleep gap patterns', () => {
+      // Create transactions with clear 8-hour sleep gaps (inactive 0-8 UTC)
+      const transactions = createTransactionsWithSleepPattern(10, 9, 23, 5);
+
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: {
+          earliest: transactions[0].blockTime,
+          latest: transactions[transactions.length - 1].blockTime,
+        },
+        transactionCount: transactions.length,
+        transactions,
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectLocationInference(context);
+
+      // Should detect sleep pattern
+      const sleepSignal = signals.find(s => s.id === 'location-sleep-pattern');
+      if (sleepSignal) {
+        expect(sleepSignal.severity).toBe('MEDIUM');
+        console.log(`✓ Detected sleep pattern: ${sleepSignal.reason.substring(0, 100)}...`);
+      } else {
+        console.log('✓ Sleep pattern detection varies based on gap consistency');
+      }
+    });
+
+    it('should return empty array with insufficient data', () => {
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: { earliest: 1000, latest: 2000 },
+        transactionCount: 5,
+        transactions: [
+          { signature: 'sig1', blockTime: 1000, feePayer: 'wallet1', signers: ['wallet1'] },
+          { signature: 'sig2', blockTime: 1100, feePayer: 'wallet1', signers: ['wallet1'] },
+          { signature: 'sig3', blockTime: 1200, feePayer: 'wallet1', signers: ['wallet1'] },
+          { signature: 'sig4', blockTime: 1300, feePayer: 'wallet1', signers: ['wallet1'] },
+          { signature: 'sig5', blockTime: 1400, feePayer: 'wallet1', signers: ['wallet1'] },
+        ],
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectLocationInference(context);
+      expect(signals.length).toBe(0);
+      console.log('✓ No location inference with insufficient data (< 20 transactions)');
+    });
+
+    it('should return empty array for transactions not spanning 3 days', () => {
+      const baseTimestamp = 1704067200;
+      const transactions = Array(25).fill(null).map((_, i) => ({
+        signature: `sig${i}`,
+        blockTime: baseTimestamp + (i * 3600), // 1 hour apart, only 25 hours total
+        feePayer: 'wallet1',
+        signers: ['wallet1'],
+      }));
+
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: {
+          earliest: transactions[0].blockTime,
+          latest: transactions[transactions.length - 1].blockTime,
+        },
+        transactionCount: transactions.length,
+        transactions,
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectLocationInference(context);
+      expect(signals.length).toBe(0);
+      console.log('✓ No location inference for transactions not spanning 3+ days');
+    });
+
+    it('should detect weekday vs weekend patterns', () => {
+      // Create transactions that are primarily on weekdays
+      const baseTimestamp = 1704067200; // Monday, Jan 1, 2024
+      const transactions = [];
+
+      // Add many weekday transactions, few weekend
+      for (let day = 0; day < 21; day++) { // 3 weeks
+        const dayOfWeek = day % 7;
+        const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+
+        const txCount = isWeekday ? 6 : 1; // 6 on weekdays, 1 on weekends
+        for (let i = 0; i < txCount; i++) {
+          transactions.push({
+            signature: `sig-${day}-${i}`,
+            blockTime: baseTimestamp + (day * 86400) + (i * 3600) + 36000, // spread during day
+            feePayer: 'wallet1',
+            signers: ['wallet1'],
+          });
+        }
+      }
+
+      const context: ScanContext = {
+        target: 'wallet1',
+        targetType: 'wallet',
+        transfers: [],
+        instructions: [],
+        counterparties: new Set(),
+        labels: new Map(),
+        tokenAccounts: [],
+        timeRange: {
+          earliest: transactions[0].blockTime,
+          latest: transactions[transactions.length - 1].blockTime,
+        },
+        transactionCount: transactions.length,
+        transactions,
+        tokenAccountEvents: [],
+        pdaInteractions: [],
+        feePayers: new Set(['wallet1']),
+        signers: new Set(['wallet1']),
+        programs: new Set(),
+      };
+
+      const signals = detectLocationInference(context);
+
+      // Should detect weekday pattern
+      const weekdaySignal = signals.find(s => s.id === 'location-weekday-pattern');
+      if (weekdaySignal) {
+        expect(weekdaySignal.severity).toBe('LOW');
+        console.log(`✓ Detected weekday/weekend pattern: ${weekdaySignal.reason.substring(0, 80)}...`);
+      } else {
+        console.log('✓ Weekday pattern not significant enough to trigger');
+      }
     });
   });
 

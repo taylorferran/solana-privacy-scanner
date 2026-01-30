@@ -69,4 +69,4 @@ Standard Solana infrastructure (informational only).
 
 ## Contributing
 
-Add addresses via PR to `known-addresses.json` at repository root. See [Contributing Addresses](/contributing/addresses).
+Add addresses via PR to `known-addresses.json` at repository root. See [Contributing Addresses](../contributing/addresses).

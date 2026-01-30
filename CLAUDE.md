@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Solana Privacy Scanner is a monorepo that analyzes Solana wallets, transactions, and programs using on-chain data to produce deterministic privacy risk reports. The scanner uses 13 heuristics to detect privacy leaks such as fee payer reuse, signer overlap, memo exposure, and behavioral patterns.
 
-**Current Version:** 0.6.1
+**Current Version:** 0.7.0
 
 ## Common Commands
 

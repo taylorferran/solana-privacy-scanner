@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styles from './PrivacyScanner.module.css';
 import { BrowserRPCClient } from '../../utils/browser-rpc';
 import { createBrowserNicknameProvider, NicknameProvider, truncateAddress } from '../../utils/nickname-store';
-import NicknameManager from '../NicknameManager';
 import AddressDisplay from '../AddressDisplay';
 
 // Use default RPC endpoint
@@ -94,7 +93,6 @@ export default function PrivacyScanner() {
 
   // Nickname management
   const [nicknames, setNicknames] = useState<NicknameProvider | null>(null);
-  const [nicknameManagerOpen, setNicknameManagerOpen] = useState(false);
   const [, forceUpdate] = useState(0); // Used to trigger re-render when nicknames change
 
   useEffect(() => {
@@ -138,10 +136,6 @@ export default function PrivacyScanner() {
     }
     forceUpdate(n => n + 1); // Trigger re-render
   }, [nicknames]);
-
-  const handleNicknameUpdate = useCallback(() => {
-    forceUpdate(n => n + 1); // Trigger re-render when nicknames change
-  }, []);
 
   // Helper to display an address with nickname/label priority
   const displayAddr = useCallback((addr: string): string => {
@@ -263,16 +257,7 @@ export default function PrivacyScanner() {
 
       <div className={styles.scannerInputs}>
         <div className={styles.inputGroup}>
-          <div className={styles.inputLabelRow}>
-            <label>Wallet Address</label>
-            <button
-              onClick={() => setNicknameManagerOpen(true)}
-              className={styles.manageNicknamesButton}
-              type="button"
-            >
-              Manage Nicknames {nicknames && nicknames.count() > 0 && `(${nicknames.count()})`}
-            </button>
-          </div>
+          <label>Wallet Address</label>
           <input
             value={address}
             onChange={(e) => setAddress(e.target.value)}
@@ -491,15 +476,6 @@ export default function PrivacyScanner() {
         <p><strong>Infrastructure:</strong> Powered by <a href="https://www.quicknode.com/" target="_blank" rel="noopener">QuickNode</a> - Enterprise-grade Solana RPC infrastructure provided as a public good. Learn more about <a href="/docs/guide/quicknode">why QuickNode makes this tool better</a>.</p>
       </div>
 
-      {/* Nickname Manager Modal */}
-      {nicknames && (
-        <NicknameManager
-          nicknames={nicknames}
-          isOpen={nicknameManagerOpen}
-          onClose={() => setNicknameManagerOpen(false)}
-          onUpdate={handleNicknameUpdate}
-        />
-      )}
     </div>
   );
 }

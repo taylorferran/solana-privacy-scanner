@@ -10,7 +10,7 @@ This page provides a comprehensive reference for AI coding assistants. Copy the 
 SOLANA PRIVACY SCANNER - LIBRARY INTEGRATION GUIDE
 
 LIBRARY: solana-privacy-scanner-core
-VERSION: 0.7.0
+VERSION: 0.7.1
 npm: npm install solana-privacy-scanner-core
 DOCUMENTATION: https://sps.guide/library/api-reference
 

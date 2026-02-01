@@ -1,5 +1,5 @@
 // Default RPC endpoint (encoded to discourage casual extraction)
-const _RPC_ENCODED = 'aHR0cHM6Ly9zZXJlbmUtcm91Z2gtcG9vbC5zb2xhbmEtbWFpbm5ldC5xdWlrbm9kZS5wcm8vYTliM2RkNGRkMzc0MzYwYzQzNzY4YzQyMTI2NmE2ZGNlZDU4MTI3Ny8=';
+const _RPC_ENCODED = 'aHR0cHM6Ly9sYXRlLWhhcmR3b3JraW5nLXdhdGVyZmFsbC5zb2xhbmEtbWFpbm5ldC5xdWlrbm9kZS5wcm8vNDAxN2I0OGFjZjNhMmExNjY1NjAzY2FjMDk2ODIyY2U0YmVjM2E5MC8=';
 const DEFAULT_RPC_URL = atob(_RPC_ENCODED);
 
 // Browser-compatible RPC client

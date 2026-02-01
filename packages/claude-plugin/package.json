@@ -1,6 +1,6 @@
 {
   "name": "solana-privacy-scanner-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Claude Code plugin for Solana privacy analysis",
   "type": "module",
   "main": "./dist/index.js",
@@ -45,8 +45,8 @@
     "url": "https://github.com/taylorferran/solana-privacy-scanner/issues"
   },
   "dependencies": {
-    "solana-privacy-scanner": "^0.4.0",
-    "solana-privacy-scanner-core": "^0.5.0"
+    "solana-privacy-scanner": "^0.6.1",
+    "solana-privacy-scanner-core": "^0.7.1"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

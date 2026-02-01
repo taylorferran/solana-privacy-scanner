@@ -9,7 +9,7 @@ An open source public good built with [QuickNode](https://www.quicknode.com/) to
 
 Analyzes wallets, transactions, and programs using public on-chain data and produces deterministic privacy risk reports. Zero configuration required.
 
-**Current Version:** `0.7.0` - [Changelog](./docs/changelog.md)
+**Current Version:** `0.7.1` - [Changelog](./docs/changelog.md)
 
 ---
 
